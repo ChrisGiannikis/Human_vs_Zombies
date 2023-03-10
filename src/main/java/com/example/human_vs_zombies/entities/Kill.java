@@ -13,10 +13,10 @@ public class Kill {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private int kill_id;
 
-    @Column
+    @Column(nullable = false)
     private double lat;
 
-    @Column
+    @Column(nullable = false)
     private double lng;
 
     @Column
@@ -24,6 +24,10 @@ public class Kill {
 
     @OneToOne
     @JoinColumn(name = "victim_id")
-    private Player player;
+    private Player victim;
+
+    @ManyToOne
+    @JoinColumn(name = "killer_id")
+    private Player killer;
 
 }

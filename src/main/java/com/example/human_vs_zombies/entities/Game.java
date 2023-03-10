@@ -43,4 +43,7 @@ public class Game {
 
     @OneToMany(mappedBy = "game")
     private Set<Mission> missions;
+
+    @OneToMany(mappedBy = "game")
+    private Set<Squad> squads;
 }

@@ -3,6 +3,8 @@ package com.example.human_vs_zombies.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Set;
+
 @Entity
 @Data
 public class Player {
@@ -28,7 +30,16 @@ public class Player {
     @JoinColumn(name = "game_id")
     private Game game;
 
+    @OneToOne(mappedBy = "victim")
+    private Kill death;
+
+    @OneToMany(mappedBy = "killer")
+    private Set<Kill> kills;
+
     @OneToOne(mappedBy = "player")
-    private Kill kill;
+    private SquadMember squadMember;
+
+    @OneToMany(mappedBy = "player")
+    private Set<Chat> chat;
 
 }
