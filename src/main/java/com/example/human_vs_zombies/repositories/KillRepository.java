@@ -8,4 +8,5 @@ import java.util.ArrayList;
 public interface KillRepository extends JpaRepository<Kill,Integer> {
         ArrayList<Kill> findAllKillsByGameId(int game_id);
 
+        Kill findKillByKillId(int kill_id);
 }
