@@ -28,6 +28,18 @@ public class PlayerServiceImpl implements PlayerService {
     public Player update(Player entity) { return playerRepository.save(entity); }
 
     @Override
+    public Player updatePlayerById(Player player, int id) {
+        //Make a new object of Player and find the player with the id we want to update
+        Player playerToUpdate = playerRepository.findById(id).get();
+        //Setting the attributes of the requested player as the attributes of the given player
+        playerToUpdate.set_human(player.is_human()); //passing the is_human attribute
+        playerToUpdate.set_patient_zero(player.is_patient_zero());  //passing the is_human attribute
+        player.setGame(player.getGame()); //passing the game attribute
+        player.setDeath(player.getDeath()); // passing the death attribute
+        return playerRepository.save(playerToUpdate); //saving the updated player object
+    }
+
+    @Override
     public void deleteById(Integer id) {
         //1) delete any foreign keys to be able to delete this Player
 
