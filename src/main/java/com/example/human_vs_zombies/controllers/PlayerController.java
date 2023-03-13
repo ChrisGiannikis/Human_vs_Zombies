@@ -1,5 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
+import com.example.human_vs_zombies.dto.PlayerAdminDTO;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.player.PlayerService;
@@ -15,11 +16,11 @@ import java.net.URISyntaxException;
 public class PlayerController {
 
     private final PlayerService playerService;
-//    private final PlayerMapper playerMapper;
+    private final PlayerMapper playerMapper;
 
-    public PlayerController(PlayerService playerService) {   //, PlayerMapper playerMapper) {
+    public PlayerController(PlayerService playerService, PlayerMapper playerMapper) {
         this.playerService = playerService;
-        //this.playerMapper = playerMapper;
+        this.playerMapper = playerMapper;
     }
 
     @GetMapping
@@ -28,7 +29,7 @@ public class PlayerController {
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) ) :
                 ResponseEntity.ok( playerMapper.playerToPlayerSimpleDTO(playerService.findAll()) ));*/
-        return ResponseEntity.ok( playerService.findAll() );
+        return ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) );
     }
 
     @GetMapping("{id}")
@@ -37,12 +38,14 @@ public class PlayerController {
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO( playerService.findById(id)) ) :
                 ResponseEntity.ok( playerMapper.playerToPlayerSimpleDTO(playerService.findById(id)) ));*/
-        return ResponseEntity.ok(playerService.findById(id));
+        return ResponseEntity.ok(playerMapper.playerToPlayerAdminDTO( playerService.findById(id)));
     }
 
     @PostMapping
-    public ResponseEntity addPlayer(@RequestBody Player player) throws URISyntaxException {
-        playerService.add(player); //adds a new player
+    public ResponseEntity addPlayer(@RequestBody PlayerAdminDTO player) throws URISyntaxException {
+        playerMapper.playerToPlayerAdminDTO(
+                playerService.add(
+                        playerMapper.playerAdminDTOtoPlayer(player)) ) ; //adds a new player
         URI uri = new URI("api/players/" + player.getPlayer_id());  //making a new uri with the new players id
         return ResponseEntity.created(uri).build();
     }

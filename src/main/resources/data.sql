@@ -58,6 +58,6 @@ INSERT INTO squad_check_in("end_time", "lat", "lng", "start_time", "squad_member
 INSERT INTO chat("chat_scope", "message", "player_id", "squad_id") VALUES('GLOBAL', 'Message to All by Human', 1, null);
 INSERT INTO chat("chat_scope", "message", "player_id", "squad_id") VALUES('FACTION', 'Message to Humans', 5, null);
 INSERT INTO chat("chat_scope", "message", "player_id", "squad_id") VALUES('SQUAD', 'Message to Human Squad', 1, 1);
-INSERT INTO chat("chat_scope", "message", "player_id", "squad_id") VALUES('GLOBA', 'Message to All by Zombie', 7, null);
+INSERT INTO chat("chat_scope", "message", "player_id", "squad_id") VALUES('GLOBAL', 'Message to All by Zombie', 7, null);
 INSERT INTO chat("chat_scope", "message", "player_id", "squad_id") VALUES('FACTION', 'Message to Zombies', 9, null);
 INSERT INTO chat("chat_scope", "message", "player_id", "squad_id") VALUES('SQUAD', 'Message to Zombie Squad', 7, 2);
