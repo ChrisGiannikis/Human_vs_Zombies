@@ -1,7 +1,7 @@
-package com.example.human_vs_zombies.api_04_Player.mappers;
+package com.example.human_vs_zombies.mappers;
 
-import com.example.human_vs_zombies.api_04_Player.dto.PlayerAdminDTO;
-import com.example.human_vs_zombies.api_04_Player.dto.PlayerSimpleDTO;
+import com.example.human_vs_zombies.dto.PlayerAdminDTO;
+import com.example.human_vs_zombies.dto.PlayerSimpleDTO;
 import com.example.human_vs_zombies.entities.Player;
 import org.mapstruct.Mapper;
 

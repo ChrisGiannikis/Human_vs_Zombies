@@ -1,6 +1,6 @@
-package com.example.human_vs_zombies.api_04_Player.services;
+package com.example.human_vs_zombies.services.player;
 
-import com.example.human_vs_zombies.api_04_Player.repositories.PlayerRepository;
+import com.example.human_vs_zombies.repositories.PlayerRepository;
 import com.example.human_vs_zombies.entities.Player;
 import org.springframework.stereotype.Service;
 

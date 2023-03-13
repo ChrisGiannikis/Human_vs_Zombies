@@ -1,4 +1,4 @@
-package com.example.human_vs_zombies.api_04_Player.repositories;
+package com.example.human_vs_zombies.repositories;
 
 import com.example.human_vs_zombies.entities.Player;
 import org.springframework.data.jpa.repository.JpaRepository;

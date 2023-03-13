@@ -1,7 +1,7 @@
-package com.example.human_vs_zombies.api_04_Player.controllers;
+package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.api_04_Player.mappers.PlayerMapper;
-import com.example.human_vs_zombies.api_04_Player.services.PlayerService;
+import com.example.human_vs_zombies.mappers.PlayerMapper;
+import com.example.human_vs_zombies.services.player.PlayerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
