@@ -4,7 +4,6 @@ import com.example.human_vs_zombies.dto.PlayerAdminDTO;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.player.PlayerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,17 +31,17 @@ public class PlayerController {
         return ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) );
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity findById(@PathVariable int id, Boolean is_administrator){
+    @GetMapping("{player_id}")
+    public ResponseEntity findById(@PathVariable int player_id, Boolean is_administrator){
        /* //if request has been from admin use the playerToPlayerAdminDTO else use the playerToPlayerSimpleDTO
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO( playerService.findById(id)) ) :
                 ResponseEntity.ok( playerMapper.playerToPlayerSimpleDTO(playerService.findById(id)) ));*/
-        return ResponseEntity.ok(playerMapper.playerToPlayerAdminDTO( playerService.findById(id)));
+        return ResponseEntity.ok(playerMapper.playerToPlayerAdminDTO( playerService.findById(player_id)));
     }
 
     @PostMapping
-    public ResponseEntity addPlayer(@RequestBody PlayerAdminDTO player) throws URISyntaxException {
+    public ResponseEntity createPlayer(@RequestBody PlayerAdminDTO player) throws URISyntaxException {
         playerMapper.playerToPlayerAdminDTO(
                 playerService.add(
                         playerMapper.playerAdminDTOtoPlayer(player)) ) ; //adds a new player
@@ -50,17 +49,17 @@ public class PlayerController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity updatePlayerById(@RequestBody Player player, @PathVariable int id){
-        if (id != player.getPlayer_id())  //checking if the given id is same with the given id
+    @PostMapping("{player_id}")
+    public ResponseEntity updatePlayerById(@RequestBody Player player, @PathVariable int player_id){
+        if (player_id != player.getPlayer_id())  //checking if the given id is not name as the given player id
             return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
-        playerService.updatePlayerById(player,id);
+        playerMapper.playerToPlayerAdminDTO( playerService.update(player) ); //ids are same so call the update
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity deletePlayerById(@PathVariable int id){
-        playerService.deleteById(id);
+    @DeleteMapping("{player_id}")
+    public ResponseEntity deletePlayerById(@PathVariable int player_id){
+        playerService.deleteById(player_id);
         return ResponseEntity.ok("Player deleted successfully!");
     }
 }
