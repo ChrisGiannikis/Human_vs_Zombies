@@ -1,6 +1,7 @@
 package com.example.human_vs_zombies.services.mission;
 
 import com.example.human_vs_zombies.entities.Mission;
+import com.example.human_vs_zombies.exceptions.MissionNotFoundException;
 import com.example.human_vs_zombies.repositories.MissionRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ public class MissionServiceImpl implements MissionService {
     public MissionServiceImpl(MissionRepository missionRepository) { this.missionRepository = missionRepository; }
 
     @Override
-    public Mission findById(Integer id) { return missionRepository.findById(id).get(); }
+    public Mission findById(Integer id) { return missionRepository.findById(id).orElseThrow(() -> new MissionNotFoundException(id)); }
 
     @Override
     public Collection<Mission> findAll() { return missionRepository.findAll(); }

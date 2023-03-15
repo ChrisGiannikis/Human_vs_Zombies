@@ -1,5 +1,6 @@
 package com.example.human_vs_zombies.services.player;
 
+import com.example.human_vs_zombies.exceptions.PlayerNotFoundException;
 import com.example.human_vs_zombies.repositories.PlayerRepository;
 import com.example.human_vs_zombies.entities.Player;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player findById(Integer id) { return playerRepository.findById(id).get(); }
+    public Player findById(Integer id) { return playerRepository.findById(id).orElseThrow(() -> new PlayerNotFoundException(id)); }
 
     @Override
     public Collection<Player> findAll() { return playerRepository.findAll(); }

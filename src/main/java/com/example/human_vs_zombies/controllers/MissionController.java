@@ -1,6 +1,7 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
+import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
 import com.example.human_vs_zombies.entities.Mission;
 import com.example.human_vs_zombies.mappers.MissionMapper;
 import com.example.human_vs_zombies.services.mission.MissionService;
@@ -42,12 +43,12 @@ public class MissionController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PostMapping("{mission_id}")
-    public ResponseEntity updateMission(@RequestBody MissionPostDTO mission, @PathVariable int mission_id){
+    @PutMapping("{mission_id}")
+    public ResponseEntity updateMission(@RequestBody MissionPutDTO mission, @PathVariable int mission_id){
         //Admin only
         if(mission_id != mission.getMission_id()) //if the given id is not name as the given mission id
             return ResponseEntity.badRequest().build(); // they are different and returns bad request response
-        missionService.update( missionMapper.missionPostDTOToMission(mission) ); // ids are same so call the update
+        missionService.update( missionMapper.missionPutDTOToMission(mission) ); // ids are same so call the update
         return ResponseEntity.noContent().build();
     }
 
