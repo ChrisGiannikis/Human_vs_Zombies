@@ -47,7 +47,7 @@ public class PlayerController {
         return ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) );
     }
 
-    @Operation(summary = "Finds a player with the given id.")
+    @Operation(summary = "Finds the player with the given id.")
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content( mediaType = "application/json",
@@ -70,7 +70,7 @@ public class PlayerController {
     @ApiResponses( value = {
             @ApiResponse( responseCode = "201", description = "Player created", content = { @Content }),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
-            @ApiResponse( responseCode = "404", description = "Character not found", content = { @Content })
+            @ApiResponse( responseCode = "404", description = "Player not found", content = { @Content })
     })
     @PostMapping
     public ResponseEntity createPlayer(@RequestBody PlayerPostDTO player) throws URISyntaxException {
@@ -80,6 +80,11 @@ public class PlayerController {
     }
 
     @Operation(summary = "Updates the player with the given id.")
+    @ApiResponses( value = {
+            @ApiResponse( responseCode = "204", description = "Player updated", content = { @Content }),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
+            @ApiResponse( responseCode = "404", description = "Player not found", content = { @Content })
+    })
     @PutMapping("{player_id}")
     public ResponseEntity updatePlayerById(@RequestBody PlayerPutDTO player, @PathVariable int player_id){
         if (player_id != player.getPlayer_id())  //checking if the given id is not name as the given player id
