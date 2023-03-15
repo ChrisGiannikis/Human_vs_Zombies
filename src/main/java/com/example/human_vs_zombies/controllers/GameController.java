@@ -28,7 +28,7 @@ public class GameController {
         return ResponseEntity.ok(gameDTOS);
     }
 
-    @GetMapping("{id}")//GET: localhost:8080/api/vi/games/id
+    @GetMapping("{id}")//GET: localhost:8080/api/v1/games/id
     public ResponseEntity<GameDTO> getById(@PathVariable int id){
         GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(id));
         return ResponseEntity.ok(gameDTO);
