@@ -1,6 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.PlayerAdminDTO;
+import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.player.PlayerService;
@@ -41,19 +41,17 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity createPlayer(@RequestBody PlayerAdminDTO player) throws URISyntaxException {
-        playerMapper.playerToPlayerAdminDTO(
-                playerService.add(
-                        playerMapper.playerAdminDTOtoPlayer(player)) ) ; //adds a new player
+    public ResponseEntity createPlayer(@RequestBody PlayerPostDTO player) throws URISyntaxException {
+        playerService.add( playerMapper.playerPostDTOtoPlayer(player) ) ; //adds a new player
         URI uri = new URI("api/players/" + player.getPlayer_id());  //making a new uri with the new players id
         return ResponseEntity.created(uri).build();
     }
 
     @PostMapping("{player_id}")
-    public ResponseEntity updatePlayerById(@RequestBody Player player, @PathVariable int player_id){
+    public ResponseEntity updatePlayerById(@RequestBody PlayerPostDTO player, @PathVariable int player_id){
         if (player_id != player.getPlayer_id())  //checking if the given id is not name as the given player id
             return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
-        playerMapper.playerToPlayerAdminDTO( playerService.update(player) ); //ids are same so call the update
+        playerService.update( playerMapper.playerPostDTOtoPlayer(player) ); //ids are same so call the update
         return ResponseEntity.noContent().build();
     }
 

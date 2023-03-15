@@ -1,4 +1,4 @@
-package com.example.human_vs_zombies.dto;
+package com.example.human_vs_zombies.dto.mission;
 
 import com.example.human_vs_zombies.entities.Game;
 import lombok.Getter;

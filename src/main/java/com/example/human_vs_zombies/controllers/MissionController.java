@@ -1,5 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
+import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
 import com.example.human_vs_zombies.entities.Mission;
 import com.example.human_vs_zombies.mappers.MissionMapper;
 import com.example.human_vs_zombies.services.mission.MissionService;
@@ -24,29 +25,29 @@ public class MissionController {
     @GetMapping
     public ResponseEntity findAll(){
         //check for missions that belongs to the faction of the requested user
-        return ResponseEntity.ok( missionMapper.missonToMissionDTO( missionService.findAll() ) );
+        return ResponseEntity.ok( missionMapper.missionToMissionDTO( missionService.findAll() ) );
     }
 
     @GetMapping("{mission_id}")
     public ResponseEntity findById(@PathVariable int mission_id){
         //check for faction, if a player request a mission of another faction return 403 Forbidden
-        return ResponseEntity.ok( missionMapper.missonToMissionDTO( missionService.findById(mission_id) ) );
+        return ResponseEntity.ok( missionMapper.missionToMissionDTO( missionService.findById(mission_id) ) );
     }
 
     @PostMapping
-    public ResponseEntity createMission(@RequestBody Mission mission) throws URISyntaxException {
+    public ResponseEntity createMission(@RequestBody MissionPostDTO mission) throws URISyntaxException {
         //Admin only
-        missionService.add(mission); //adds the given new mission
+        missionService.add( missionMapper.missionPostDTOToMission(mission) ); //adds the given new mission
         URI uri = new URI("api/missions" + mission.getMission_id()); //creating a new uri for the new mission
         return ResponseEntity.created(uri).build();
     }
 
     @PostMapping("{mission_id}")
-    public ResponseEntity updateMission(@RequestBody Mission mission, @PathVariable int mission_id){
+    public ResponseEntity updateMission(@RequestBody MissionPostDTO mission, @PathVariable int mission_id){
         //Admin only
         if(mission_id != mission.getMission_id()) //if the given id is not name as the given mission id
             return ResponseEntity.badRequest().build(); // they are different and returns bad request response
-        missionMapper.missonToMissionDTO(  missionService.update(mission) ); // ids are same so call the update
+        missionService.update( missionMapper.missionPostDTOToMission(mission) ); // ids are same so call the update
         return ResponseEntity.noContent().build();
     }
 
