@@ -20,6 +20,6 @@ public class KillPostDTO {
     private String biteCode;
     private ZonedDateTime time_of_death;
 
-    //private Game game;
+    private Integer game;
 
 }

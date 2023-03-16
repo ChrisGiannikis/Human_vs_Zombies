@@ -2,8 +2,6 @@ package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.kill.KillPostDTO;
-import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
-import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.mappers.KillMapper;
 import com.example.human_vs_zombies.services.game.GameService;
@@ -18,6 +16,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+
 import static java.util.Objects.isNull;
 
 @RestController
@@ -44,7 +45,6 @@ public class KillController {
                     content = {@Content( mediaType = "application/json",
                             array = @ArraySchema( schema = @Schema(implementation = KillDTO.class)))})
     })
-
 
 
 
@@ -83,9 +83,11 @@ public class KillController {
             @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
     })
     @PostMapping("/kill")
-    public ResponseEntity createKill(@RequestBody Kill kill){
+    public ResponseEntity createKill(@RequestBody KillPostDTO killPostDTO){
 
-        return ResponseEntity.ok(killService.add(killMapper.killToKillPostDTO(kill)));
+        Kill newKill = killService.add(killMapper.KillPostDTOToKill(killPostDTO));
+        URI location = URI.create( "/kill/" + newKill.getKill_id());
+        return ResponseEntity.created(location).build();
 
     }
 
@@ -100,9 +102,8 @@ public class KillController {
     })
     @PutMapping("/kill/{kill_id}")
     public ResponseEntity updateKill(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
-        Kill kill = killMapper.killDTOToKill(killDTO);
-        KillDTO updatedDTO = killMapper.killToKillDTO(killService.update(kill));
-        return ResponseEntity.ok(updatedDTO);
+         killService.update(killMapper.killDTOToKill(killDTO));
+        return ResponseEntity.noContent().build();
 
 
     }
