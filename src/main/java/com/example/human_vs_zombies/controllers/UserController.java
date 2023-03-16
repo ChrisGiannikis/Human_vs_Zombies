@@ -39,7 +39,7 @@ public class UserController {
                     content = {@Content( mediaType = "application/json",
                             array = @ArraySchema( schema = @Schema(implementation = PlayerAdminDTO.class)))})
     })
-    @GetMapping
+    @GetMapping//GET: localhost:8080/api/users
     public ResponseEntity findAll(){
         return ResponseEntity.ok( userMapper.UserToUserDTO( userService.findAll()));
     }
@@ -54,7 +54,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))
     })
-    @GetMapping("{user_id}")
+    @GetMapping("{user_id}")//GET: localhost:8080/api/users/id
     public ResponseEntity findById(@PathVariable int user_id){
         return ResponseEntity.ok( userMapper.UserToUserDTO( userService.findById(user_id)));
     }
@@ -65,7 +65,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
             @ApiResponse( responseCode = "404", description = "User not found", content = { @Content })
     })
-    @PostMapping
+    @PostMapping//POST: localhost:8080/api/users
     public ResponseEntity createUser(@RequestBody UserPostDTO user) throws URISyntaxException {
         userService.add( userMapper.UserPostDTOToUser(user));
         URI uri = new URI("api/users" + user.getUser_id());
@@ -78,7 +78,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
             @ApiResponse( responseCode = "404", description = "User not found", content = { @Content })
     })
-    @PutMapping("{user_id}")
+    @PutMapping("{user_id}")//PUT: localhost:8080/api/users/id
     public ResponseEntity updateUserById(@RequestBody UserPutDTO user, @PathVariable int user_id){
         if (user_id != user.getUser_id())  //checking if the given id is not name as the given player id
             return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
@@ -94,7 +94,7 @@ public class UserController {
             @ApiResponse( responseCode = "404", description = "User with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
-    @DeleteMapping("{user_id}")
+    @DeleteMapping("{user_id}")//DELETE: localhost:8080/api/users/id
     public ResponseEntity deleteUserById(@PathVariable int user_id){
         //check for foreign keys
         //check if player exists

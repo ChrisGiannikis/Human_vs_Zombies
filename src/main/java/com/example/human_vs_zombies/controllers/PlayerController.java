@@ -37,7 +37,7 @@ public class PlayerController {
                             content = {@Content( mediaType = "application/json",
                                 array = @ArraySchema( schema = @Schema(implementation = PlayerAdminDTO.class)))})
     })
-    @GetMapping
+    @GetMapping//GET: localhost:8080/api/players
     public ResponseEntity findAll(Boolean is_administrator){
         /*//if request has been from admin use the playerToPlayerAdminDTO else use the playerToPlayerSimpleDTO
         return (ResponseEntity) (is_administrator ?
@@ -56,7 +56,7 @@ public class PlayerController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))
     })
-    @GetMapping("{player_id}")
+    @GetMapping("{player_id}")//GET: localhost:8080/api/players/id
     public ResponseEntity findById(@PathVariable int player_id, Boolean is_administrator){
        /* //if request has been from admin use the playerToPlayerAdminDTO else use the playerToPlayerSimpleDTO
         return (ResponseEntity) (is_administrator ?
@@ -71,7 +71,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
             @ApiResponse( responseCode = "404", description = "Player not found", content = { @Content })
     })
-    @PostMapping
+    @PostMapping//POST: localhost:8080/api/players
     public ResponseEntity createPlayer(@RequestBody PlayerPostDTO player) throws URISyntaxException {
         playerService.add( playerMapper.playerPostDTOtoPlayer(player) ) ; //adds a new player
         URI uri = new URI("api/players/" + player.getPlayer_id());  //making a new uri with the new players id
@@ -84,7 +84,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
             @ApiResponse( responseCode = "404", description = "Player not found", content = { @Content })
     })
-    @PutMapping("{player_id}")
+    @PutMapping("{player_id}")//PUT: localhost:8080/api/players/id
     public ResponseEntity updatePlayerById(@RequestBody PlayerPutDTO player, @PathVariable int player_id){
         if (player_id != player.getPlayer_id())  //checking if the given id is not name as the given player id
             return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
@@ -102,7 +102,7 @@ public class PlayerController {
                     description = "Player with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
-    @DeleteMapping("{player_id}")
+    @DeleteMapping("{player_id}")//DELETE: localhost:8080/api/players/id
     public ResponseEntity deletePlayerById(@PathVariable int player_id){
         //check for foreign keys
         //firstly check if player exists
