@@ -4,7 +4,6 @@ import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
 import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
 import com.example.human_vs_zombies.dto.player.PlayerPutDTO;
 import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
-import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
