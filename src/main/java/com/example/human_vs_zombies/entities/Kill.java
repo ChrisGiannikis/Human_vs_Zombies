@@ -32,4 +32,9 @@ public class Kill {
     @ManyToOne
     @JoinColumn(name = "killer_id")
     private Player killer;
+
+    @ManyToOne
+    @JoinColumn(name=  "game_id")
+    private Game game;
+
 }
