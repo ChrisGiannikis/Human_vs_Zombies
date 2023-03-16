@@ -22,27 +22,27 @@ public class SquadController {
     }
 
     @GetMapping//GET: localhost:8080/api/v1/squads
-    public ResponseEntity<Collection<SquadDTO>> getAll(){
+    public ResponseEntity<Collection<SquadDTO>> getAll() {
         Collection<SquadDTO> squadDTOS = squadMapper.squadToSquadDto(squadService.findAll());
         return ResponseEntity.ok(squadDTOS);
     }
 
     @GetMapping("{id}")//GET: localhost:8080/api/v1/squads/id
-    public ResponseEntity<SquadDTO> getById(@PathVariable int id){
+    public ResponseEntity<SquadDTO> getById(@PathVariable int id) {
         SquadDTO squadDTO = squadMapper.squadToSquadDto(squadService.findById(id));
         return ResponseEntity.ok(squadDTO);
     }
 
     @PostMapping//POST: localhost:8080/api/v1/squads
-    public ResponseEntity<SquadDTO> add(@RequestBody SquadDTO squadDTO){
+    public ResponseEntity<SquadDTO> add(@RequestBody SquadDTO squadDTO) {
         squadService.add(squadMapper.squadDtoToSquad(squadDTO));
         URI location = URI.create("squads/" + squadDTO.getSquad_id());
         return ResponseEntity.created(location).build();
     }
 
     @PutMapping({"id"})//PUT: localhost:8080/api/v1/squads/id
-    public ResponseEntity<SquadDTO> update(@RequestBody SquadDTO squadDTO, @PathVariable int id){
-        if(id!=squadDTO.getSquad_id()){
+    public ResponseEntity<SquadDTO> update(@RequestBody SquadDTO squadDTO, @PathVariable int id) {
+        if (id != squadDTO.getSquad_id()) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -52,7 +52,7 @@ public class SquadController {
     }
 
     @DeleteMapping({"id"})//DELETE: localhost:8080/api/v1/games/id
-    public ResponseEntity<SquadDTO> delete(@PathVariable int id){
+    public ResponseEntity<SquadDTO> delete(@PathVariable int id) {
         //ISN'T WORKING YET!! squadService.deleteById() is empty!!
         squadService.deleteById(id);
         return ResponseEntity.noContent().build();

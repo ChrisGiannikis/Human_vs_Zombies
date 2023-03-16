@@ -1,4 +1,4 @@
-package com.example.human_vs_zombies.dto;
+package com.example.human_vs_zombies.dto.player;
 
 import com.example.human_vs_zombies.entities.AppUser;
 import com.example.human_vs_zombies.entities.Kill;

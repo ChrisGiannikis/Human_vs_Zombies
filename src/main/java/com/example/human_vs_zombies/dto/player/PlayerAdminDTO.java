@@ -1,4 +1,4 @@
-package com.example.human_vs_zombies.dto;
+package com.example.human_vs_zombies.dto.player;
 
 import com.example.human_vs_zombies.entities.*;
 import lombok.Getter;
@@ -14,10 +14,10 @@ public class PlayerAdminDTO {
     private String biteCode;
     private boolean is_human;
     private boolean is_patient_zero;
-    private AppUser user;
-    private Game game;
-    private Kill death;
-    private Set<Kill> kills; //maybe Set<Integer> to keep only a counter for kills
-    private SquadMember squadMember;
-    private Set<Chat> chat;
+//    private AppUser user;
+//    private Game game;
+//    private Kill death;
+//    private Set<Kill> kills; //maybe Set<Integer> to keep only a counter for kills
+//    private SquadMember squadMember;
+//    private Set<Chat> chat;
 }
