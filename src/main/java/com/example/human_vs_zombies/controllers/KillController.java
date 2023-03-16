@@ -101,8 +101,15 @@ public class KillController {
             @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
     })
     @PutMapping("/kill/{kill_id}")
-    public ResponseEntity updateKill(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
-         killService.update(killMapper.killDTOToKill(killDTO));
+    public ResponseEntity updateKillById(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
+        Kill kill = killService.findById(id);
+        killDTO.setId(id);
+        killDTO.setLng(kill.getLng());
+        killDTO.setLat(kill.getLat());
+        killDTO.setKiller(kill.getKiller());
+        killDTO.setVictim(kill.getVictim());
+        killDTO.setTime_of_death(kill.getTime_of_death());
+        killService.updateKillById(killMapper.killDTOToKill(killDTO),id);
         return ResponseEntity.noContent().build();
 
 

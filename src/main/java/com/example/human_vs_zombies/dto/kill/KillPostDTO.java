@@ -14,8 +14,8 @@ public class KillPostDTO {
     private double lat;
     private double lng;
 
-    //private Player victim;
-    //private Player killer;
+    private Player victim;
+    private Player killer;
 
     private String biteCode;
     private ZonedDateTime time_of_death;

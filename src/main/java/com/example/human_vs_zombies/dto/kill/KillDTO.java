@@ -14,8 +14,8 @@ public class KillDTO {
     private double lng;
 
 
-    //private Player killer;
-  //  private Player victim;
+    private Player killer;
+    private Player victim;
     private Integer game;
 
     private ZonedDateTime time_of_death;
