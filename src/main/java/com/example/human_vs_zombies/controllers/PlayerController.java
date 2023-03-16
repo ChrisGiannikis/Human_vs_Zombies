@@ -44,7 +44,7 @@ public class PlayerController {
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) ) :
                 ResponseEntity.ok( playerMapper.playerToPlayerSimpleDTO(playerService.findAll()) ));*/
-        return ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) );
+        return ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO( playerService.findAll()));
     }
 
     @Operation(summary = "Finds the player with the given id.")
