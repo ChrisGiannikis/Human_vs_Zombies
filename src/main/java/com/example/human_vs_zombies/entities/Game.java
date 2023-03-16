@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Set;
-
 @Entity
 @Data
 public class Game {
@@ -46,4 +45,9 @@ public class Game {
 
     @OneToMany(mappedBy = "game")
     private Set<Squad> squads;
+
+    @Override
+    public String toString(){
+        return name + " " + description + " " + rules + " " + nw_lat + " " + nw_lng + " " + se_lat + " " + se_lng;
+    }
 }

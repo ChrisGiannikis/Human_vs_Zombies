@@ -1,11 +1,9 @@
 package com.example.human_vs_zombies.repositories;
 
-import com.example.human_vs_zombies.entities.Game;
+import com.example.human_vs_zombies.entities.Squad;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GameRepository extends JpaRepository<Game, Integer> {
-
-
+public interface SquadRepository extends JpaRepository<Squad, Integer> {
 }
