@@ -2,10 +2,12 @@ package com.example.human_vs_zombies.entities;
 
 import com.example.human_vs_zombies.enums.ChatScope;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Chat {
 
     @Id

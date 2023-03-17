@@ -37,7 +37,13 @@ public class SquadServiceImpl implements SquadService{
     }
 
     @Override
-    public void deleteById(Integer integer) {
-        //Must create chat and squadMember
+    public void deleteById(Integer id) {
+        if(squadRepository.existsById(id)){
+//            Squad squad = squadRepository.findById(id).orElseThrow(() -> new SquadNotFoundException(id));
+//            squad.getChat().forEach(s -> s.setSquad(null));
+//            squad.getSquadMembers().forEach(s -> s.setSquad(null));
+
+            squadRepository.deleteById(id);
+        }
     }
 }

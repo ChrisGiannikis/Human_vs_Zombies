@@ -1,9 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.kill.KillDTO;
-import com.example.human_vs_zombies.dto.kill.KillPostDTO;
-import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
-import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.mappers.KillMapper;
 import com.example.human_vs_zombies.services.game.GameService;
@@ -44,10 +41,6 @@ public class KillController {
                     content = {@Content( mediaType = "application/json",
                             array = @ArraySchema( schema = @Schema(implementation = KillDTO.class)))})
     })
-
-
-
-
     @GetMapping("/kill")
     public ResponseEntity findAll(){
         return ResponseEntity.ok(killMapper.killsToKillsDTO(killService.findAll()));
@@ -66,7 +59,6 @@ public class KillController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))
     })
-
     @GetMapping("/kill/{kill_id}")
     public ResponseEntity findById(@PathVariable("kill_id") int id){
         return ResponseEntity.ok(killMapper.killToKillDTO(killService.findById(id)));

@@ -88,7 +88,7 @@ public class SquadController {
                     description = "Squad not found with supplied ID",
                     content = @Content)
     })
-    @PutMapping({"id"})//PUT: localhost:8080/api/v1/squads/id
+    @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/squads/id
     public ResponseEntity<SquadDTO> update(@RequestBody SquadDTO squadDTO, @PathVariable int id) {
         if (id != squadDTO.getSquad_id()) {
             return ResponseEntity.badRequest().build();
@@ -111,10 +111,10 @@ public class SquadController {
                     description = "Squad not found with supplied ID",
                     content = @Content)
     })
-    @DeleteMapping({"id"})//DELETE: localhost:8080/api/v1/squads/id
+    @DeleteMapping({"{id}"})//DELETE: localhost:8080/api/v1/squads/id
     public ResponseEntity<SquadDTO> delete(@PathVariable int id) {
-        //ISN'T WORKING YET!! squadService.deleteById() is empty!!
-        squadService.deleteById(id);
+        SquadDTO squadDTO = squadMapper.squadToSquadDto(squadService.findById(id));
+        squadService.deleteById(squadDTO.getSquad_id());
         return ResponseEntity.noContent().build();
     }
 }

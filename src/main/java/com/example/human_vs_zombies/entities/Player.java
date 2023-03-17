@@ -1,12 +1,14 @@
 package com.example.human_vs_zombies.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Player {
 
     @Id
@@ -30,16 +32,16 @@ public class Player {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    @OneToOne(mappedBy = "victim")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "victim")
     private Kill death;
 
-    @OneToMany(mappedBy = "killer")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "killer")
     private Set<Kill> kills;
 
-    @OneToOne(mappedBy = "player")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "player")
     private SquadMember squadMember;
 
-    @OneToMany(mappedBy = "player")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "player")
     private Set<Chat> chat;
 
 }

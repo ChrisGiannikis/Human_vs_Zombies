@@ -1,6 +1,5 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.SquadDTO;
 import com.example.human_vs_zombies.dto.SquadMemberDTO;
 import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.mappers.SquadMemberMapper;
@@ -89,7 +88,7 @@ public class SquadMemberController {
                     description = "Squad member not found with supplied ID",
                     content = @Content)
     })
-    @PutMapping({"id"})//PUT: localhost:8080/api/v1/squadmembers/id
+    @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/squadmembers/id
     public ResponseEntity<SquadMemberDTO> update(@RequestBody SquadMemberDTO squadMemberDTO, @PathVariable int id){
         if(id!=squadMemberDTO.getSquad_member_id()){
             return ResponseEntity.badRequest().build();
@@ -112,10 +111,10 @@ public class SquadMemberController {
                     description = "Squad member not found with supplied ID",
                     content = @Content)
     })
-    @DeleteMapping({"id"})//DELETE: localhost:8080/api/v1/squadmembers/id
-    public ResponseEntity<SquadDTO> delete(@PathVariable int id){
-        //ISN'T WORKING YET!! squadMemberService.deleteById() is empty!!
-        squadMemberService.deleteById(id);
+    @DeleteMapping({"{id}"})//DELETE: localhost:8080/api/v1/squadmembers/id
+    public ResponseEntity<SquadMemberDTO> delete(@PathVariable int id){
+        SquadMemberDTO squadMemberDTO = squadMemberMapper.squadMemberToSquadMemberDto(squadMemberService.findById(id));
+        squadMemberService.deleteById(squadMemberDTO.getSquad_member_id());
         return ResponseEntity.noContent().build();
     }
 }

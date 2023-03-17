@@ -37,7 +37,12 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public void deleteById(Integer integer) {
-        //Must create Mission, Player and Squad
+    public void deleteById(Integer id) {
+
+        if(gameRepository.existsById(id)) {
+
+            gameRepository.deleteById(id);
+        }
+
     }
 }

@@ -2,7 +2,6 @@ package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.GameDTO;
 import com.example.human_vs_zombies.entities.Chat;
-import com.example.human_vs_zombies.entities.Game;
 import com.example.human_vs_zombies.mappers.GameMapper;
 import com.example.human_vs_zombies.services.game.GameService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,10 +111,10 @@ public class GameController {
                     description = "Game not found with supplied ID",
                     content = @Content)
     })
-    @DeleteMapping({"id"})//DELETE: localhost:8080/api/v1/games/id
-    public ResponseEntity<Game> delete(@PathVariable int id){
-        //ISN'T WORKING YET!! gameService.deleteById() is empty!!
-        gameService.deleteById(id);
+    @DeleteMapping({"{id}"})//DELETE: localhost:8080/api/v1/games/id
+    public ResponseEntity<GameDTO> delete(@PathVariable int id){
+        GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(id));
+        gameService.deleteById(gameDTO.getGame_id());
         return ResponseEntity.noContent().build();
     }
 }

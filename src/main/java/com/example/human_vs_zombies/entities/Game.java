@@ -2,11 +2,13 @@ package com.example.human_vs_zombies.entities;
 
 import com.example.human_vs_zombies.enums.State;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 @Entity
-@Data
+@Getter
+@Setter
 public class Game {
 
     @Id
@@ -37,13 +39,13 @@ public class Game {
     @Column
     private double se_lng;
 
-    @OneToMany(mappedBy = "game")
+    @OneToMany(/*cascade = CascadeType.ALL,*/ mappedBy = "game")
     private Set<Player> players;
 
-    @OneToMany(mappedBy = "game")
+    @OneToMany(/*cascade = CascadeType.ALL,*/ mappedBy = "game")
     private Set<Mission> missions;
 
-    @OneToMany(mappedBy = "game")
+    @OneToMany(/*cascade = CascadeType.ALL,*/ mappedBy = "game")
     private Set<Squad> squads;
 
     @Override
