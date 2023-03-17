@@ -1,8 +1,10 @@
 package com.example.human_vs_zombies.services.player;
 
+import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.exceptions.PlayerNotFoundException;
 import com.example.human_vs_zombies.repositories.PlayerRepository;
 import com.example.human_vs_zombies.entities.Player;
+import com.example.human_vs_zombies.services.kill.KillService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -11,9 +13,11 @@ import java.util.Collection;
 public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerRepository playerRepository;
+    private final KillService killService;
 
-    public PlayerServiceImpl(PlayerRepository playerRepository) {
+    public PlayerServiceImpl(PlayerRepository playerRepository, KillService killService) {
         this.playerRepository = playerRepository;
+        this.killService = killService;
     }
 
     @Override
@@ -42,9 +46,17 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public void deleteById(Integer id) {
-        //1) delete any foreign keys to be able to delete this Player
-
-        //2) delete this Player
+        //1)check if player exists
+        this.findById(id);
+        //2) delete any foreign keys to be able to delete this Player
+        Collection<Kill> kills = killService.findAll();     // gets all the kills
+        for (Kill k: kills) {                               //for every kill
+            if ( k.getVictim().getPlayer_id() == id )//if victim of this kill is the current user
+                killService.deleteById(k.getKill_id());     //delete this kill
+            if ( k.getKiller().getPlayer_id() == id )//if killer of this kill is the current user
+                killService.deleteById(k.getKill_id());     //delete this kill
+        }
+        //3) delete this Player
         playerRepository.deleteById(id);
     }
 }

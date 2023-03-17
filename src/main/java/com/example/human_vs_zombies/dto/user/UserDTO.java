@@ -1,5 +1,6 @@
 package com.example.human_vs_zombies.dto.user;
 
+import com.example.human_vs_zombies.entities.Player;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,4 +11,5 @@ public class UserDTO {
     private String first_name;
     private String last_name;
     private boolean is_administrator;
+    private int player;
 }
