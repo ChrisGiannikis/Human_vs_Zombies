@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 @Service
-public class SquadCheckInServiceIml implements SquadCheckInSevice{
+public class SquadCheckInServiceIml implements SquadCheckInService {
     private final SquadCheckInRepository squadCheckInRepository;
 
     public SquadCheckInServiceIml(SquadCheckInRepository squadCheckInRepository) {
@@ -27,5 +27,10 @@ public class SquadCheckInServiceIml implements SquadCheckInSevice{
     public SquadCheckIn update(SquadCheckIn entity) { return null; }
 
     @Override
-    public void deleteById(Integer integer) {}
+    public void deleteById(Integer integer) {
+        //check if exists
+        this.findById(integer);
+        //delete
+        squadCheckInRepository.deleteById(integer);
+    }
 }

@@ -1,11 +1,16 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
-import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
-import com.example.human_vs_zombies.dto.player.PlayerPutDTO;
-import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
+import com.example.human_vs_zombies.dto.player.*;
+import com.example.human_vs_zombies.entities.Chat;
+import com.example.human_vs_zombies.entities.Kill;
+import com.example.human_vs_zombies.entities.SquadMember;
+import com.example.human_vs_zombies.mappers.ChatMapper;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
+import com.example.human_vs_zombies.repositories.ChatRepository;
+import com.example.human_vs_zombies.services.chat.ChatService;
+import com.example.human_vs_zombies.services.kill.KillService;
 import com.example.human_vs_zombies.services.player.PlayerService;
+import com.example.human_vs_zombies.services.squadMember.SquadMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+
 import static java.util.Objects.isNull;
 
 @RestController
@@ -24,10 +31,16 @@ import static java.util.Objects.isNull;
 public class PlayerController {
 
     private final PlayerService playerService;
+    private final KillService killService;
+    private final ChatService chatService;
+    private final SquadMemberService squadMemberService;
     private final PlayerMapper playerMapper;
 
-    public PlayerController(PlayerService playerService, PlayerMapper playerMapper) {
+    public PlayerController(PlayerService playerService, ChatService chatService, ChatRepository chatRepository, ChatMapper chatMapper, KillService killService, ChatService chatService1, SquadMemberService squadMemberService, PlayerMapper playerMapper) {
         this.playerService = playerService;
+        this.killService = killService;
+        this.chatService = chatService1;
+        this.squadMemberService = squadMemberService;
         this.playerMapper = playerMapper;
     }
 
@@ -74,7 +87,8 @@ public class PlayerController {
     @PostMapping//POST: localhost:8080/api/players
     public ResponseEntity createPlayer(@RequestBody PlayerPostDTO player) throws URISyntaxException {
         playerService.add( playerMapper.playerPostDTOtoPlayer(player) ) ; //adds a new player
-        URI uri = new URI("api/players/" + player.getPlayer_id());  //making a new uri with the new players id
+        int player_id = playerMapper.playerPostDTOtoPlayer(player).getPlayer_id();
+        URI uri = new URI("api/players/" + player_id);  //making a new uri with the new players id
         return ResponseEntity.created(uri).build();
     }
 
@@ -86,28 +100,28 @@ public class PlayerController {
     })
     @PutMapping("{player_id}")//PUT: localhost:8080/api/players/id
     public ResponseEntity updatePlayerById(@RequestBody PlayerPutDTO player, @PathVariable int player_id){
-        if (player_id != player.getPlayer_id())  //checking if the given id is not name as the given player id
-            return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
+        if (player_id != player.getPlayer_id())             //checking if the given id is not name as the given player id
+            return  ResponseEntity.badRequest().build();    //if ids are different returns bad request response
+        if ( isNull( playerService.findById(player_id)) )   //checking if the requested mission exists
+            return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
         playerService.update( playerMapper.playerPutDTOtoPlayer(player) ); //ids are same so call the update
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Deletes the player with the given id.")
     @ApiResponses(value = {
-            @ApiResponse( responseCode =  "200",
-                    description = "Player deleted",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerSimpleDTO.class))}),
-            @ApiResponse( responseCode = "404",
-                    description = "Player with supplied id, does not exist! ",
+            @ApiResponse( responseCode =  "200", description = "Player deleted", content = { @Content}),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
+            @ApiResponse( responseCode = "404",description = "Player with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("{player_id}")//DELETE: localhost:8080/api/players/id
-    public ResponseEntity deletePlayerById(@PathVariable int player_id){
-        //check for foreign keys
-        //firstly check if player exists
-        if ( isNull( playerService.findById(player_id)) )
-            return ResponseEntity.notFound().build();
+    public ResponseEntity deletePlayerById(@RequestBody PlayerDeleteDTO player, @PathVariable int player_id){
+        if (player_id != player.getPlayer_id())  //checking if the given id is not name as the given player id
+            return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
+
+
+
         playerService.deleteById(player_id);
         return ResponseEntity.ok("Player deleted successfully!");
     }

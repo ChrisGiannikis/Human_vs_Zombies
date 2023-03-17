@@ -2,11 +2,14 @@ package com.example.human_vs_zombies.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.ZonedDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class SquadCheckIn {
 
     @Id

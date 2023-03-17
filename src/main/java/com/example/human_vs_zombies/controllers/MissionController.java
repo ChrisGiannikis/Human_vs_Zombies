@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static java.util.Objects.isNull;
+
 @RestController
 @RequestMapping("api/missions")
 public class MissionController {
@@ -69,7 +71,8 @@ public class MissionController {
     public ResponseEntity createMission(@RequestBody MissionPostDTO mission) throws URISyntaxException {
         //Admin only
         missionService.add( missionMapper.missionPostDTOToMission(mission) ); //adds the given new mission
-        URI uri = new URI("api/missions" + mission.getMission_id()); //creating a new uri for the new mission
+        int mission_id = missionMapper.missionPostDTOToMission(mission).getMission_id();
+        URI uri = new URI("api/missions" + mission_id); //creating a new uri for the new mission
         return ResponseEntity.created(uri).build();
     }
 
@@ -84,6 +87,8 @@ public class MissionController {
         //Admin only
         if(mission_id != mission.getMission_id()) //if the given id is not name as the given mission id
             return ResponseEntity.badRequest().build(); // they are different and returns bad request response
+        if ( isNull( missionService.findById(mission_id)) ) //checking if the requested mission exists
+            return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
         missionService.update( missionMapper.missionPutDTOToMission(mission) ); // ids are same so call the update
         return ResponseEntity.noContent().build();
     }
@@ -101,6 +106,7 @@ public class MissionController {
     @DeleteMapping("{mission_id}")
     public ResponseEntity deleteMission(@PathVariable int mission_id){
         //Admin only
+
         missionService.deleteById(mission_id);
         return ResponseEntity.ok("Mission deleted successfully!");
     }

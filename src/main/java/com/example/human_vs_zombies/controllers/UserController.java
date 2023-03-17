@@ -2,10 +2,13 @@ package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
 import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
-import com.example.human_vs_zombies.dto.user.UserDTO;
+import com.example.human_vs_zombies.dto.user.UserDeleteDTO;
 import com.example.human_vs_zombies.dto.user.UserPostDTO;
 import com.example.human_vs_zombies.dto.user.UserPutDTO;
+import com.example.human_vs_zombies.entities.Chat;
+import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.mappers.UserMapper;
+import com.example.human_vs_zombies.services.player.PlayerService;
 import com.example.human_vs_zombies.services.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
 import static java.util.Objects.isNull;
 
@@ -26,10 +30,12 @@ import static java.util.Objects.isNull;
 @RequestMapping("api/users")
 public class UserController {
     private final UserService userService;
+    private final PlayerService playerService;
     private final UserMapper userMapper;
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, PlayerService playerService, UserMapper userMapper) {
         this.userService = userService;
+        this.playerService = playerService;
         this.userMapper = userMapper;
     }
 
@@ -80,8 +86,10 @@ public class UserController {
     })
     @PutMapping("{user_id}")//PUT: localhost:8080/api/users/id
     public ResponseEntity updateUserById(@RequestBody UserPutDTO user, @PathVariable int user_id){
-        if (user_id != user.getUser_id())  //checking if the given id is not name as the given player id
-            return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
+        if (user_id != user.getUser_id())                   //checking if the given id is not name as the given user id
+            return  ResponseEntity.badRequest().build();    //if ids are different returns bad request response
+        if ( isNull( userService.findById(user_id)) )       //checking if the requested mission exists
+            return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
         userService.update( userMapper.UserPutDTOToUser(user));
         return ResponseEntity.noContent().build();
     }
@@ -95,11 +103,10 @@ public class UserController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("{user_id}")//DELETE: localhost:8080/api/users/id
-    public ResponseEntity deleteUserById(@PathVariable int user_id){
-        //check for foreign keys
-        //check if player exists
-        if ( isNull( userService.findById(user_id)) )
-            return ResponseEntity.notFound().build();
+    public ResponseEntity deleteUserById(@RequestBody UserDeleteDTO user, @PathVariable int user_id){
+        if (user_id != user.getUser_id())  //checking if the given id is not name as the given user id
+            return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
+
         userService.deleteById(user_id);
         return ResponseEntity.ok("User deleted successfully!");
     }
