@@ -15,6 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.Collection;
+
 import static java.util.Objects.isNull;
 
 @RestController
@@ -41,8 +45,8 @@ public class KillController {
                     content = {@Content( mediaType = "application/json",
                             array = @ArraySchema( schema = @Schema(implementation = KillDTO.class)))})
     })
-    @GetMapping("/kill")
-    public ResponseEntity findAll(){
+    @GetMapping("/kills")
+    public ResponseEntity<Collection<KillDTO>> findAll(){
         return ResponseEntity.ok(killMapper.killsToKillsDTO(killService.findAll()));
     }
 
@@ -59,7 +63,7 @@ public class KillController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))
     })
-    @GetMapping("/kill/{kill_id}")
+    @GetMapping("/kills/{kill_id}")
     public ResponseEntity findById(@PathVariable("kill_id") int id){
         return ResponseEntity.ok(killMapper.killToKillDTO(killService.findById(id)));
     }
@@ -74,10 +78,11 @@ public class KillController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
             @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
     })
-    @PostMapping("/kill")
-    public ResponseEntity createKill(@RequestBody Kill kill){
-
-        return ResponseEntity.ok(killService.add(killMapper.killToKillPostDTO(kill)));
+    @PostMapping("/kills")
+    public ResponseEntity createKill(@RequestBody KillDTO killDTO){
+        killService.add(killMapper.killDTOToKill(killDTO));
+        URI location = URI.create("/" + killDTO.getKill_id());
+        return ResponseEntity.created(location).build();
 
     }
 

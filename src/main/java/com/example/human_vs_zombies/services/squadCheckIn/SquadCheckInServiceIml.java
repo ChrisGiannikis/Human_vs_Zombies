@@ -29,8 +29,9 @@ public class SquadCheckInServiceIml implements SquadCheckInService {
     @Override
     public void deleteById(Integer integer) {
         //check if exists
-        this.findById(integer);
-        //delete
-        squadCheckInRepository.deleteById(integer);
+        if(squadCheckInRepository.existsById(integer)){
+            squadCheckInRepository.deleteById(integer);
+        }
+
     }
 }

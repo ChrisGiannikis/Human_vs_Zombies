@@ -1,23 +1,19 @@
 package com.example.human_vs_zombies.dto.kill;
 
 
-import com.example.human_vs_zombies.entities.Game;
-import com.example.human_vs_zombies.entities.Player;
-import lombok.Data;;
+import lombok.Data;
 
 import java.time.ZonedDateTime;
 
 @Data
 public class KillDTO {
-    private int id;
+    private int kill_id;
     private double lat;
     private double lng;
 
 
-    private Player killer;
-    private Player victim;
-    private Integer game;
-
+    private int killer;
+    private int victim;
     private ZonedDateTime time_of_death;
 
 }
