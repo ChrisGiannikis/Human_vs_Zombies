@@ -2,13 +2,9 @@ package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
 import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
-import com.example.human_vs_zombies.dto.user.UserDeleteDTO;
 import com.example.human_vs_zombies.dto.user.UserPostDTO;
 import com.example.human_vs_zombies.dto.user.UserPutDTO;
-import com.example.human_vs_zombies.entities.Chat;
-import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.mappers.UserMapper;
-import com.example.human_vs_zombies.services.player.PlayerService;
 import com.example.human_vs_zombies.services.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -22,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 
 import static java.util.Objects.isNull;
 
@@ -30,12 +25,10 @@ import static java.util.Objects.isNull;
 @RequestMapping("api/users")
 public class UserController {
     private final UserService userService;
-    private final PlayerService playerService;
     private final UserMapper userMapper;
 
-    public UserController(UserService userService, PlayerService playerService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
-        this.playerService = playerService;
         this.userMapper = userMapper;
     }
 
@@ -103,10 +96,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("{user_id}")//DELETE: localhost:8080/api/users/id
-    public ResponseEntity deleteUserById(@RequestBody UserDeleteDTO user, @PathVariable int user_id){
-        if (user_id != user.getUser_id())  //checking if the given id is not name as the given user id
-            return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
-
+    public ResponseEntity deleteUserById(@PathVariable int user_id){
         userService.deleteById(user_id);
         return ResponseEntity.ok("User deleted successfully!");
     }

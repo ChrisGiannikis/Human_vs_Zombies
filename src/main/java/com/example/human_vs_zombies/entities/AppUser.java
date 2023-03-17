@@ -22,7 +22,7 @@ public class AppUser {
     @Column
     private boolean is_administrator;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Player player;
 
 }
