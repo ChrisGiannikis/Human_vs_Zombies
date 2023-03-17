@@ -27,7 +27,7 @@ public class SquadCheckIn {
     @Column(nullable = false)
     private double lng;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "squad_member_id")
     private SquadMember squadMember;
 }

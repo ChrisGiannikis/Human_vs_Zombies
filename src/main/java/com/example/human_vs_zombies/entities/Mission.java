@@ -33,7 +33,7 @@ public class Mission {
     @Column
     private ZonedDateTime end_time;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
     private Game game;
 }

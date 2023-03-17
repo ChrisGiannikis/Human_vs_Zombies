@@ -24,11 +24,11 @@ public class Player {
     @Column(nullable = false)
     private boolean is_patient_zero;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private AppUser user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
     private Game game;
 

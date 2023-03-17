@@ -1,16 +1,8 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.player.*;
-import com.example.human_vs_zombies.entities.Chat;
-import com.example.human_vs_zombies.entities.Kill;
-import com.example.human_vs_zombies.entities.SquadMember;
-import com.example.human_vs_zombies.mappers.ChatMapper;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
-import com.example.human_vs_zombies.repositories.ChatRepository;
-import com.example.human_vs_zombies.services.chat.ChatService;
-import com.example.human_vs_zombies.services.kill.KillService;
 import com.example.human_vs_zombies.services.player.PlayerService;
-import com.example.human_vs_zombies.services.squadMember.SquadMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 
 import static java.util.Objects.isNull;
 
@@ -31,16 +22,10 @@ import static java.util.Objects.isNull;
 public class PlayerController {
 
     private final PlayerService playerService;
-    private final KillService killService;
-    private final ChatService chatService;
-    private final SquadMemberService squadMemberService;
     private final PlayerMapper playerMapper;
 
-    public PlayerController(PlayerService playerService, ChatService chatService, ChatRepository chatRepository, ChatMapper chatMapper, KillService killService, ChatService chatService1, SquadMemberService squadMemberService, PlayerMapper playerMapper) {
+    public PlayerController(PlayerService playerService, PlayerMapper playerMapper) {
         this.playerService = playerService;
-        this.killService = killService;
-        this.chatService = chatService1;
-        this.squadMemberService = squadMemberService;
         this.playerMapper = playerMapper;
     }
 
@@ -51,7 +36,7 @@ public class PlayerController {
                                 array = @ArraySchema( schema = @Schema(implementation = PlayerAdminDTO.class)))})
     })
     @GetMapping//GET: localhost:8080/api/players
-    public ResponseEntity findAll(Boolean is_administrator){
+    public ResponseEntity findAll(){
         /*//if request has been from admin use the playerToPlayerAdminDTO else use the playerToPlayerSimpleDTO
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) ) :
@@ -116,12 +101,7 @@ public class PlayerController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("{player_id}")//DELETE: localhost:8080/api/players/id
-    public ResponseEntity deletePlayerById(@RequestBody PlayerDeleteDTO player, @PathVariable int player_id){
-        if (player_id != player.getPlayer_id())  //checking if the given id is not name as the given player id
-            return  ResponseEntity.badRequest().build();  //if ids are different returns bad request response
-
-
-
+    public ResponseEntity deletePlayerById(@PathVariable int player_id){
         playerService.deleteById(player_id);
         return ResponseEntity.ok("Player deleted successfully!");
     }

@@ -20,11 +20,11 @@ public class Chat {
     @Enumerated(EnumType.STRING)
     private ChatScope chatScope;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "squad_id")
     private Squad squad;
 }
