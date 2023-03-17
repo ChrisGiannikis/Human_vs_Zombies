@@ -25,11 +25,11 @@ public class Kill {
     @Column
     private ZonedDateTime time_of_death;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "victim_id")
     private Player victim;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "killer_id")
     private Player killer;
 }

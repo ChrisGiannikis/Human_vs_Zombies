@@ -3,6 +3,8 @@ package com.example.human_vs_zombies.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Set;
 
@@ -25,9 +27,11 @@ public class Squad {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "squad")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "squad")
     private Set<SquadMember> squadMembers;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "squad")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "squad")
     private Set<Chat> chat;
 }

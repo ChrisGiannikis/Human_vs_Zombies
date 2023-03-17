@@ -47,8 +47,9 @@ public class KillServiceImpl implements KillService {
     @Override
     public void deleteById(Integer id) {
 
-        killRepository.deleteById(id);
-
+        if(killRepository.existsById(id)){
+            killRepository.deleteById(id);
+        }
 
     }
 }

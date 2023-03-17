@@ -116,13 +116,10 @@ public class KillController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("/kill/{kill_id}")
-    public ResponseEntity deleteKillById(@PathVariable("kill_id") int id){
-        if(isNull(killService.findById(id)))
-            return ResponseEntity.notFound().build();
-
-
-        killService.deleteById(id);
-        return ResponseEntity.ok("Kill deleted successfully!");
+    public ResponseEntity<KillDTO> deleteKillById(@PathVariable("kill_id") int id){
+        KillDTO killDTO = killMapper.killToKillDTO(killService.findById(id));
+        killService.deleteById(killDTO.getKill_id());
+        return ResponseEntity.noContent().build();
     }
 
 
