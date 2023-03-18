@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserPostDTO {
-    private int user_id;
     private String first_name;
     private String last_name;
     private boolean is_administrator;

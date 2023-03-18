@@ -41,6 +41,8 @@ public class ChatController {
     @GetMapping//GET: localhost:8080/api/v1/chats
     public ResponseEntity<Collection<ChatDTO>> getAll(){
         Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAll());
+        if(chatDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(chatDTOS);
     }
 

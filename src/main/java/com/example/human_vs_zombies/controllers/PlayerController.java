@@ -1,6 +1,7 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.player.*;
+import com.example.human_vs_zombies.dto.user.UserDTO;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
 import static java.util.Objects.isNull;
 
@@ -33,7 +35,10 @@ public class PlayerController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Success",
                             content = {@Content( mediaType = "application/json",
-                                array = @ArraySchema( schema = @Schema(implementation = PlayerAdminDTO.class)))})
+                                array = @ArraySchema( schema = @Schema(implementation = PlayerAdminDTO.class)))}),
+            @ApiResponse(responseCode = "404",
+                    description = "Did not find any players",
+                    content = @Content)
     })
     @GetMapping//GET: localhost:8080/api/players
     public ResponseEntity findAll(){
@@ -41,7 +46,10 @@ public class PlayerController {
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) ) :
                 ResponseEntity.ok( playerMapper.playerToPlayerSimpleDTO(playerService.findAll()) ));*/
-        return ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO( playerService.findAll()));
+        Collection<PlayerAdminDTO> playerAdminDTOS = playerMapper.playerToPlayerAdminDTO(playerService.findAll());
+        if(playerAdminDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok( playerAdminDTOS);
     }
 
     @Operation(summary = "Finds the player with the given id.")
@@ -67,7 +75,7 @@ public class PlayerController {
     @ApiResponses( value = {
             @ApiResponse( responseCode = "201", description = "Player created", content = { @Content }),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
-            @ApiResponse( responseCode = "404", description = "Player not found", content = { @Content })
+            @ApiResponse( responseCode = "404", description = "User, squad member or game not found", content = { @Content })
     })
     @PostMapping//POST: localhost:8080/api/players
     public ResponseEntity createPlayer(@RequestBody PlayerPostDTO player) throws URISyntaxException {

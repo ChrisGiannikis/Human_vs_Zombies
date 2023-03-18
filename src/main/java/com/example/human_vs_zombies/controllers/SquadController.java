@@ -1,7 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.SquadDTO;
-import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.mappers.SquadMapper;
 import com.example.human_vs_zombies.services.squad.SquadService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.Collection;
+
+import static java.util.Objects.isNull;
 
 @RestController
 @RequestMapping(path="api/v1/squads")
@@ -32,7 +33,7 @@ public class SquadController {
             @ApiResponse(responseCode = "200",
                     description = "Success",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Chat.class)) }),
+                            schema = @Schema(implementation = SquadDTO.class)) }),
             @ApiResponse(responseCode = "404",
                     description = "Did not find any squads",
                     content = @Content)
@@ -40,6 +41,8 @@ public class SquadController {
     @GetMapping//GET: localhost:8080/api/v1/squads
     public ResponseEntity<Collection<SquadDTO>> getAll() {
         Collection<SquadDTO> squadDTOS = squadMapper.squadToSquadDto(squadService.findAll());
+        if(squadDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(squadDTOS);
     }
 
@@ -48,7 +51,7 @@ public class SquadController {
             @ApiResponse(responseCode = "200",
                     description = "Success",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Chat.class))}),
+                            schema = @Schema(implementation = SquadDTO.class))}),
             @ApiResponse(responseCode = "404",
                     description = "Squad does not exist with supplied ID",
                     content = @Content)
@@ -64,13 +67,19 @@ public class SquadController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "201",
                     description = "Squad successfully added",
-                    content = @Content),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SquadDTO.class))}),
             @ApiResponse(responseCode = "400",
                     description = "Malformed request",
                     content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "The given Game does not exists!",
+                    content = @Content)
     })
     @PostMapping//POST: localhost:8080/api/v1/squads
     public ResponseEntity<SquadDTO> add(@RequestBody SquadDTO squadDTO) {
+        if (isNull(squadDTO.getName()))
+            return ResponseEntity.badRequest().build();
         squadService.add(squadMapper.squadDtoToSquad(squadDTO));
         URI location = URI.create("squads/" + squadDTO.getSquad_id());
         return ResponseEntity.created(location).build();
@@ -80,7 +89,8 @@ public class SquadController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "204",
                     description = "Squad successfully updated",
-                    content = @Content),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SquadDTO.class))}),
             @ApiResponse(responseCode = "400",
                     description = "Malformed request",
                     content = @Content),
@@ -103,9 +113,6 @@ public class SquadController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "204",
                     description = "Squad successfully deleted",
-                    content = @Content),
-            @ApiResponse(responseCode = "400",
-                    description = "Malformed request",
                     content = @Content),
             @ApiResponse(responseCode = "404",
                     description = "Squad not found with supplied ID",

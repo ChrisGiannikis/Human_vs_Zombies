@@ -2,5 +2,5 @@ package com.example.human_vs_zombies.exceptions;
 
 public class KillNotFoundException extends EntityNotFoundException{
 
-    public KillNotFoundException (String message) { super(message);}
+    public KillNotFoundException(int id){ super("Kill does not exist with ID: " + id);}
 }

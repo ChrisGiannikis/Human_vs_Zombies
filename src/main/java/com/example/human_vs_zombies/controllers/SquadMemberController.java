@@ -32,7 +32,7 @@ public class SquadMemberController {
             @ApiResponse(responseCode = "200",
                     description = "Success",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Chat.class)) }),
+                            schema = @Schema(implementation = SquadMemberDTO.class)) }),
             @ApiResponse(responseCode = "404",
                     description = "Did not find any squad members",
                     content = @Content)
@@ -40,6 +40,8 @@ public class SquadMemberController {
     @GetMapping//GET: localhost:8080/api/v1/squadmembers
     public ResponseEntity<Collection<SquadMemberDTO>> getAll(){
         Collection<SquadMemberDTO> squadMemberDTOS = squadMemberMapper.squadToSquadDto(squadMemberService.findAll());
+        if (squadMemberDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(squadMemberDTOS);
     }
 
@@ -48,7 +50,7 @@ public class SquadMemberController {
             @ApiResponse(responseCode = "200",
                     description = "Success",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Chat.class))}),
+                            schema = @Schema(implementation = SquadMemberDTO.class))}),
             @ApiResponse(responseCode = "404",
                     description = "Squad member does not exist with supplied ID",
                     content = @Content)
@@ -68,6 +70,9 @@ public class SquadMemberController {
             @ApiResponse(responseCode = "400",
                     description = "Malformed request",
                     content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "The given Squad or Player does not exists!",
+                    content = @Content)
     })
     @PostMapping//POST: localhost:8080/api/v1/squadmembers
     public ResponseEntity<SquadMemberDTO> add(@RequestBody SquadMemberDTO squadMemberDTO){

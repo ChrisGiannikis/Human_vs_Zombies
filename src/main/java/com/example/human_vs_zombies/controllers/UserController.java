@@ -1,7 +1,9 @@
 package com.example.human_vs_zombies.controllers;
 
+import com.example.human_vs_zombies.dto.SquadDTO;
 import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
 import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
+import com.example.human_vs_zombies.dto.user.UserDTO;
 import com.example.human_vs_zombies.dto.user.UserPostDTO;
 import com.example.human_vs_zombies.dto.user.UserPutDTO;
 import com.example.human_vs_zombies.mappers.UserMapper;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
 import static java.util.Objects.isNull;
 
@@ -36,11 +39,17 @@ public class UserController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content( mediaType = "application/json",
-                            array = @ArraySchema( schema = @Schema(implementation = PlayerAdminDTO.class)))})
+                            array = @ArraySchema( schema = @Schema(implementation = UserDTO.class)))}),
+            @ApiResponse(responseCode = "404",
+                    description = "Did not find any users",
+                    content = @Content)
     })
     @GetMapping//GET: localhost:8080/api/users
     public ResponseEntity findAll(){
-        return ResponseEntity.ok( userMapper.UserToUserDTO( userService.findAll()));
+        Collection<UserDTO> userDTOS = userMapper.UserToUserDTO(userService.findAll());
+        if(userDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok( userDTOS);
     }
 
     @Operation(summary = "Finds the user with the given id.")
@@ -61,13 +70,15 @@ public class UserController {
     @Operation(summary = "Creates a new user.")
     @ApiResponses( value = {
             @ApiResponse( responseCode = "201", description = "User created", content = { @Content }),
-            @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
-            @ApiResponse( responseCode = "404", description = "User not found", content = { @Content })
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content })
     })
     @PostMapping//POST: localhost:8080/api/users
     public ResponseEntity createUser(@RequestBody UserPostDTO user) throws URISyntaxException {
+        if (isNull(user.getFirst_name()))
+            return ResponseEntity.badRequest().build();
         userService.add( userMapper.UserPostDTOToUser(user));
-        URI uri = new URI("api/users" + user.getUser_id());
+        int user_id = userMapper.UserPostDTOToUser(user).getUser_id();
+        URI uri = new URI("api/users/" + user_id);
         return ResponseEntity.created(uri).build();
     }
 

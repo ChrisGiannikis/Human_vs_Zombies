@@ -37,6 +37,7 @@ public class ChatServiceImpl implements ChatService{
 
     @Override
     public void deleteById(Integer id) {
+        this.findById(id);
         if(chatRepository.existsById(id)) {
             chatRepository.deleteById(id);
         }

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.Collection;
 
+import static java.util.Objects.isNull;
+
 @RestController
 @RequestMapping(path = "api/v1/games")
 public class GameController {
@@ -32,7 +34,7 @@ public class GameController {
             @ApiResponse(responseCode = "200",
                     description = "Success",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Chat.class)) }),
+                            schema = @Schema(implementation = GameDTO.class)) }),
             @ApiResponse(responseCode = "404",
                     description = "Did not find any games",
                     content = @Content)
@@ -40,6 +42,8 @@ public class GameController {
     @GetMapping//GET: localhost:8080/api/v1/games
     public ResponseEntity<Collection<GameDTO>> getAll(){
         Collection<GameDTO> gameDTOS = gameMapper.gameToGameDto(gameService.findAll());
+        if(gameDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(gameDTOS);
     }
 
@@ -48,7 +52,7 @@ public class GameController {
             @ApiResponse(responseCode = "200",
                     description = "Success",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Chat.class))}),
+                            schema = @Schema(implementation = GameDTO.class))}),
             @ApiResponse(responseCode = "404",
                     description = "Game does not exist with supplied ID",
                     content = @Content)
@@ -71,8 +75,10 @@ public class GameController {
     })
     @PostMapping//POST: localhost:8080/api/v1/games
     public ResponseEntity<GameDTO> add(@RequestBody GameDTO gameDTO){
+        if (isNull(gameDTO.getName()))
+            return ResponseEntity.badRequest().build();
         gameService.add(gameMapper.gameDtoToGame(gameDTO));
-        URI location = URI.create("games/" + gameDTO.getGame_id());
+        URI location = URI.create("api/v1/games/" + gameDTO.getGame_id());
         return ResponseEntity.created(location).build();
     }
 
@@ -90,7 +96,7 @@ public class GameController {
     })
     @PutMapping({"id"})//PUT: localhost:8080/api/v1/games/id
     public ResponseEntity<GameDTO> update(@RequestBody GameDTO gameDTO, @PathVariable int id){
-        if(id!=gameDTO.getGame_id()){
+        if(id != gameDTO.getGame_id()){
             return ResponseEntity.badRequest().build();
         }
 
@@ -103,9 +109,6 @@ public class GameController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "204",
                     description = "Game successfully deleted",
-                    content = @Content),
-            @ApiResponse(responseCode = "400",
-                    description = "Malformed request",
                     content = @Content),
             @ApiResponse(responseCode = "404",
                     description = "Game not found with supplied ID",
