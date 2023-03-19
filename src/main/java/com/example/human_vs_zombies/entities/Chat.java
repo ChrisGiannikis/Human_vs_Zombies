@@ -2,10 +2,12 @@ package com.example.human_vs_zombies.entities;
 
 import com.example.human_vs_zombies.enums.ChatScope;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Chat {
 
     @Id
@@ -18,11 +20,11 @@ public class Chat {
     @Enumerated(EnumType.STRING)
     private ChatScope chatScope;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "squad_id")
     private Squad squad;
 }

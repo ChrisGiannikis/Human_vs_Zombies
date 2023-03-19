@@ -1,14 +1,17 @@
 package com.example.human_vs_zombies.entities;
 
 import com.example.human_vs_zombies.enums.Rank;
-import com.example.human_vs_zombies.enums.State;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class SquadMember {
 
     @Id
@@ -18,14 +21,15 @@ public class SquadMember {
     @Enumerated(EnumType.STRING)
     private Rank rank;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "squad_id")
     private Squad squad;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id")
     private Player player;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @OneToMany(mappedBy = "squadMember")
     private Set<SquadCheckIn> squadCheckIns;
 }

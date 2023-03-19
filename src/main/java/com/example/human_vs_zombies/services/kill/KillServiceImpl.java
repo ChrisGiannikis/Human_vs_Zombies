@@ -1,6 +1,7 @@
 package com.example.human_vs_zombies.services.kill;
 
 import com.example.human_vs_zombies.entities.Kill;
+import com.example.human_vs_zombies.exceptions.KillNotFoundException;
 import com.example.human_vs_zombies.repositories.KillRepository;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.player.PlayerService;
@@ -25,7 +26,7 @@ public class KillServiceImpl implements KillService {
 
     @Override
     public Kill findById(Integer id) {
-        return killRepository.findById(id).get();
+        return killRepository.findById(id).orElseThrow(() -> new KillNotFoundException(id));
     }
     @Override
     public Collection<Kill> findKillsByGameId(Integer gameId) {
@@ -48,11 +49,13 @@ public class KillServiceImpl implements KillService {
 
     @Override
     public Kill update(Kill kill) {
+        this.findById(kill.getKill_id());
         return killRepository.save(kill);
     }
 
     @Override
     public Kill updateKillById(Kill kill,int id) {
+        this.findById(id);
         Kill killToUpdate = killRepository.findById(id).get();
         killToUpdate.setLat(kill.getLat());
         killToUpdate.setLng(kill.getLng());
@@ -62,8 +65,9 @@ public class KillServiceImpl implements KillService {
     @Override
     public void deleteById(Integer id) {
 
-        killRepository.deleteById(id);
-
+        if(killRepository.existsById(id)){
+            killRepository.deleteById(id);
+        }
 
     }
 }

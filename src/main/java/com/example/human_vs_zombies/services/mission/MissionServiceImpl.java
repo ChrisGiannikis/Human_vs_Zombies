@@ -28,9 +28,9 @@ public class MissionServiceImpl implements MissionService {
 
     @Override
     public void deleteById(Integer id) {
-        //1) delete any foreign keys to be able to delete this mission
-
-        //2) delete this mission
+        //1) check if mission exists
+        this.findById(id);
+        //3) delete this mission
         missionRepository.deleteById(id);
     }
 }

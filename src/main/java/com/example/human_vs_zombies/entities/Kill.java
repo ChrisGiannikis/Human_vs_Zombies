@@ -1,14 +1,14 @@
 package com.example.human_vs_zombies.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.ZonedDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Kill {
 
     @Id
@@ -25,16 +25,11 @@ public class Kill {
     @Column
     private ZonedDateTime time_of_death;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "victim_id")
     private Player victim;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "killer_id")
     private Player killer;
-
-    @ManyToOne
-    @JoinColumn(name=  "game_id")
-    private Game game;
-
 }

@@ -1,7 +1,7 @@
 package com.example.human_vs_zombies.controllers;
 
+import com.example.human_vs_zombies.dto.SquadDTO;
 import com.example.human_vs_zombies.dto.kill.KillDTO;
-import com.example.human_vs_zombies.dto.kill.KillPostDTO;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.exceptions.GameNotFoundException;
 import com.example.human_vs_zombies.mappers.KillMapper;
@@ -45,8 +45,12 @@ public class KillController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content( mediaType = "application/json",
-                            array = @ArraySchema( schema = @Schema(implementation = KillDTO.class)))})
+                            array = @ArraySchema( schema = @Schema(implementation = KillDTO.class)))}),
+            @ApiResponse(responseCode = "404",
+                    description = "Did not find any kills",
+                    content = @Content)
     })
+<<<<<<< HEAD
 
 
 
@@ -57,6 +61,14 @@ public class KillController {
         }
         //Collection<KillDTO> killDTOs = killMapper.killsToKillsDTO(killService.findKillsByGameId(id));
         return ResponseEntity.ok(killMapper.killsToKillsDTO(killService.findAll()));
+=======
+    @GetMapping("/kills")
+    public ResponseEntity<Collection<KillDTO>> findAll(){
+        Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAll());
+        if(killDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(killDTOS);
+>>>>>>> f243b00c0efc9f51f6e419fde69d0c22dd586d8f
     }
 
 
@@ -72,27 +84,24 @@ public class KillController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))
     })
-
-    @GetMapping("/kill/{kill_id}")
+    @GetMapping("/kills/{kill_id}")
     public ResponseEntity findById(@PathVariable("kill_id") int id){
         return ResponseEntity.ok(killMapper.killToKillDTO(killService.findById(id)));
     }
 
     // create a kill
-
-
-
     @Operation(summary = "Creates a kill object.")
     @ApiResponses( value = {
             @ApiResponse( responseCode = "201", description = "Kill object created", content = { @Content }),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
-            @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
+            @ApiResponse( responseCode = "404", description = "Killer or victim does not exist! ", content = { @Content })
     })
-    @PostMapping("/kill")
-    public ResponseEntity createKill(@RequestBody KillPostDTO killPostDTO){
-
-        Kill newKill = killService.add(killMapper.KillPostDTOToKill(killPostDTO));
-        URI location = URI.create( "/kill/" + newKill.getKill_id());
+    @PostMapping("/kills")
+    public ResponseEntity createKill(@RequestBody KillDTO killDTO){
+        if (killDTO.getLng() == 0 || killDTO.getLat() == 0 )
+            return ResponseEntity.badRequest().build();
+        killService.add(killMapper.killDTOToKill(killDTO));
+        URI location = URI.create("/" + killDTO.getKill_id());
         return ResponseEntity.created(location).build();
 
     }
@@ -102,11 +111,13 @@ public class KillController {
 
     @Operation(summary = "Updates the kill object with the given id.")
     @ApiResponses( value = {
+            @ApiResponse( responseCode = "200", description = "Kill updated", content = { @Content }),
             @ApiResponse( responseCode = "204", description = "Kill updated", content = { @Content }),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
             @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
     })
     @PutMapping("/kill/{kill_id}")
+<<<<<<< HEAD
     public ResponseEntity updateKillById(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
         Kill kill = killService.findById(id);
        /* killDTO.setId(id);
@@ -118,6 +129,14 @@ public class KillController {
         killService.updateKillById(killMapper.killDTOToKill(killDTO),id); */
         killService.update(killMapper.killDTOToKill(killDTO));
         return ResponseEntity.noContent().build();
+=======
+    public ResponseEntity updateKill(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
+        if(killDTO.getKill_id() != id)
+            return ResponseEntity.badRequest().build();
+        Kill kill = killMapper.killDTOToKill(killDTO);
+        KillDTO updatedDTO = killMapper.killToKillDTO(killService.update(kill));
+        return ResponseEntity.ok(updatedDTO);
+>>>>>>> f243b00c0efc9f51f6e419fde69d0c22dd586d8f
 
 
     }
@@ -125,22 +144,19 @@ public class KillController {
 
     @Operation(summary = "Deletes the kill object with the given id.")
     @ApiResponses(value = {
-            @ApiResponse( responseCode =  "200",
+            @ApiResponse( responseCode =  "204",
                     description = "Kill deleted",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = KillDTO.class))}),
             @ApiResponse( responseCode = "404",
-                    description = "Player with supplied id, does not exist! ",
+                    description = "Kill with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("/kill/{kill_id}")
-    public ResponseEntity deleteKillById(@PathVariable("kill_id") int id){
-        if(isNull(killService.findById(id)))
-            return ResponseEntity.notFound().build();
-
-
-        killService.deleteById(id);
-        return ResponseEntity.ok("Kill deleted successfully!");
+    public ResponseEntity<KillDTO> deleteKillById(@PathVariable("kill_id") int id){
+        KillDTO killDTO = killMapper.killToKillDTO(killService.findById(id));
+        killService.deleteById(killDTO.getKill_id());
+        return ResponseEntity.noContent().build();
     }
 
 
