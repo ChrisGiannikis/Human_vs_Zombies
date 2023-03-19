@@ -3,6 +3,7 @@ package com.example.human_vs_zombies.controllers;
 import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.kill.KillPostDTO;
 import com.example.human_vs_zombies.entities.Kill;
+import com.example.human_vs_zombies.exceptions.GameNotFoundException;
 import com.example.human_vs_zombies.mappers.KillMapper;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.kill.KillService;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Collection;
 
 import static java.util.Objects.isNull;
 
@@ -48,8 +50,12 @@ public class KillController {
 
 
 
-    @GetMapping("/kill")
-    public ResponseEntity findAll(){
+    @GetMapping("/{game_id}/kill")
+    public ResponseEntity findAll(@PathVariable("game_id") int id){
+        if(gameService.findById(id) == null){
+            throw new GameNotFoundException(id);
+        }
+        //Collection<KillDTO> killDTOs = killMapper.killsToKillsDTO(killService.findKillsByGameId(id));
         return ResponseEntity.ok(killMapper.killsToKillsDTO(killService.findAll()));
     }
 
@@ -103,13 +109,14 @@ public class KillController {
     @PutMapping("/kill/{kill_id}")
     public ResponseEntity updateKillById(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
         Kill kill = killService.findById(id);
-        killDTO.setId(id);
+       /* killDTO.setId(id);
         killDTO.setLng(kill.getLng());
         killDTO.setLat(kill.getLat());
         killDTO.setKiller(kill.getKiller());
         killDTO.setVictim(kill.getVictim());
         killDTO.setTime_of_death(kill.getTime_of_death());
-        killService.updateKillById(killMapper.killDTOToKill(killDTO),id);
+        killService.updateKillById(killMapper.killDTOToKill(killDTO),id); */
+        killService.update(killMapper.killDTOToKill(killDTO));
         return ResponseEntity.noContent().build();
 
 

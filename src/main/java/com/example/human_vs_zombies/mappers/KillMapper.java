@@ -23,6 +23,8 @@ public abstract class KillMapper {
 
 
     @Mapping(target = "game", source = "game.game_id")
+    @Mapping(target = "killer",source = "killer.player_id")
+    @Mapping(target = "victim",source = "victim.player_id")
     public abstract KillDTO killToKillDTO(Kill kill);
 
     public abstract Collection<Kill> killsToKillsDTO(Collection<Kill> kills);
