@@ -33,9 +33,9 @@ INSERT INTO kill("lat", "lng", "time_of_death", "killer_id", "victim_id") VALUES
 INSERT INTO kill("lat", "lng", "time_of_death", "killer_id", "victim_id") VALUES (154.4, 24.5, null, 10, 4);
 INSERT INTO kill("lat", "lng", "time_of_death", "killer_id", "victim_id") VALUES (144.4, 54.5, null, 11, 6);
 
-INSERT INTO mission("description", "end_time", "is_human_visible", "is_zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 1 description', null, true, false, 'Mission 1 name', null, 1);
-INSERT INTO mission("description", "end_time", "is_human_visible", "is_zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 2 description', null, false, true, 'Mission 2 name', null, 2);
-INSERT INTO mission("description", "end_time", "is_human_visible", "is_zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 3 description', null, true, true, 'Mission 3 name', null, 3);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 1 description', null, true, false, 'Mission 1 name', null, 1);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 2 description', null, false, true, 'Mission 2 name', null, 2);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 3 description', null, true, true, 'Mission 3 name', null, 3);
 
 INSERT INTO squad("is_human", "name", "game_id") VALUES (true, 'Squad 1 name', 1);
 INSERT INTO squad("is_human", "name", "game_id") VALUES (false, 'Squad 2 name', 1);
