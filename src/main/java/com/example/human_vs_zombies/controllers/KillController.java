@@ -1,7 +1,8 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.SquadDTO;
 import com.example.human_vs_zombies.dto.kill.KillDTO;
+import com.example.human_vs_zombies.dto.kill.KillPostDTO;
+import com.example.human_vs_zombies.dto.kill.KillPutDTO;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.mappers.KillMapper;
 import com.example.human_vs_zombies.services.game.GameService;
@@ -19,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.Collection;
-
-import static java.util.Objects.isNull;
 
 @RestController
 @RequestMapping("api/v1")
@@ -83,11 +82,12 @@ public class KillController {
             @ApiResponse( responseCode = "404", description = "Killer or victim does not exist! ", content = { @Content })
     })
     @PostMapping("/kills")
-    public ResponseEntity createKill(@RequestBody KillDTO killDTO){
-        if (killDTO.getLng() == 0 || killDTO.getLat() == 0 )
+    public ResponseEntity createKill(@RequestBody KillPostDTO killPostDTO){
+        if (killPostDTO.getLng() == 0 || killPostDTO.getLat() == 0 )
             return ResponseEntity.badRequest().build();
-        killService.add(killMapper.killDTOToKill(killDTO));
-        URI location = URI.create("/" + killDTO.getKill_id());
+        killService.add(killMapper.killPostDTOToKill(killPostDTO));
+        int kill_id = killMapper.killPostDTOToKill(killPostDTO).getKill_id();
+        URI location = URI.create("/" + kill_id);
         return ResponseEntity.created(location).build();
 
     }
@@ -103,14 +103,12 @@ public class KillController {
             @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
     })
     @PutMapping("/kill/{kill_id}")
-    public ResponseEntity updateKill(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
-        if(killDTO.getKill_id() != id)
+    public ResponseEntity updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable("kill_id") int id){
+        if(killPutDTO.getKill_id() != id)
             return ResponseEntity.badRequest().build();
-        Kill kill = killMapper.killDTOToKill(killDTO);
-        KillDTO updatedDTO = killMapper.killToKillDTO(killService.update(kill));
-        return ResponseEntity.ok(updatedDTO);
-
-
+        Kill kill = killMapper.killPutDTOToKill(killPutDTO);
+        killService.updateKillById(kill,id);
+        return ResponseEntity.noContent().build();
     }
 
 

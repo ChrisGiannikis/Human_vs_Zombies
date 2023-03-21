@@ -1,4 +1,4 @@
-package com.example.human_vs_zombies.dto;
+package com.example.human_vs_zombies.dto.squadMember;
 
 import com.example.human_vs_zombies.enums.Rank;
 import lombok.Data;

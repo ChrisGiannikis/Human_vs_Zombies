@@ -1,6 +1,7 @@
 package com.example.human_vs_zombies.services.squadCheckIn;
 
 import com.example.human_vs_zombies.entities.SquadCheckIn;
+import com.example.human_vs_zombies.exceptions.SquadCheckInNotFoundException;
 import com.example.human_vs_zombies.repositories.SquadCheckInRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class SquadCheckInServiceIml implements SquadCheckInService {
     }
 
     @Override
-    public SquadCheckIn findById(Integer integer) { return null; }
+    public SquadCheckIn findById(Integer integer) { return squadCheckInRepository.findById(integer).orElseThrow(() -> new SquadCheckInNotFoundException(integer)); }
 
     @Override
     public Collection<SquadCheckIn> findAll() { return squadCheckInRepository.findAll(); }
@@ -29,9 +30,7 @@ public class SquadCheckInServiceIml implements SquadCheckInService {
     @Override
     public void deleteById(Integer integer) {
         //check if exists
-        if(squadCheckInRepository.existsById(integer)){
-            squadCheckInRepository.deleteById(integer);
-        }
-
+        this.findById(integer);
+        squadCheckInRepository.deleteById(integer);
     }
 }

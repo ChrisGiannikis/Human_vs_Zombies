@@ -1,6 +1,8 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.ChatDTO;
+import com.example.human_vs_zombies.dto.chat.ChatDTO;
+import com.example.human_vs_zombies.dto.chat.ChatPostDTO;
+import com.example.human_vs_zombies.dto.chat.ChatPutDTO;
 import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.mappers.ChatMapper;
 import com.example.human_vs_zombies.services.chat.ChatService;
@@ -73,9 +75,10 @@ public class ChatController {
                     content = @Content),
     })
     @PostMapping // POST: localhost:8080/api/v1/chats
-    public ResponseEntity<ChatDTO> add(@RequestBody ChatDTO chatDTO) {
-        chatService.add(chatMapper.chatDtoToChat(chatDTO));
-        URI location = URI.create("chats/" + chatDTO.getMessage_id());
+    public ResponseEntity<ChatDTO> add(@RequestBody ChatPostDTO chatPostDTO) {
+        chatService.add(chatMapper.chatPostDtoToChat(chatPostDTO));
+        int chat_id = chatMapper.chatPostDtoToChat(chatPostDTO).getMessage_id();
+        URI location = URI.create("chats/" + chat_id);
         return ResponseEntity.created(location).build();
     }
 
@@ -92,10 +95,10 @@ public class ChatController {
                     content = @Content)
     })
     @PutMapping("{id}") // POST: localhost:8080/api/v1/chats
-    public ResponseEntity<ChatDTO> update(@RequestBody ChatDTO chatDTO, @PathVariable int id) {
-        if(id != chatDTO.getMessage_id())
+    public ResponseEntity<ChatDTO> update(@RequestBody ChatPutDTO chatPutDTO, @PathVariable int id) {
+        if(id != chatPutDTO.getMessage_id())
             return ResponseEntity.badRequest().build();
-        chatService.update(chatMapper.chatDtoToChat(chatDTO));
+        chatService.update(chatMapper.chatPutDtoToChat(chatPutDTO));
         return ResponseEntity.noContent().build();
     }
 

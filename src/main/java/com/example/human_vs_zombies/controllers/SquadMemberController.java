@@ -1,7 +1,8 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.SquadMemberDTO;
-import com.example.human_vs_zombies.entities.Chat;
+import com.example.human_vs_zombies.dto.squadMember.SquadMemberDTO;
+import com.example.human_vs_zombies.dto.squadMember.SquadMemberPostDTO;
+import com.example.human_vs_zombies.dto.squadMember.SquadMemberPutDTO;
 import com.example.human_vs_zombies.mappers.SquadMemberMapper;
 import com.example.human_vs_zombies.services.squadMember.SquadMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,9 +76,10 @@ public class SquadMemberController {
                     content = @Content)
     })
     @PostMapping//POST: localhost:8080/api/v1/squadmembers
-    public ResponseEntity<SquadMemberDTO> add(@RequestBody SquadMemberDTO squadMemberDTO){
-        squadMemberService.add(squadMemberMapper.squadMemberDtoToSquad(squadMemberDTO));
-        URI location = URI.create("squadmembers/" + squadMemberDTO.getSquad_member_id());
+    public ResponseEntity<SquadMemberDTO> add(@RequestBody SquadMemberPostDTO squadMemberPostDTO){
+        squadMemberService.add(squadMemberMapper.squadMemberPostDtoToSquadMember(squadMemberPostDTO));
+        int squadMember_id = squadMemberMapper.squadMemberPostDtoToSquadMember(squadMemberPostDTO).getSquad_member_id();
+        URI location = URI.create("squadmembers/" + squadMember_id);
         return ResponseEntity.created(location).build();
     }
 
@@ -94,12 +96,12 @@ public class SquadMemberController {
                     content = @Content)
     })
     @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/squadmembers/id
-    public ResponseEntity<SquadMemberDTO> update(@RequestBody SquadMemberDTO squadMemberDTO, @PathVariable int id){
-        if(id!=squadMemberDTO.getSquad_member_id()){
+    public ResponseEntity<SquadMemberDTO> update(@RequestBody SquadMemberPutDTO squadMemberPutDTO, @PathVariable int id){
+        if(id != squadMemberPutDTO.getSquad_member_id()){
             return ResponseEntity.badRequest().build();
         }
 
-        squadMemberService.update(squadMemberMapper.squadMemberDtoToSquad(squadMemberDTO));
+        squadMemberService.update(squadMemberMapper.squadMemberPutDtoToSquadMember(squadMemberPutDTO));
 
         return ResponseEntity.noContent().build();
     }
