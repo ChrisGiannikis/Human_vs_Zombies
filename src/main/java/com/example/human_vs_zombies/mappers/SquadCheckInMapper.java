@@ -1,9 +1,10 @@
 package com.example.human_vs_zombies.mappers;
 
-import com.example.human_vs_zombies.dto.SquadCheckInDTO;
+import com.example.human_vs_zombies.dto.squadCheckIn.SquadCheckInDTO;
+import com.example.human_vs_zombies.dto.squadCheckIn.SquadCheckInPostDTO;
+import com.example.human_vs_zombies.dto.squadCheckIn.SquadCheckInPutDTO;
 import com.example.human_vs_zombies.entities.SquadCheckIn;
 import com.example.human_vs_zombies.entities.SquadMember;
-import com.example.human_vs_zombies.services.squadCheckIn.SquadCheckInService;
 import com.example.human_vs_zombies.services.squadMember.SquadMemberService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,6 +24,10 @@ public abstract class SquadCheckInMapper {
 
     @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
     public abstract SquadCheckIn squadCheckInDTOToSquadCheckIn(SquadCheckInDTO squadCheckInDTO);
+    @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
+    public abstract SquadCheckIn squadCheckInPostDTOToSquadCheckIn(SquadCheckInPostDTO squadCheckInPostDTO);
+    @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
+    public abstract SquadCheckIn squadCheckInPutDTOToSquadCheckIn(SquadCheckInPutDTO squadCheckInPutDTO);
 
     @Named("SquadMemberIdToSquadMember")
     SquadMember mapIdToSquadMember(int id){ return squadMemberService.findById(id); };
