@@ -1,7 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.player.*;
-import com.example.human_vs_zombies.dto.user.UserDTO;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,7 +55,7 @@ public class PlayerController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content( mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerSimpleDTO.class))}),
+                            schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse( responseCode = "404",
                     description = "Player with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",

@@ -30,6 +30,6 @@ public class SquadMember {
     private Player player;
 
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToMany(mappedBy = "squadMember")
+    @OneToMany(mappedBy = "squadMember", fetch = FetchType.LAZY)
     private Set<SquadCheckIn> squadCheckIns;
 }

@@ -1,24 +1,34 @@
 package com.example.human_vs_zombies.services.game;
 
 import com.example.human_vs_zombies.entities.Game;
+import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.entities.Mission;
+import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.exceptions.GameNotFoundException;
+import com.example.human_vs_zombies.exceptions.KillNotFoundException;
 import com.example.human_vs_zombies.exceptions.MissionNotFoundException;
 import com.example.human_vs_zombies.repositories.GameRepository;
+import com.example.human_vs_zombies.repositories.KillRepository;
 import com.example.human_vs_zombies.repositories.MissionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
+
 @Service
 public class GameServiceImpl implements GameService{
 
     private final GameRepository gameRepository;
     private final MissionRepository missionRepository;
+    private final KillRepository killRepository;
 
-    public GameServiceImpl(GameRepository gameRepository, MissionRepository missionRepository){
+    public GameServiceImpl(GameRepository gameRepository, MissionRepository missionRepository, KillRepository killRepository){
         this.gameRepository = gameRepository;
         this.missionRepository = missionRepository;
+        this.killRepository = killRepository;
     }
 
     @Override
@@ -86,8 +96,51 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public void deleteMissionById(int gameId, int missionId) {
+    public void deleteMissionById(int missionId) {
 
-        missionRepository.deleteById(missionId);
+        if(missionRepository.existsById(missionId)){
+            missionRepository.deleteById(missionId);
+        } else{
+            throw new MissionNotFoundException(missionId);
+        }
+
     }
+
+    @Override
+    public Collection<Kill> findAllKills(int gameId) {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+        Collection<Kill> kills = new java.util.HashSet<>(Collections.emptySet());
+        Set<Player> players = game.getPlayers();
+        for (Player p: players){
+            if(!isNull(p.getDeath()) && p.getGame().getGame_id()==gameId){
+                kills.add(p.getDeath());
+            }
+        }
+
+        return kills;
+
+    }
+
+    @Override
+    public Kill findKillById(int game_id, int kill_id) {
+        Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
+        Kill kill = killRepository.findById(kill_id).orElseThrow(() -> new KillNotFoundException(kill_id));
+        Set<Player> players = game.getPlayers();
+        for (Player p: players){
+            if((!isNull(p.getDeath())) && p.getDeath().getKill_id() == kill_id){
+                return kill;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteKillById(int killId) {
+        if(killRepository.existsById(killId)){
+            killRepository.deleteById(killId);
+        } else{
+            throw new KillNotFoundException(killId);
+        }
+    }
+
 }

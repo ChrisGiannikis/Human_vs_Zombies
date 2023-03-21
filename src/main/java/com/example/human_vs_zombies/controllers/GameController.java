@@ -1,13 +1,22 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.GameDTO;
+import com.example.human_vs_zombies.dto.kill.KillDTO;
+import com.example.human_vs_zombies.dto.kill.KillPostDTO;
+import com.example.human_vs_zombies.dto.kill.KillPutDTO;
 import com.example.human_vs_zombies.dto.mission.MissionDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
+import com.example.human_vs_zombies.dto.player.PlayerDTO;
+import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.entities.Mission;
 import com.example.human_vs_zombies.mappers.GameMapper;
+import com.example.human_vs_zombies.mappers.KillMapper;
 import com.example.human_vs_zombies.mappers.MissionMapper;
+import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.game.GameService;
+import com.example.human_vs_zombies.services.kill.KillService;
+import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,13 +35,21 @@ import static java.util.Objects.isNull;
 public class GameController {
 
     private final GameService gameService;
+    private final PlayerService playerService;
+    private final KillService killService;
+    private final PlayerMapper playerMapper;
     private final GameMapper gameMapper;
     private final MissionMapper missionMapper;
+    private final KillMapper killMapper;
 
-    public GameController(GameService gameService, GameMapper gameMapper, MissionMapper missionMapper){
+    public GameController(GameService gameService, PlayerService playerService, KillService killService, PlayerMapper playerMapper, GameMapper gameMapper, MissionMapper missionMapper, KillMapper killMapper){
         this.gameService = gameService;
+        this.playerService = playerService;
+        this.killService = killService;
+        this.playerMapper = playerMapper;
         this.gameMapper = gameMapper;
         this.missionMapper = missionMapper;
+        this.killMapper = killMapper;
     }
 
     @Operation(summary = "Get all games")
@@ -242,7 +259,131 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        gameService.deleteMissionById(game_id, mission_id);
+        gameService.deleteMissionById(mission_id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get all kills of a game")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Success",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MissionDTO.class)) }),
+            @ApiResponse(responseCode = "404",
+                    description = "Did not find any kills",
+                    content = @Content)
+    })
+    @GetMapping("{game_id}/kills")//GET: localhost:8080/api/v1/games/game_id/kills
+    public ResponseEntity<Collection<KillDTO>> getAllKills(@PathVariable int game_id){
+        Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(gameService.findAllKills(game_id));//or query?
+        if(killDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(killDTOS);
+    }
+
+    @Operation(summary = "Get a kill by ID, of a specific game")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Success",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MissionDTO.class))}),
+            @ApiResponse(responseCode = "404",
+                    description = "Game does not exist with supplied ID, OR this game does not include a mission of this ID",
+                    content = @Content)
+
+    })
+    @GetMapping("{game_id}/kills/{kill_id}")//GET: localhost:8080/api/v1/games/game_id/kills/kill_id
+    public ResponseEntity<KillDTO> getKillById(@PathVariable int game_id, @PathVariable int kill_id){
+        KillDTO killDTO = killMapper.killToKillDTO(gameService.findKillById(game_id, kill_id)); //or query?
+        if(isNull(killDTO)){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(killDTO);
+    }
+
+    @Operation(summary = "Add a kill to a specific game")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Kill successfully added",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Malformed request or wrong bite code",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "Bad request",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Game does not exist with supplied ID",
+                    content = @Content)
+    })
+    @PostMapping("{game_id}/kills")//POST: localhost:8080/api/v1/games/game_id/kills
+    public ResponseEntity<KillDTO> addKillToGame(@RequestBody KillPostDTO killPostDTO, @PathVariable int game_id, @RequestHeader String biteCode){
+
+        if(isNull(gameService.findById(game_id))){
+            return ResponseEntity.notFound().build();
+        }
+
+        if (killPostDTO.getKiller()==0 || killPostDTO.getVictim()==0 || killPostDTO.getKiller() == killPostDTO.getVictim()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findByBiteCode(biteCode));
+
+        if (isNull(playerDTO)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        playerService.turnHumanIntoZombie(playerDTO.getPlayer_id());
+
+        Kill kill = killMapper.killPostDTOToKill(killPostDTO);
+        killService.add(kill);
+        URI location = URI.create("api/v1/games/" + game_id + "/kills/" + kill.getKill_id());
+        return ResponseEntity.created(location).build();
+    }
+
+    @Operation(summary = "Updates a kill")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Mission successfully updated",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Malformed request",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Game not found with supplied ID OR this game does not include a kill of this ID",
+                    content = @Content)
+    })
+    @PutMapping({"{game_id}/kills/{kill_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
+    public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id){
+
+        if(isNull(gameService.findById(game_id))){
+            return ResponseEntity.notFound().build();
+        }
+
+        Kill kill = killMapper.killPutDTOToKill(killPutDTO);
+        killService.updateKillById(kill, kill_id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Delete a kill of a game by ID")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Mission successfully deleted",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Game not found with supplied ID OR this game does not include a kill of this ID",
+                    content = @Content)
+    })
+    @DeleteMapping({"{game_id}/kills/{kill_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
+    public ResponseEntity<MissionDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id){
+
+        if(isNull(gameService.findById(game_id))){
+            return ResponseEntity.notFound().build();
+        }
+
+        gameService.deleteKillById(kill_id);
 
         return ResponseEntity.noContent().build();
     }

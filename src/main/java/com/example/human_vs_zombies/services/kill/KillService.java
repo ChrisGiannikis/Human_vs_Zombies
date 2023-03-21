@@ -4,5 +4,5 @@ import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.services.CrudService;
 
 public interface KillService extends CrudService<Kill,Integer> {
-    public Kill updateKillById(Kill kill,int id);
+    void updateKillById(Kill kill,int id);
 }

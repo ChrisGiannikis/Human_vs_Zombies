@@ -3,7 +3,7 @@ package com.example.human_vs_zombies.controllers;
 import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
 import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
-import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
+import com.example.human_vs_zombies.dto.player.PlayerDTO;
 import com.example.human_vs_zombies.mappers.MissionMapper;
 import com.example.human_vs_zombies.services.mission.MissionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,7 +49,7 @@ public class MissionController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content( mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerSimpleDTO.class))}),
+                            schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse( responseCode = "404",
                     description = "Mission with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",
@@ -98,7 +98,7 @@ public class MissionController {
             @ApiResponse( responseCode =  "200",
                     description = "Mission deleted",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerSimpleDTO.class))}),
+                            schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse( responseCode = "404",
                     description = "Mission with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",

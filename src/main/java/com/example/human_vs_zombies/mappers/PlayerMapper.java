@@ -1,9 +1,9 @@
 package com.example.human_vs_zombies.mappers;
 
 import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
+import com.example.human_vs_zombies.dto.player.PlayerDTO;
 import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
 import com.example.human_vs_zombies.dto.player.PlayerPutDTO;
-import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
 import com.example.human_vs_zombies.entities.*;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.squadMember.SquadMemberService;
@@ -34,8 +34,11 @@ public abstract class PlayerMapper {
     //@Mapping(target = "chat", source = "chat", qualifiedByName = "chatToMessageId")
     public abstract PlayerAdminDTO playerToPlayerAdminDTO(Player player);     //mapper for PlayerAdminDTO
     public abstract Collection<PlayerAdminDTO> playerToPlayerAdminDTO(Collection<Player> players);  //mapper for PlayerAdminDTO to handle a collection of Players
-    public abstract PlayerSimpleDTO playerToPlayerSimpleDTO(Player player);  //mapper for PlayerSimpleDTO
-    public abstract Collection<PlayerSimpleDTO> playerToPlayerSimpleDTO(Collection<Player> player);  //mapper for PlayerSimpleDTO to handle a collection of Players
+
+    @Mapping(target = "user", source = "user.user_id")
+    @Mapping(target = "game", source = "game.game_id")
+    public abstract PlayerDTO playerToPlayerSimpleDTO(Player player);  //mapper for PlayerSimpleDTO
+    public abstract Collection<PlayerDTO> playerToPlayerSimpleDTO(Collection<Player> player);  //mapper for PlayerSimpleDTO to handle a collection of Players
 
     @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
     @Mapping(target = "game",source = "game", qualifiedByName = "GameIdToGame")
