@@ -1,6 +1,8 @@
 package com.example.human_vs_zombies.mappers;
 
-import com.example.human_vs_zombies.dto.SquadDTO;
+import com.example.human_vs_zombies.dto.squad.SquadDTO;
+import com.example.human_vs_zombies.dto.squad.SquadPostDTO;
+import com.example.human_vs_zombies.dto.squad.SquadPutDTO;
 import com.example.human_vs_zombies.entities.Game;
 import com.example.human_vs_zombies.entities.Squad;
 import com.example.human_vs_zombies.services.game.GameService;
@@ -27,6 +29,12 @@ public abstract class SquadMapper {
 
     @Named("gameIdToGame")
     Game mapIdToGame(int id) {return gameService.findById(id);}
+
+    @Mapping(target = "game", source = "game", qualifiedByName = "gameIdToGame")
+    public abstract Squad squadPostDTOToSquad(SquadPostDTO squadPostDTO);
+
+    @Mapping(target = "game", source = "game", qualifiedByName = "gameIdToGame")
+    public abstract Squad squadPutDTOToSquad(SquadPutDTO squadPutDTO);
 
     public abstract Collection<SquadDTO> squadToSquadDto(Collection<Squad> squads);
 }

@@ -1,14 +1,12 @@
-package com.example.human_vs_zombies.dto;
+package com.example.human_vs_zombies.dto.game;
 
 import com.example.human_vs_zombies.enums.State;
-import lombok.Data;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Component
-public class GameDTO {
-    private int game_id;
+@Getter
+@Setter
+public class GamePostDTO {
     private String name;
     private String description;
     private State state;
@@ -18,5 +16,4 @@ public class GameDTO {
     private double nw_lng;
     private double se_lat;
     private double se_lng;
-
 }

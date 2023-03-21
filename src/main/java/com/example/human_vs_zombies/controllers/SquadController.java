@@ -1,6 +1,8 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.SquadDTO;
+import com.example.human_vs_zombies.dto.squad.SquadDTO;
+import com.example.human_vs_zombies.dto.squad.SquadPostDTO;
+import com.example.human_vs_zombies.dto.squad.SquadPutDTO;
 import com.example.human_vs_zombies.mappers.SquadMapper;
 import com.example.human_vs_zombies.services.squad.SquadService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,11 +79,12 @@ public class SquadController {
                     content = @Content)
     })
     @PostMapping//POST: localhost:8080/api/v1/squads
-    public ResponseEntity<SquadDTO> add(@RequestBody SquadDTO squadDTO) {
-        if (isNull(squadDTO.getName()))
+    public ResponseEntity<SquadDTO> add(@RequestBody SquadPostDTO squadPostDTO) {
+        if (isNull(squadPostDTO.getName()))
             return ResponseEntity.badRequest().build();
-        squadService.add(squadMapper.squadDtoToSquad(squadDTO));
-        URI location = URI.create("squads/" + squadDTO.getSquad_id());
+        squadService.add(squadMapper.squadPostDTOToSquad(squadPostDTO));
+        int squad_id = squadMapper.squadPostDTOToSquad(squadPostDTO).getSquad_id();
+        URI location = URI.create("squads/" + squad_id);
         return ResponseEntity.created(location).build();
     }
 
@@ -99,12 +102,12 @@ public class SquadController {
                     content = @Content)
     })
     @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/squads/id
-    public ResponseEntity<SquadDTO> update(@RequestBody SquadDTO squadDTO, @PathVariable int id) {
-        if (id != squadDTO.getSquad_id()) {
+    public ResponseEntity<SquadDTO> update(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int id) {
+        if (id != squadPutDTO.getSquad_id()) {
             return ResponseEntity.badRequest().build();
         }
 
-        squadService.update(squadMapper.squadDtoToSquad(squadDTO));
+        squadService.update(squadMapper.squadPutDTOToSquad(squadPutDTO));
 
         return ResponseEntity.noContent().build();
     }

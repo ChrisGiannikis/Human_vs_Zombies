@@ -1,6 +1,8 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.GameDTO;
+import com.example.human_vs_zombies.dto.game.GameDTO;
+import com.example.human_vs_zombies.dto.game.GamePostDTO;
+import com.example.human_vs_zombies.dto.game.GamePutDTO;
 import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.kill.KillPostDTO;
 import com.example.human_vs_zombies.dto.kill.KillPutDTO;
@@ -97,11 +99,12 @@ public class GameController {
                     content = @Content),
     })
     @PostMapping//POST: localhost:8080/api/v1/games
-    public ResponseEntity<GameDTO> add(@RequestBody GameDTO gameDTO){
-        if (isNull(gameDTO.getName()))
+    public ResponseEntity<GameDTO> add(@RequestBody GamePostDTO gamePostDTO){
+        if (isNull(gamePostDTO.getName()))
             return ResponseEntity.badRequest().build();
-        gameService.add(gameMapper.gameDtoToGame(gameDTO));
-        URI location = URI.create("api/v1/games/" + gameDTO.getGame_id());
+        gameService.add(gameMapper.gamePostDtoToGame(gamePostDTO));
+        int game_id = gameMapper.gamePostDtoToGame(gamePostDTO).getGame_id();
+        URI location = URI.create("api/v1/games/" + game_id);
         return ResponseEntity.created(location).build();
     }
 
@@ -118,12 +121,12 @@ public class GameController {
                     content = @Content)
     })
     @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/games/id
-    public ResponseEntity<GameDTO> update(@RequestBody GameDTO gameDTO, @PathVariable int id){
-        if(id != gameDTO.getGame_id()){
+    public ResponseEntity<GameDTO> update(@RequestBody GamePutDTO gamePutDTO, @PathVariable int id){
+        if(id != gamePutDTO.getGame_id()){
             return ResponseEntity.badRequest().build();
         }
 
-        gameService.update(gameMapper.gameDtoToGame(gameDTO));
+        gameService.update(gameMapper.gamePutDtoToGame(gamePutDTO));
 
         return ResponseEntity.noContent().build();
     }

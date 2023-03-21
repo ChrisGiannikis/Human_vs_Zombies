@@ -36,14 +36,14 @@ public abstract class KillMapper {
 //    @Mapping(target = "game", source = "game.game_id")
 //    public abstract KillPostDTO killToKillPostDTO(Kill kill);
 
-    @Mapping(target = "kill_id", ignore = true)
+    //@Mapping(target = "kill_id", ignore = true)
     @Mapping(target = "victim", source = "victim", qualifiedByName = "playerIdToPlayer")
     @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
     public abstract Kill killPostDTOToKill(KillPostDTO killPostDTO);
 
-    @Mapping(target = "kill_id", ignore = true)
-    @Mapping(target = "victim", ignore = true)
-    @Mapping(target = "killer", ignore = true)
+    //@Mapping(target = "kill_id", ignore = true)
+    @Mapping(target = "victim", source = "victim", qualifiedByName = "playerIdToPlayer")
+    @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
     public abstract Kill killPutDTOToKill(KillPutDTO killPutDTO);
 
     @Named("playerIdToPlayer")

@@ -1,6 +1,8 @@
 package com.example.human_vs_zombies.mappers;
 
-import com.example.human_vs_zombies.dto.SquadMemberDTO;
+import com.example.human_vs_zombies.dto.squadMember.SquadMemberDTO;
+import com.example.human_vs_zombies.dto.squadMember.SquadMemberPostDTO;
+import com.example.human_vs_zombies.dto.squadMember.SquadMemberPutDTO;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.entities.Squad;
 import com.example.human_vs_zombies.entities.SquadMember;
@@ -30,6 +32,14 @@ public abstract class SquadMemberMapper {
     @Mapping(target = "player", source = "player", qualifiedByName = "playerIdToPlayer")
     @Mapping(target = "squadCheckIns", ignore = true)
     public abstract SquadMember squadMemberDtoToSquad(SquadMemberDTO squadMemberDTO);
+
+    @Mapping(target = "squad", source = "squad", qualifiedByName = "squadIdToSquad")
+    @Mapping(target = "player", source = "player", qualifiedByName = "playerIdToPlayer")
+    public abstract SquadMember squadMemberPostDtoToSquadMember(SquadMemberPostDTO squadMemberPostDTO);
+
+    @Mapping(target = "squad", source = "squad", qualifiedByName = "squadIdToSquad")
+    @Mapping(target = "player", source = "player", qualifiedByName = "playerIdToPlayer")
+    public abstract SquadMember squadMemberPutDtoToSquadMember(SquadMemberPutDTO squadMemberPutDTO);
 
     @Named("squadIdToSquad")
     Squad mapIdToSquad(int id){return squadService.findById(id);}
