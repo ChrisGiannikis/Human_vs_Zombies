@@ -1,8 +1,8 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.ChatDTO;
-import com.example.human_vs_zombies.dto.ChatPostDTO;
-import com.example.human_vs_zombies.dto.GameDTO;
+import com.example.human_vs_zombies.dto.chat.ChatDTO;
+import com.example.human_vs_zombies.dto.chat.ChatPostDTO;
+import com.example.human_vs_zombies.dto.game.GameDTO;
 import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.kill.KillPostDTO;
 import com.example.human_vs_zombies.dto.kill.KillPutDTO;
@@ -10,14 +10,18 @@ import com.example.human_vs_zombies.dto.mission.MissionDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
 import com.example.human_vs_zombies.dto.player.PlayerDTO;
+import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
+import com.example.human_vs_zombies.dto.player.PlayerPutDTO;
 import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.entities.Mission;
+import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.enums.ChatScope;
 import com.example.human_vs_zombies.mappers.*;
 import com.example.human_vs_zombies.services.chat.ChatService;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.kill.KillService;
+import com.example.human_vs_zombies.services.mission.MissionService;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,15 +35,15 @@ import java.net.URI;
 import java.util.Collection;
 
 import static java.util.Objects.isNull;
-
 @RestController
 @RequestMapping(path = "api/v1/games")
 public class GameController {
-
     private final GameService gameService;
     private final PlayerService playerService;
     private final KillService killService;
     private final ChatService chatService;
+
+    private final MissionService missionService;
     private final PlayerMapper playerMapper;
     private final GameMapper gameMapper;
     private final MissionMapper missionMapper;
@@ -47,11 +51,12 @@ public class GameController {
 
     private final ChatMapper chatMapper;
 
-    public GameController(GameService gameService, PlayerService playerService, KillService killService, ChatService chatService, PlayerMapper playerMapper, GameMapper gameMapper, MissionMapper missionMapper, KillMapper killMapper, ChatMapper chatMapper){
+    public GameController(GameService gameService, PlayerService playerService, KillService killService, ChatService chatService, MissionService missionService, PlayerMapper playerMapper, GameMapper gameMapper, MissionMapper missionMapper, KillMapper killMapper, ChatMapper chatMapper){
         this.gameService = gameService;
         this.playerService = playerService;
         this.killService = killService;
         this.chatService = chatService;
+        this.missionService = missionService;
         this.playerMapper = playerMapper;
         this.gameMapper = gameMapper;
         this.missionMapper = missionMapper;
@@ -213,14 +218,132 @@ public class GameController {
         return ResponseEntity.created(location).build();
     }
 
+    @Operation(summary = "Get all players of a game")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Success",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PlayerDTO.class)) }),
+            @ApiResponse(responseCode = "404",
+                    description = "Game does not exist with supplied ID OR did not find any players in this game",
+                    content = @Content)
+    })
+    @GetMapping("{game_id}/players")//GET: localhost:8080/api/v1/games/game_id/players
+    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id){
+        Collection<PlayerDTO> playerDTOS = playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+        if(playerDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(playerDTOS);
+    }
+
+    @Operation(summary = "Get a player by ID, of a specific game")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Success",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PlayerDTO.class))}),
+            @ApiResponse(responseCode = "404",
+                    description = "Game does not exist with supplied ID, OR this game does not include a player of this ID",
+                    content = @Content)
+
+    })
+    @GetMapping("{game_id}/players/{player_id}")//GET: localhost:8080/api/v1/games/game_id/players/player_id
+    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id){
+        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(gameService.findPlayerById(game_id,player_id));
+
+        if(isNull(playerDTO)){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(playerDTO);
+    }
+
+    @Operation(summary = "Add a player to a specific game")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Player successfully added",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Malformed request",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Game does not exist with supplied ID OR User does not exist with supplied ID",
+                    content = @Content)
+    })
+    @PostMapping("{game_id}/players")//POST: localhost:8080/api/v1/games/game_id/players
+    public ResponseEntity<PlayerDTO> addPlayerToGame(@RequestBody PlayerPostDTO playerPostDTO, @PathVariable int game_id){
+
+        if(isNull(gameService.findById(game_id))){
+            return ResponseEntity.notFound().build();
+        }
+
+        if ((playerPostDTO.isHuman() && playerPostDTO.isPatient_zero())){
+            return ResponseEntity.badRequest().build();
+        }
+
+        Player player = playerMapper.playerPostDTOtoPlayer(playerPostDTO);
+        gameService.addPlayer(game_id, player);
+        URI location = URI.create("api/v1/games/" + game_id + "/players/" + player.getPlayer_id());
+        return ResponseEntity.created(location).build();
+    }
+
+    @Operation(summary = "Updates a player")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Player successfully updated",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Malformed request",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Game not found with supplied ID OR this game does not include a player of this ID",
+                    content = @Content)
+    })
+    @PutMapping({"{game_id}/players/{player_id}"})//PUT: localhost:8080/api/v1/games/game_id/players/player_id
+    public ResponseEntity<PlayerDTO> updatePlayer(@RequestBody PlayerPutDTO playerPutDTO, @PathVariable int game_id, @PathVariable int player_id){
+
+        if(isNull(gameService.findById(game_id))){
+            return ResponseEntity.notFound().build();
+        }
+
+        if ((playerPutDTO.isHuman() && playerPutDTO.isPatient_zero())){
+            return ResponseEntity.badRequest().build();
+        }
+
+        Player player = playerMapper.playerPutDTOtoPlayer(playerPutDTO); //ask for put dto
+        gameService.updatePlayer(game_id, player_id, player);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Delete a player of a game by ID")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "204",
+                    description = "Player successfully deleted",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Game not found with supplied ID OR this game does not include a player of this ID",
+                    content = @Content)
+    })
+    @DeleteMapping({"{game_id}/players/{player_id}"})//DELETE: localhost:8080/api/v1/games/game_id/players/player_id
+    public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable int game_id, @PathVariable int player_id){
+
+        if(isNull(gameService.findById(game_id)) || !gameService.findById(game_id).getPlayers().contains(playerService.findById(player_id))){
+            return ResponseEntity.notFound().build();
+        }
+
+        playerService.deleteById(player_id);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Get all missions of a game")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Success",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MissionDTO.class)) }),
+                            schema = @Schema(implementation = PlayerDTO.class)) }),
             @ApiResponse(responseCode = "404",
-                    description = "Did not find any missions",
+                    description = "Game does not exist with supplied ID OR did not find any missions in this game",
                     content = @Content)
     })
     @GetMapping("{game_id}/missions")//GET: localhost:8080/api/v1/games/game_id/missions
@@ -324,7 +447,7 @@ public class GameController {
     @DeleteMapping({"{game_id}/missions/{mission_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
     public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id){
 
-        if(isNull(gameService.findById(game_id))){
+        if(isNull(gameService.findById(game_id)) || !gameService.findById(game_id).getMissions().contains(missionService.findById(mission_id))){
             return ResponseEntity.notFound().build();
         }
 

@@ -92,8 +92,8 @@ public class PlayerController {
     })
     @PutMapping("{player_id}")//PUT: localhost:8080/api/players/id
     public ResponseEntity updatePlayerById(@RequestBody PlayerPutDTO player, @PathVariable int player_id){
-        if (player_id != player.getPlayer_id())             //checking if the given id is not name as the given player id
-            return  ResponseEntity.badRequest().build();    //if ids are different returns bad request response
+//        if (player_id != player.getPlayer_id())             //checking if the given id is not name as the given player id
+//            return  ResponseEntity.badRequest().build();    //if ids are different returns bad request response
         if ( isNull( playerService.findById(player_id)) )   //checking if the requested mission exists
             return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
         playerService.update( playerMapper.playerPutDTOtoPlayer(player) ); //ids are same so call the update

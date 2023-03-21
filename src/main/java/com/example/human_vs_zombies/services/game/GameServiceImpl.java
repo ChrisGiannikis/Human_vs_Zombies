@@ -7,9 +7,11 @@ import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.exceptions.GameNotFoundException;
 import com.example.human_vs_zombies.exceptions.KillNotFoundException;
 import com.example.human_vs_zombies.exceptions.MissionNotFoundException;
+import com.example.human_vs_zombies.exceptions.PlayerNotFoundException;
 import com.example.human_vs_zombies.repositories.GameRepository;
 import com.example.human_vs_zombies.repositories.KillRepository;
 import com.example.human_vs_zombies.repositories.MissionRepository;
+import com.example.human_vs_zombies.repositories.PlayerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -25,10 +27,13 @@ public class GameServiceImpl implements GameService{
     private final MissionRepository missionRepository;
     private final KillRepository killRepository;
 
-    public GameServiceImpl(GameRepository gameRepository, MissionRepository missionRepository, KillRepository killRepository){
+    private final PlayerRepository playerRepository;
+
+    public GameServiceImpl(GameRepository gameRepository, MissionRepository missionRepository, KillRepository killRepository, PlayerRepository playerRepository){
         this.gameRepository = gameRepository;
         this.missionRepository = missionRepository;
         this.killRepository = killRepository;
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -60,6 +65,19 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
+    public Player findPlayerById(int game_id, int player_id) {
+        Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
+        Player player = playerRepository.findById(player_id).orElseThrow(() -> new PlayerNotFoundException(player_id));
+        Collection<Player> players = game.getPlayers();
+
+        if(players.contains(player)){
+            return player;
+        }
+
+        return null;
+    }
+
+    @Override
     public Mission findMissionById(int game_id, int mission_id) {
         Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
         Mission mission = missionRepository.findById(mission_id).orElseThrow(() -> new MissionNotFoundException(mission_id));
@@ -73,6 +91,16 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
+    public void addPlayer(int game_id, Player player) {
+        Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
+        Set<Player> players = game.getPlayers();
+        players.add(player);
+        game.setPlayers(players);
+
+        playerRepository.save(player);
+    }
+
+    @Override
     public void addMission(int game_id, Mission mission) {
         Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
         Set<Mission> missions = game.getMissions();
@@ -80,6 +108,26 @@ public class GameServiceImpl implements GameService{
         game.setMissions(missions);
 
         missionRepository.save(mission);
+    }
+
+    @Override
+    public void updatePlayer(int gameId, int playerId, Player updatedPlayer) {
+        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+        Player player = playerRepository.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
+        updatedPlayer.setPlayer_id(player.getPlayer_id());
+        updatedPlayer.setGame(player.getGame());
+        updatedPlayer.setChat(player.getChat());
+        updatedPlayer.setSquadMember(player.getSquadMember());
+        updatedPlayer.setDeath(player.getDeath());
+        updatedPlayer.setKills(player.getKills());
+        updatedPlayer.setUser(player.getUser());
+        Set<Player> players = game.getPlayers();
+        players.remove(player);
+        players.add(updatedPlayer);
+        game.setPlayers(players);
+        gameRepository.save(game);
+
+        playerRepository.save(updatedPlayer);
     }
 
     @Override

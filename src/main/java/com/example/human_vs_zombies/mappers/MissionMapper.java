@@ -28,7 +28,7 @@ public abstract class MissionMapper {
     public abstract Collection<MissionDTO> missionToMissionDTO(Collection<Mission> missions);
 
     @Mapping(target = "game", source = "game", qualifiedByName = "MissionIdToMission")
-//    @Mapping(target = "mission_id", ignore = true)
+    @Mapping(target = "mission_id", ignore = true)
     public abstract Mission missionPostDTOToMission(MissionPostDTO missionPostDTO);
     @Mapping(target = "game", source = "game", qualifiedByName = "MissionIdToMission")
     public abstract Mission missionPutDTOToMission(MissionPutDTO missionPutDTO);

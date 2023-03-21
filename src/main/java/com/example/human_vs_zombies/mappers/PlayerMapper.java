@@ -39,13 +39,27 @@ public abstract class PlayerMapper {
     @Mapping(target = "game", source = "game.game_id")
     public abstract PlayerDTO playerToPlayerSimpleDTO(Player player);  //mapper for PlayerSimpleDTO
     public abstract Collection<PlayerDTO> playerToPlayerSimpleDTO(Collection<Player> player);  //mapper for PlayerSimpleDTO to handle a collection of Players
+
+    @Mapping(target = "player_id", ignore = true)
+    @Mapping(target = "death", ignore = true)
+    @Mapping(target = "kills", ignore = true)
+    @Mapping(target = "squadMember", ignore = true)
+    @Mapping(target = "chat", ignore = true)
     @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
     @Mapping(target = "game",source = "game", qualifiedByName = "GameIdToGame")
-    @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
+//    @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
     public abstract Player playerPostDTOtoPlayer(PlayerPostDTO playerPostDTO); //mapper to convert playerPostDTO to player
-    @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
-    @Mapping(target = "game",source = "game", qualifiedByName = "GameIdToGame")
-    @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
+
+//    @Mapping(target = "player_id", source = "player_id", qualifiedByName = "")
+//    @Mapping(target = "death", source = "")
+    @Mapping(target = "player_id", ignore = true)
+    @Mapping(target = "death", ignore = true)
+    @Mapping(target = "kills", ignore = true)
+    @Mapping(target = "squadMember", ignore = true)
+    @Mapping(target = "chat", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "game", ignore = true)
+//    @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
     public abstract Player playerPutDTOtoPlayer(PlayerPutDTO playerPutDTO); //mapper to convert playerPutDTO to player
 
     @Named(value = "killsToKillsId")
