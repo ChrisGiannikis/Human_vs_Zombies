@@ -39,7 +39,6 @@ public abstract class PlayerMapper {
     @Mapping(target = "game", source = "game.game_id")
     public abstract PlayerDTO playerToPlayerSimpleDTO(Player player);  //mapper for PlayerSimpleDTO
     public abstract Collection<PlayerDTO> playerToPlayerSimpleDTO(Collection<Player> player);  //mapper for PlayerSimpleDTO to handle a collection of Players
-
     @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
     @Mapping(target = "game",source = "game", qualifiedByName = "GameIdToGame")
     @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")

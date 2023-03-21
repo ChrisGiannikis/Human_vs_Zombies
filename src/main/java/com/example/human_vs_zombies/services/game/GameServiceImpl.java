@@ -118,7 +118,6 @@ public class GameServiceImpl implements GameService{
         }
 
         return kills;
-
     }
 
     @Override

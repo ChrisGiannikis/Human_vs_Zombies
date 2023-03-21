@@ -1,5 +1,7 @@
 package com.example.human_vs_zombies.controllers;
 
+import com.example.human_vs_zombies.dto.ChatDTO;
+import com.example.human_vs_zombies.dto.ChatPostDTO;
 import com.example.human_vs_zombies.dto.GameDTO;
 import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.kill.KillPostDTO;
@@ -8,12 +10,12 @@ import com.example.human_vs_zombies.dto.mission.MissionDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
 import com.example.human_vs_zombies.dto.player.PlayerDTO;
+import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.entities.Mission;
-import com.example.human_vs_zombies.mappers.GameMapper;
-import com.example.human_vs_zombies.mappers.KillMapper;
-import com.example.human_vs_zombies.mappers.MissionMapper;
-import com.example.human_vs_zombies.mappers.PlayerMapper;
+import com.example.human_vs_zombies.enums.ChatScope;
+import com.example.human_vs_zombies.mappers.*;
+import com.example.human_vs_zombies.services.chat.ChatService;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.kill.KillService;
 import com.example.human_vs_zombies.services.player.PlayerService;
@@ -37,19 +39,24 @@ public class GameController {
     private final GameService gameService;
     private final PlayerService playerService;
     private final KillService killService;
+    private final ChatService chatService;
     private final PlayerMapper playerMapper;
     private final GameMapper gameMapper;
     private final MissionMapper missionMapper;
     private final KillMapper killMapper;
 
-    public GameController(GameService gameService, PlayerService playerService, KillService killService, PlayerMapper playerMapper, GameMapper gameMapper, MissionMapper missionMapper, KillMapper killMapper){
+    private final ChatMapper chatMapper;
+
+    public GameController(GameService gameService, PlayerService playerService, KillService killService, ChatService chatService, PlayerMapper playerMapper, GameMapper gameMapper, MissionMapper missionMapper, KillMapper killMapper, ChatMapper chatMapper){
         this.gameService = gameService;
         this.playerService = playerService;
         this.killService = killService;
+        this.chatService = chatService;
         this.playerMapper = playerMapper;
         this.gameMapper = gameMapper;
         this.missionMapper = missionMapper;
         this.killMapper = killMapper;
+        this.chatMapper = chatMapper;
     }
 
     @Operation(summary = "Get all games")
@@ -142,6 +149,68 @@ public class GameController {
         GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(id));
         gameService.deleteById(gameDTO.getGame_id());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get all chat of a game")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Success",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MissionDTO.class)) }),
+            @ApiResponse(responseCode = "404",
+                    description = "Did not find any messages",
+                    content = @Content)
+    })
+    @GetMapping("{game_id}/chat")//GET: localhost:8080/api/v1/games/game_id/chat
+    public ResponseEntity<Collection<ChatDTO>> getAllChat(@PathVariable int game_id, @RequestHeader ChatScope scope){
+
+        Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAll());
+        Collection<PlayerDTO> playerDTOS = playerMapper.playerToPlayerSimpleDTO(playerService.findAll());
+        playerDTOS.removeIf(player -> player.getGame()!=game_id);
+        chatDTOS.removeIf(chat -> chat.getChatScope() != scope || !playerDTOS.contains(playerMapper.playerToPlayerSimpleDTO(playerService.findById(chat.getPlayer()))));
+
+        if(chatDTOS.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(chatDTOS);
+    }
+
+    @Operation(summary = "Send a new message into a specific game")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Message successfully sent",
+                    content = @Content),
+            @ApiResponse(responseCode = "400",
+                    description = "Malformed request",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "Bad request",
+                    content = @Content),
+            @ApiResponse(responseCode = "404",
+                    description = "Game does not exist with supplied ID",
+                    content = @Content)
+    })
+    @PostMapping("{game_id}/chat")//POST: localhost:8080/api/v1/games/game_id/chat
+    public ResponseEntity<KillDTO> sendMessage(@RequestBody ChatPostDTO chatPostDTO, @PathVariable int game_id, @RequestHeader ChatScope scope){
+
+        if(isNull(gameService.findById(game_id))){
+            return ResponseEntity.notFound().build();
+        }
+
+        if (chatPostDTO.getPlayer()==0){
+            return ResponseEntity.badRequest().build();
+        }
+
+        Chat chat = chatMapper.chatPostDtoToChat(chatPostDTO);
+
+        chat.setChatScope(scope);
+
+        if(chat.getChatScope()==ChatScope.SQUAD){
+            chat.setSquad(playerService.findById(chatPostDTO.getPlayer()).getSquadMember().getSquad());
+        }
+
+        chatService.add(chat);
+        URI location = URI.create("api/v1/games/" + game_id + "/chat/" + chat.getMessage_id());
+        return ResponseEntity.created(location).build();
     }
 
     @Operation(summary = "Get all missions of a game")

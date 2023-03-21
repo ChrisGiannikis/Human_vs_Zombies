@@ -62,7 +62,6 @@ public class PlayerServiceImpl implements PlayerService {
 
         SquadMember squadMember = player.getSquadMember();
         if(squadMemberRepository.existsById(squadMember.getSquad_member_id())){
-            System.out.println("delete?");
             squadMemberRepository.deleteById(squadMember.getSquad_member_id());
         }
 
