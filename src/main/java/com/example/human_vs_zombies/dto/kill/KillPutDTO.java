@@ -12,7 +12,5 @@ public class KillPutDTO {
     private int kill_id;
     private double lat;
     private double lng;
-    private int killer;
-    private int victim;
     private ZonedDateTime time_of_death;
 }

@@ -42,8 +42,6 @@ public abstract class KillMapper {
     public abstract Kill killPostDTOToKill(KillPostDTO killPostDTO);
 
     //@Mapping(target = "kill_id", ignore = true)
-    @Mapping(target = "victim", source = "victim", qualifiedByName = "playerIdToPlayer")
-    @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
     public abstract Kill killPutDTOToKill(KillPutDTO killPutDTO);
 
     @Named("playerIdToPlayer")

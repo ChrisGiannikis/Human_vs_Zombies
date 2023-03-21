@@ -107,10 +107,8 @@ public class KillController {
         if(killPutDTO.getKill_id() != id)
             return ResponseEntity.badRequest().build();
         Kill kill = killMapper.killPutDTOToKill(killPutDTO);
-        KillDTO updatedDTO = killMapper.killToKillDTO(killService.update(kill));
-        return ResponseEntity.ok(updatedDTO);
-
-
+        killService.updateKillById(kill,id);
+        return ResponseEntity.noContent().build();
     }
 
 
