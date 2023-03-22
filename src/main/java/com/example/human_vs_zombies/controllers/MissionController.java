@@ -178,7 +178,7 @@ public class MissionController {
 
         missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
         MissionDTO missionDTO = missionDTOS.get(mission_id-1);
-        System.out.println(missionDTO.getMission_id());
+
         missionService.deleteById(missionDTO.getMission_id());
 
         return ResponseEntity.noContent().build();

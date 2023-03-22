@@ -48,10 +48,22 @@ public class KillServiceImpl implements KillService {
     }
 
     @Override
+    public Collection<Kill> findAllKillsByGameId(int gameId) {
+        return killRepository.findAllKillsByGameId(gameId);
+    }
+
+    @Override
+    public Kill findKillByKillIdAndGameId(int gameId, int killId) {
+        return killRepository.findKillByKillIdAndGameId(gameId, killId);
+    }
+
+    @Override
     public void deleteById(Integer id) {
 
         if(killRepository.existsById(id)){
             killRepository.deleteById(id);
+        }else{
+            throw new KillNotFoundException(id);
         }
 
     }

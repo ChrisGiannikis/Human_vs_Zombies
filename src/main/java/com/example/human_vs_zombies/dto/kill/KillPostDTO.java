@@ -12,13 +12,7 @@ public class KillPostDTO {
 
     private double lat;
     private double lng;
-
-    private int victim;
     private int killer;
-
-//    private String biteCode;
     private ZonedDateTime time_of_death;
-
-//    private Integer game;
 
 }

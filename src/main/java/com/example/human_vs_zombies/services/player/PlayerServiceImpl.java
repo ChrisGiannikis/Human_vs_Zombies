@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+import static java.util.Objects.isNull;
+
 @Service
 public class PlayerServiceImpl implements PlayerService {
 
@@ -61,11 +63,11 @@ public class PlayerServiceImpl implements PlayerService {
         player.setHuman(false);
 
         SquadMember squadMember = player.getSquadMember();
-        if(squadMemberRepository.existsById(squadMember.getSquad_member_id())){
-            squadMemberRepository.deleteById(squadMember.getSquad_member_id());
-        }
 
-        player.setSquadMember(null);
+        if(!isNull(squadMember)){
+            squadMemberRepository.deleteById(squadMember.getSquad_member_id());
+            player.setSquadMember(null);
+        }
     }
 
     @Override
