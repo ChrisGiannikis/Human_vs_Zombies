@@ -18,23 +18,18 @@ public abstract class KillMapper {
     @Autowired
     protected PlayerService playerService;
 
-<<<<<<< HEAD
 
-    @Mapping(target = "game", source = "game.game_id")
-    @Mapping(target = "killer",source = "killer.player_id")
-    @Mapping(target = "victim",source = "victim.player_id")
-=======
-//    @Mapping(target = "game", source = "game.game_id")
+
+
     @Mapping(target = "killer", source = "killer.player_id")
     @Mapping(target = "victim", source = "victim.player_id")
->>>>>>> f243b00c0efc9f51f6e419fde69d0c22dd586d8f
+
     public abstract KillDTO killToKillDTO(Kill kill);
 
     public abstract Collection<KillDTO> killsToKillsDTO(Collection<Kill> kills);
 
 
     //KillDTO -> Kill
-//    @Mapping(target = "game", source = "game", qualifiedByName = "gameIdToGame")
     @Mapping(target = "victim", source = "victim", qualifiedByName = "playerIdToPlayer")
     @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
     public abstract Kill killDTOToKill(KillDTO killDTO);
@@ -53,11 +48,4 @@ public abstract class KillMapper {
         return null;
     }
 
-//    @Named("gameIdToGame")
-//    Game mapIdToGame(Integer gameId) {
-//        if (gameId != null) {
-//            return gameService.findById(gameId);
-//        }
-//        return null;
-//    }
 }

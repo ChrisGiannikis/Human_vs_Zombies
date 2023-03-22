@@ -50,25 +50,29 @@ public class KillController {
                     description = "Did not find any kills",
                     content = @Content)
     })
-<<<<<<< HEAD
+
 
 
 
     @GetMapping("/{game_id}/kill")
-    public ResponseEntity findAll(@PathVariable("game_id") int id){
-        if(gameService.findById(id) == null){
+    public ResponseEntity findAll(@PathVariable("game_id") int id) {
+        if (gameService.findById(id) == null) {
             throw new GameNotFoundException(id);
         }
-        //Collection<KillDTO> killDTOs = killMapper.killsToKillsDTO(killService.findKillsByGameId(id));
-        return ResponseEntity.ok(killMapper.killsToKillsDTO(killService.findAll()));
-=======
+
+        Collection<KillDTO> killDTOs = killMapper.killsToKillsDTO(killService.findKillsByGameId(id));
+
+        //return ResponseEntity.ok(killMapper.killsToKillsDTO(killService.findAll()));
+        return ResponseEntity.ok(killDTOs);
+    }
+
     @GetMapping("/kills")
     public ResponseEntity<Collection<KillDTO>> findAll(){
         Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAll());
         if(killDTOS.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(killDTOS);
->>>>>>> f243b00c0efc9f51f6e419fde69d0c22dd586d8f
+
     }
 
 
@@ -88,6 +92,15 @@ public class KillController {
     public ResponseEntity findById(@PathVariable("kill_id") int id){
         return ResponseEntity.ok(killMapper.killToKillDTO(killService.findById(id)));
     }
+
+    @GetMapping("/{gameId}/kill/{killId}")
+    public ResponseEntity<KillDTO> getById(@PathVariable int gameId, @PathVariable int killId) {
+       KillDTO killDΤΟ = killMapper.killToKillDTO(killService.findByGameIdAndKillId(gameId, killId));
+        return ResponseEntity.ok(killDΤΟ);
+    }
+
+
+
 
     // create a kill
     @Operation(summary = "Creates a kill object.")
@@ -116,9 +129,11 @@ public class KillController {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
             @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
     })
+
+
     @PutMapping("/kill/{kill_id}")
-<<<<<<< HEAD
-    public ResponseEntity updateKillById(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
+
+    public ResponseEntity updateKillById(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id) {
         Kill kill = killService.findById(id);
        /* killDTO.setId(id);
         killDTO.setLng(kill.getLng());
@@ -129,14 +144,14 @@ public class KillController {
         killService.updateKillById(killMapper.killDTOToKill(killDTO),id); */
         killService.update(killMapper.killDTOToKill(killDTO));
         return ResponseEntity.noContent().build();
-=======
+    }
     public ResponseEntity updateKill(@RequestBody KillDTO killDTO, @PathVariable("kill_id") int id){
         if(killDTO.getKill_id() != id)
             return ResponseEntity.badRequest().build();
         Kill kill = killMapper.killDTOToKill(killDTO);
         KillDTO updatedDTO = killMapper.killToKillDTO(killService.update(kill));
         return ResponseEntity.ok(updatedDTO);
->>>>>>> f243b00c0efc9f51f6e419fde69d0c22dd586d8f
+
 
 
     }

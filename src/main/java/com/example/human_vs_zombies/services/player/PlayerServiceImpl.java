@@ -5,6 +5,7 @@ import com.example.human_vs_zombies.exceptions.PlayerNotFoundException;
 import com.example.human_vs_zombies.repositories.PlayerRepository;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.services.kill.KillService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -15,7 +16,7 @@ public class PlayerServiceImpl implements PlayerService {
     private final PlayerRepository playerRepository;
     private final KillService killService;
 
-    public PlayerServiceImpl(PlayerRepository playerRepository, KillService killService) {
+    public PlayerServiceImpl(PlayerRepository playerRepository, @Lazy KillService killService) {
         this.playerRepository = playerRepository;
         this.killService = killService;
     }

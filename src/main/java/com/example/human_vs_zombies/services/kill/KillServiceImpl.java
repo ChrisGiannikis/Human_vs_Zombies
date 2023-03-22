@@ -6,18 +6,21 @@ import com.example.human_vs_zombies.repositories.KillRepository;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 @Service
 public class KillServiceImpl implements KillService {
 
+    @Autowired
     private final KillRepository killRepository;
 
     @Autowired
-    protected PlayerService playerService;
-    @Autowired
-    protected GameService gameService;
+    private PlayerService playerService;
+
+
+
 
 
     public KillServiceImpl(KillRepository killRepository) {
@@ -30,7 +33,6 @@ public class KillServiceImpl implements KillService {
     }
     @Override
     public Collection<Kill> findKillsByGameId(Integer gameId) {
-       // return gameService.findById(gameId).getKills();
        return playerService.findById(gameId).getKills();
     }
 
@@ -70,4 +72,10 @@ public class KillServiceImpl implements KillService {
         }
 
     }
+
+    @Override
+    public Kill findByGameIdAndKillId(int gameId, int killId) {
+        return this.findKillsByGameId(gameId).stream().filter(kill -> kill.getKill_id() == killId).findFirst().orElseThrow(()->new KillNotFoundException(killId));
+    }
+
 }
