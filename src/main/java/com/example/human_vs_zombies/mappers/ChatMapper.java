@@ -2,7 +2,6 @@ package com.example.human_vs_zombies.mappers;
 
 import com.example.human_vs_zombies.dto.chat.ChatDTO;
 import com.example.human_vs_zombies.dto.chat.ChatPostDTO;
-import com.example.human_vs_zombies.dto.chat.ChatPutDTO;
 import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.entities.Squad;
@@ -27,19 +26,10 @@ public abstract class ChatMapper {
     public abstract ChatDTO chatToChatDto(Chat chat);
 
     @Mapping(target = "player", source = "player", qualifiedByName = "playerIdToPlayer")
-    @Mapping(target = "squad", source = "squad", qualifiedByName = "squadIdToSquad")
-    public abstract Chat chatDtoToChat(ChatDTO chatDTO);
-
-    @Mapping(target = "player", source = "player", qualifiedByName = "playerIdToPlayer")
     @Mapping(target = "message_id", ignore = true)
     @Mapping(target = "squad", ignore = true)
     @Mapping(target = "chatScope", ignore = true)
-//    @Mapping(target = "squad", source = "player.squad", qualifiedByName = "squadIdToSquad")
     public abstract Chat chatPostDtoToChat(ChatPostDTO chatPostDTO);
-
-    @Mapping(target = "player", source = "player", qualifiedByName = "playerIdToPlayer")
-    @Mapping(target = "squad", source = "squad", qualifiedByName = "squadIdToSquad")
-    public abstract Chat chatPutDtoToChat(ChatPutDTO chatPutDTO);
 
     @Named("playerIdToPlayer")
     Player mapIdToPlayer(int id){
