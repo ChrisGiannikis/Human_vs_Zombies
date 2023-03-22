@@ -14,6 +14,10 @@ INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Ser
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Steven', false, 'Gerrard');
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('David', false, 'Beckham');
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('John', false, 'Terry');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Giannis', false, 'Antetokounmpo');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Damian', false, 'Lillard');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Khris', false, 'Middleton');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Steph', false, 'Curry');
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Warren', true, 'West');
 
 INSERT INTO player("bite_code", "human", "patient_zero", "game_id", "user_id") VALUES ('JSDGA436JK', true, false, 1, 1);

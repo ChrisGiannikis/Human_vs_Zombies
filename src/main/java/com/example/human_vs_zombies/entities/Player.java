@@ -15,7 +15,7 @@ public class Player {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private int player_id;
 
-    @Column(length = 40, unique = true)
+    @Column(length = 20, unique = true)
     private String biteCode;
 
     @Column(nullable = false)

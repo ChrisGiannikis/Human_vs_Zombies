@@ -3,15 +3,10 @@ package com.example.human_vs_zombies.controllers;
 import com.example.human_vs_zombies.dto.game.GameDTO;
 import com.example.human_vs_zombies.dto.game.GamePostDTO;
 import com.example.human_vs_zombies.dto.game.GamePutDTO;
-import com.example.human_vs_zombies.dto.player.PlayerDTO;
-import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
-import com.example.human_vs_zombies.dto.player.PlayerPutDTO;
 import com.example.human_vs_zombies.entities.Game;
-import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.enums.State;
 import com.example.human_vs_zombies.mappers.*;
 import com.example.human_vs_zombies.services.game.GameService;
-import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,14 +23,10 @@ import static java.util.Objects.isNull;
 @RequestMapping(path = "api/v1/games")
 public class GameController {
     private final GameService gameService;
-    private final PlayerService playerService;
-    private final PlayerMapper playerMapper;
     private final GameMapper gameMapper;
 
-    public GameController(GameService gameService, PlayerService playerService, PlayerMapper playerMapper, GameMapper gameMapper){
+    public GameController(GameService gameService, GameMapper gameMapper){
         this.gameService = gameService;
-        this.playerService = playerService;
-        this.playerMapper = playerMapper;
         this.gameMapper = gameMapper;
     }
 
@@ -199,123 +190,123 @@ public class GameController {
 //        return ResponseEntity.created(location).build();
 //    }
 
-    @Operation(summary = "Get all players of a game")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Success",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerDTO.class)) }),
-            @ApiResponse(responseCode = "404",
-                    description = "Game does not exist with supplied ID OR did not find any players in this game",
-                    content = @Content)
-    })
-    @GetMapping("{game_id}/players")//GET: localhost:8080/api/v1/games/game_id/players
-    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id){
-        Collection<PlayerDTO> playerDTOS = playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
-        if(playerDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(playerDTOS);
-    }
+//    @Operation(summary = "Get all players of a game")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200",
+//                    description = "Success",
+//                    content = { @Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = PlayerDTO.class)) }),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game does not exist with supplied ID OR did not find any players in this game",
+//                    content = @Content)
+//    })
+//    @GetMapping("{game_id}/players")//GET: localhost:8080/api/v1/games/game_id/players
+//    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id){
+//        Collection<PlayerDTO> playerDTOS = playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+//        if(playerDTOS.isEmpty())
+//            return ResponseEntity.notFound().build();
+//        return ResponseEntity.ok(playerDTOS);
+//    }
 
-    @Operation(summary = "Get a player by ID, of a specific game")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Success",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerDTO.class))}),
-            @ApiResponse(responseCode = "404",
-                    description = "Game does not exist with supplied ID, OR this game does not include a player of this ID",
-                    content = @Content)
+//    @Operation(summary = "Get a player by ID, of a specific game")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200",
+//                    description = "Success",
+//                    content = {@Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = PlayerDTO.class))}),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game does not exist with supplied ID, OR this game does not include a player of this ID",
+//                    content = @Content)
+//
+//    })
+//    @GetMapping("{game_id}/players/{player_id}")//GET: localhost:8080/api/v1/games/game_id/players/player_id
+//    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id){
+//        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(gameService.findPlayerById(game_id,player_id));
+//
+//        if(isNull(playerDTO)){
+//            return ResponseEntity.notFound().build();
+//        }
+//        return ResponseEntity.ok(playerDTO);
+//    }
 
-    })
-    @GetMapping("{game_id}/players/{player_id}")//GET: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id){
-        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(gameService.findPlayerById(game_id,player_id));
+//    @Operation(summary = "Add a player to a specific game")
+//    @ApiResponses( value = {
+//            @ApiResponse(responseCode = "201",
+//                    description = "Player successfully added",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "400",
+//                    description = "Malformed request",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game does not exist with supplied ID OR User does not exist with supplied ID",
+//                    content = @Content)
+//    })
+//    @PostMapping("{game_id}/players")//POST: localhost:8080/api/v1/games/game_id/players
+//    public ResponseEntity<PlayerDTO> addPlayerToGame(@RequestBody PlayerPostDTO playerPostDTO, @PathVariable int game_id){
+//
+//        if(isNull(gameService.findById(game_id))){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        if ((playerPostDTO.isHuman() && playerPostDTO.isPatient_zero())){
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        Player player = playerMapper.playerPostDTOtoPlayer(playerPostDTO);
+//        gameService.addPlayer(game_id, player);
+//        URI location = URI.create("api/v1/games/" + game_id + "/players/" + player.getPlayer_id());
+//        return ResponseEntity.created(location).build();
+//    }
 
-        if(isNull(playerDTO)){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(playerDTO);
-    }
+//    @Operation(summary = "Updates a player")
+//    @ApiResponses( value = {
+//            @ApiResponse(responseCode = "204",
+//                    description = "Player successfully updated",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "400",
+//                    description = "Malformed request",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game not found with supplied ID OR this game does not include a player of this ID",
+//                    content = @Content)
+//    })
+//    @PutMapping({"{game_id}/players/{player_id}"})//PUT: localhost:8080/api/v1/games/game_id/players/player_id
+//    public ResponseEntity<PlayerDTO> updatePlayer(@RequestBody PlayerPutDTO playerPutDTO, @PathVariable int game_id, @PathVariable int player_id){
+//
+//        if(isNull(gameService.findById(game_id))){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        if ((playerPutDTO.isHuman() && playerPutDTO.isPatient_zero())){
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        Player player = playerMapper.playerPutDTOtoPlayer(playerPutDTO); //ask for put dto
+//        gameService.updatePlayer(game_id, player_id, player);
+//
+//        return ResponseEntity.noContent().build();
+//    }
 
-    @Operation(summary = "Add a player to a specific game")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "201",
-                    description = "Player successfully added",
-                    content = @Content),
-            @ApiResponse(responseCode = "400",
-                    description = "Malformed request",
-                    content = @Content),
-            @ApiResponse(responseCode = "404",
-                    description = "Game does not exist with supplied ID OR User does not exist with supplied ID",
-                    content = @Content)
-    })
-    @PostMapping("{game_id}/players")//POST: localhost:8080/api/v1/games/game_id/players
-    public ResponseEntity<PlayerDTO> addPlayerToGame(@RequestBody PlayerPostDTO playerPostDTO, @PathVariable int game_id){
-
-        if(isNull(gameService.findById(game_id))){
-            return ResponseEntity.notFound().build();
-        }
-
-        if ((playerPostDTO.isHuman() && playerPostDTO.isPatient_zero())){
-            return ResponseEntity.badRequest().build();
-        }
-
-        Player player = playerMapper.playerPostDTOtoPlayer(playerPostDTO);
-        gameService.addPlayer(game_id, player);
-        URI location = URI.create("api/v1/games/" + game_id + "/players/" + player.getPlayer_id());
-        return ResponseEntity.created(location).build();
-    }
-
-    @Operation(summary = "Updates a player")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "204",
-                    description = "Player successfully updated",
-                    content = @Content),
-            @ApiResponse(responseCode = "400",
-                    description = "Malformed request",
-                    content = @Content),
-            @ApiResponse(responseCode = "404",
-                    description = "Game not found with supplied ID OR this game does not include a player of this ID",
-                    content = @Content)
-    })
-    @PutMapping({"{game_id}/players/{player_id}"})//PUT: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> updatePlayer(@RequestBody PlayerPutDTO playerPutDTO, @PathVariable int game_id, @PathVariable int player_id){
-
-        if(isNull(gameService.findById(game_id))){
-            return ResponseEntity.notFound().build();
-        }
-
-        if ((playerPutDTO.isHuman() && playerPutDTO.isPatient_zero())){
-            return ResponseEntity.badRequest().build();
-        }
-
-        Player player = playerMapper.playerPutDTOtoPlayer(playerPutDTO); //ask for put dto
-        gameService.updatePlayer(game_id, player_id, player);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Delete a player of a game by ID")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "204",
-                    description = "Player successfully deleted",
-                    content = @Content),
-            @ApiResponse(responseCode = "404",
-                    description = "Game not found with supplied ID OR this game does not include a player of this ID",
-                    content = @Content)
-    })
-    @DeleteMapping({"{game_id}/players/{player_id}"})//DELETE: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable int game_id, @PathVariable int player_id){
-
-        if(isNull(gameService.findById(game_id)) || !gameService.findById(game_id).getPlayers().contains(playerService.findById(player_id))){
-            return ResponseEntity.notFound().build();
-        }
-
-        playerService.deleteById(player_id);
-
-        return ResponseEntity.noContent().build();
-    }
+//    @Operation(summary = "Delete a player of a game by ID")
+//    @ApiResponses( value = {
+//            @ApiResponse(responseCode = "204",
+//                    description = "Player successfully deleted",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game not found with supplied ID OR this game does not include a player of this ID",
+//                    content = @Content)
+//    })
+//    @DeleteMapping({"{game_id}/players/{player_id}"})//DELETE: localhost:8080/api/v1/games/game_id/players/player_id
+//    public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable int game_id, @PathVariable int player_id){
+//
+//        if(isNull(gameService.findById(game_id)) || !gameService.findById(game_id).getPlayers().contains(playerService.findById(player_id))){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        playerService.deleteById(player_id);
+//
+//        return ResponseEntity.noContent().build();
+//    }
 
 //    @Operation(summary = "Get all missions of a game")
 //    @ApiResponses(value = {

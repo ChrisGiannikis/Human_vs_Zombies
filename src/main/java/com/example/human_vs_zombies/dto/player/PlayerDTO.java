@@ -11,4 +11,5 @@ public class PlayerDTO {
     private boolean patient_zero;
     private int user;
     private int game;
+    private String full_name;
 }

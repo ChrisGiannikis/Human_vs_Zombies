@@ -1,11 +1,14 @@
 package com.example.human_vs_zombies.services.kill;
 
 import com.example.human_vs_zombies.entities.Kill;
+import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.exceptions.KillNotFoundException;
 import com.example.human_vs_zombies.repositories.KillRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Set;
+
 @Service
 public class KillServiceImpl implements KillService {
 
@@ -34,7 +37,13 @@ public class KillServiceImpl implements KillService {
 
     @Override
     public Kill update(Kill kill) {
-        this.findById(kill.getKill_id());
+        Player victim = kill.getVictim();
+        victim.setDeath(kill);
+
+        Set<Kill> kills = kill.getKiller().getKills();
+        kills.add(kill);
+        kill.getKiller().setKills(kills);
+
         return killRepository.save(kill);
     }
 

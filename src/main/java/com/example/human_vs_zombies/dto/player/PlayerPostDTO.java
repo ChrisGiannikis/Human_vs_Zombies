@@ -6,13 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PlayerPostDTO {
-    private String biteCode;
     private boolean human;
     private boolean patient_zero;
     private int user;
-    private int game;
-//    private int death; //0 for no death or the id of the kill
-//    private Set<Integer> kills;
-//    private int squadMember;
-//    private Set<Chat> chat;
+
 }
