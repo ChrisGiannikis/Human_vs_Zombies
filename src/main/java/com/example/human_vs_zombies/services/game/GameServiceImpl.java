@@ -2,15 +2,12 @@ package com.example.human_vs_zombies.services.game;
 
 import com.example.human_vs_zombies.entities.Game;
 import com.example.human_vs_zombies.entities.Kill;
-import com.example.human_vs_zombies.entities.Mission;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.exceptions.GameNotFoundException;
 import com.example.human_vs_zombies.exceptions.KillNotFoundException;
-import com.example.human_vs_zombies.exceptions.MissionNotFoundException;
 import com.example.human_vs_zombies.exceptions.PlayerNotFoundException;
 import com.example.human_vs_zombies.repositories.GameRepository;
 import com.example.human_vs_zombies.repositories.KillRepository;
-import com.example.human_vs_zombies.repositories.MissionRepository;
 import com.example.human_vs_zombies.repositories.PlayerRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,21 +21,14 @@ import static java.util.Objects.isNull;
 public class GameServiceImpl implements GameService{
 
     private final GameRepository gameRepository;
-    private final MissionRepository missionRepository;
     private final KillRepository killRepository;
 
     private final PlayerRepository playerRepository;
 
-    public GameServiceImpl(GameRepository gameRepository, MissionRepository missionRepository, KillRepository killRepository, PlayerRepository playerRepository){
+    public GameServiceImpl(GameRepository gameRepository, KillRepository killRepository, PlayerRepository playerRepository) {
         this.gameRepository = gameRepository;
-        this.missionRepository = missionRepository;
         this.killRepository = killRepository;
         this.playerRepository = playerRepository;
-    }
-
-    @Override
-    public long count(){
-        return gameRepository.count();
     }
 
     @Override
@@ -56,19 +46,12 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public Game update(Game game) {
-        return gameRepository.save(game);
-    }
-
-    @Override
-    public void updateById(Game updatedGame, int game_id) {
-        Game game = this.findById(game_id);
-        updatedGame.setGame_id(game_id);
+    public Game update(Game updatedGame) {
+        Game game = this.findById(updatedGame.getGame_id());
         updatedGame.setMissions(game.getMissions());
         updatedGame.setPlayers(game.getPlayers());
         updatedGame.setSquads(game.getSquads());
-
-        gameRepository.save(updatedGame);
+        return gameRepository.save(updatedGame);
     }
 
     @Override
@@ -90,19 +73,6 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public Mission findMissionById(int game_id, int mission_id) {
-        Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
-        Mission mission = missionRepository.findById(mission_id).orElseThrow(() -> new MissionNotFoundException(mission_id));
-        Collection<Mission> missions = game.getMissions();
-
-        if(missions.contains(mission)){
-            return mission;
-        }
-
-        return null;
-    }
-
-    @Override
     public void addPlayer(int game_id, Player player) {
         Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
         Set<Player> players = game.getPlayers();
@@ -110,16 +80,6 @@ public class GameServiceImpl implements GameService{
         game.setPlayers(players);
 
         playerRepository.save(player);
-    }
-
-    @Override
-    public void addMission(int game_id, Mission mission) {
-        Game game = gameRepository.findById(game_id).orElseThrow(() -> new GameNotFoundException(game_id));
-        Set<Mission> missions = game.getMissions();
-        missions.add(mission);
-        game.setMissions(missions);
-
-        missionRepository.save(mission);
     }
 
     @Override
@@ -140,30 +100,6 @@ public class GameServiceImpl implements GameService{
         gameRepository.save(game);
 
         playerRepository.save(updatedPlayer);
-    }
-
-    @Override
-    public void updateMission(int gameId, int missionId, Mission updatedMission) {
-        Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
-        Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new MissionNotFoundException(missionId));
-        Set<Mission> missions = game.getMissions();
-        missions.remove(mission);
-        missions.add(updatedMission);
-        game.setMissions(missions);
-        gameRepository.save(game);
-
-        missionRepository.save(updatedMission);
-    }
-
-    @Override
-    public void deleteMissionById(int missionId) {
-
-        if(missionRepository.existsById(missionId)){
-            missionRepository.deleteById(missionId);
-        } else{
-            throw new MissionNotFoundException(missionId);
-        }
-
     }
 
     @Override

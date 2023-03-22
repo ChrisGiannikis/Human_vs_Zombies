@@ -7,6 +7,7 @@ import com.example.human_vs_zombies.repositories.ChatRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Set;
 
 @Service
 public class ChatServiceImpl implements ChatService{
@@ -39,8 +40,11 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public Chat add(Chat entity) {
-        return chatRepository.save(entity);
+    public Chat add(Chat chat) {
+        Set<Chat> chats = chat.getPlayer().getChat();
+        chats.add(chat);
+        chat.getPlayer().setChat(chats);
+        return chatRepository.save(chat);
     }
 
     @Override

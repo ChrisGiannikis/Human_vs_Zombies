@@ -7,18 +7,16 @@ import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.kill.KillPostDTO;
 import com.example.human_vs_zombies.dto.kill.KillPutDTO;
 import com.example.human_vs_zombies.dto.mission.MissionDTO;
-import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
-import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
 import com.example.human_vs_zombies.dto.player.PlayerDTO;
 import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
 import com.example.human_vs_zombies.dto.player.PlayerPutDTO;
+import com.example.human_vs_zombies.entities.Game;
 import com.example.human_vs_zombies.entities.Kill;
-import com.example.human_vs_zombies.entities.Mission;
 import com.example.human_vs_zombies.entities.Player;
+import com.example.human_vs_zombies.enums.State;
 import com.example.human_vs_zombies.mappers.*;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.kill.KillService;
-import com.example.human_vs_zombies.services.mission.MissionService;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -38,20 +36,16 @@ public class GameController {
     private final GameService gameService;
     private final PlayerService playerService;
     private final KillService killService;
-    private final MissionService missionService;
     private final PlayerMapper playerMapper;
     private final GameMapper gameMapper;
-    private final MissionMapper missionMapper;
     private final KillMapper killMapper;
 
-    public GameController(GameService gameService, PlayerService playerService, KillService killService, MissionService missionService, PlayerMapper playerMapper, GameMapper gameMapper, MissionMapper missionMapper, KillMapper killMapper){
+    public GameController(GameService gameService, PlayerService playerService, KillService killService, PlayerMapper playerMapper, GameMapper gameMapper, KillMapper killMapper){
         this.gameService = gameService;
         this.playerService = playerService;
         this.killService = killService;
-        this.missionService = missionService;
         this.playerMapper = playerMapper;
         this.gameMapper = gameMapper;
-        this.missionMapper = missionMapper;
         this.killMapper = killMapper;
     }
 
@@ -103,8 +97,8 @@ public class GameController {
     public ResponseEntity<GamePostDTO> addGame(@RequestBody GamePostDTO gamePostDTO){
         if (isNull(gamePostDTO.getName()))
             return ResponseEntity.badRequest().build();
-        gameService.add(gameMapper.gamePostDtoToGame(gamePostDTO));
-        URI location = URI.create("api/v1/games/" + (gameService.count()+1));
+        Game game = gameService.add(gameMapper.gamePostDtoToGame(gamePostDTO));
+        URI location = URI.create("api/v1/games/" + game.getGame_id());
         return ResponseEntity.created(location).build();
     }
 
@@ -121,12 +115,16 @@ public class GameController {
                     content = @Content)
     })
     @PutMapping("{game_id}")//PUT: localhost:8080/api/v1/games/id
-    public ResponseEntity<GamePutDTO> updateGame(@RequestBody GamePutDTO gamePutDTO, @PathVariable int game_id){
+    public ResponseEntity<GamePutDTO> updateGame(@RequestBody GamePutDTO gamePutDTO, @PathVariable int game_id, @RequestHeader State state){
+
         if(isNull(gameService.findById(game_id))){
             return ResponseEntity.notFound().build();
         }
 
-        gameService.updateById(gameMapper.gamePutDtoToGame(gamePutDTO), game_id);
+        Game game = gameMapper.gamePutDtoToGame(gamePutDTO);
+        game.setGame_id(game_id);
+        game.setState(state);
+        gameService.update(game);
 
         return ResponseEntity.noContent().build();
     }
@@ -141,7 +139,7 @@ public class GameController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}"})//DELETE: localhost:8080/api/v1/games/id
-    public ResponseEntity<GameDTO> delete(@PathVariable int game_id){
+    public ResponseEntity<GameDTO> deleteGame(@PathVariable int game_id){
         if(isNull(gameService.findById(game_id))){
             return ResponseEntity.notFound().build();
         }
@@ -329,125 +327,125 @@ public class GameController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get all missions of a game")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Success",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerDTO.class)) }),
-            @ApiResponse(responseCode = "404",
-                    description = "Game does not exist with supplied ID OR did not find any missions in this game",
-                    content = @Content)
-    })
-    @GetMapping("{game_id}/missions")//GET: localhost:8080/api/v1/games/game_id/missions
-    public ResponseEntity<Collection<MissionDTO>> getAllMissions(@PathVariable int game_id){
-        Collection<MissionDTO> missionDTOS = missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
-        if(missionDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(missionDTOS);
-    }
+//    @Operation(summary = "Get all missions of a game")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200",
+//                    description = "Success",
+//                    content = { @Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = PlayerDTO.class)) }),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game does not exist with supplied ID OR did not find any missions in this game",
+//                    content = @Content)
+//    })
+//    @GetMapping("{game_id}/missions")//GET: localhost:8080/api/v1/games/game_id/missions
+//    public ResponseEntity<Collection<MissionDTO>> getAllMissions(@PathVariable int game_id){
+//        Collection<MissionDTO> missionDTOS = missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+//        if(missionDTOS.isEmpty())
+//            return ResponseEntity.notFound().build();
+//        return ResponseEntity.ok(missionDTOS);
+//    }
 
 
-    @Operation(summary = "Get a mission by ID, of a specific game")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Success",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MissionDTO.class))}),
-            @ApiResponse(responseCode = "404",
-                    description = "Game does not exist with supplied ID, OR this game does not include a mission of this ID",
-                    content = @Content)
+//    @Operation(summary = "Get a mission by ID, of a specific game")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200",
+//                    description = "Success",
+//                    content = {@Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = MissionDTO.class))}),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game does not exist with supplied ID, OR this game does not include a mission of this ID",
+//                    content = @Content)
+//
+//    })
+//    @GetMapping("{game_id}/missions/{mission_id}")//GET: localhost:8080/api/v1/games/game_id/missions/mission_id
+//    public ResponseEntity<MissionDTO> getMissionById(@PathVariable int game_id, @PathVariable int mission_id){
+//        MissionDTO missionDTO = missionMapper.missionToMissionDTO(gameService.findMissionById(game_id, mission_id));
+//
+//        if(isNull(missionDTO)){
+//            return ResponseEntity.notFound().build();
+//        }
+//        return ResponseEntity.ok(missionDTO);
+//    }
 
-    })
-    @GetMapping("{game_id}/missions/{mission_id}")//GET: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> getMissionById(@PathVariable int game_id, @PathVariable int mission_id){
-        MissionDTO missionDTO = missionMapper.missionToMissionDTO(gameService.findMissionById(game_id, mission_id));
-
-        if(isNull(missionDTO)){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(missionDTO);
-    }
-
-    @Operation(summary = "Add a mission to a specific game")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "201",
-                    description = "Mission successfully added",
-                    content = @Content),
-            @ApiResponse(responseCode = "400",
-                    description = "Malformed request",
-                    content = @Content),
-            @ApiResponse(responseCode = "404",
-                    description = "Game does not exist with supplied ID",
-                    content = @Content)
-    })
-    @PostMapping("{game_id}/missions")//POST: localhost:8080/api/v1/games/game_id/missions
-    public ResponseEntity<MissionDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id){
-
-        if(isNull(gameService.findById(game_id))){
-            return ResponseEntity.notFound().build();
-        }
-
-        if ((!missionPostDTO.isHuman_visible() && !missionPostDTO.isZombie_visible()) || isNull(missionPostDTO.getName())){
-            return ResponseEntity.badRequest().build();
-        }
-
-        Mission mission = missionMapper.missionPostDTOToMission(missionPostDTO);
-        gameService.addMission(game_id, mission);
-        URI location = URI.create("api/v1/games/" + game_id + "/missions/" + mission.getMission_id());
-        return ResponseEntity.created(location).build();
-    }
+//    @Operation(summary = "Add a mission to a specific game")
+//    @ApiResponses( value = {
+//            @ApiResponse(responseCode = "201",
+//                    description = "Mission successfully added",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "400",
+//                    description = "Malformed request",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game does not exist with supplied ID",
+//                    content = @Content)
+//    })
+//    @PostMapping("{game_id}/missions")//POST: localhost:8080/api/v1/games/game_id/missions
+//    public ResponseEntity<MissionDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id){
+//
+//        if(isNull(gameService.findById(game_id))){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        if ((!missionPostDTO.isHuman_visible() && !missionPostDTO.isZombie_visible()) || isNull(missionPostDTO.getName())){
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        Mission mission = missionMapper.missionPostDTOToMission(missionPostDTO);
+//        gameService.addMission(game_id, mission);
+//        URI location = URI.create("api/v1/games/" + game_id + "/missions/" + mission.getMission_id());
+//        return ResponseEntity.created(location).build();
+//    }
 
 
-    @Operation(summary = "Updates a mission")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "204",
-                    description = "Mission successfully updated",
-                    content = @Content),
-            @ApiResponse(responseCode = "400",
-                    description = "Malformed request",
-                    content = @Content),
-            @ApiResponse(responseCode = "404",
-                    description = "Game not found with supplied ID OR this game does not include a mission of this ID",
-                    content = @Content)
-    })
-    @PutMapping({"{game_id}/missions/{mission_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id){
+//    @Operation(summary = "Updates a mission")
+//    @ApiResponses( value = {
+//            @ApiResponse(responseCode = "204",
+//                    description = "Mission successfully updated",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "400",
+//                    description = "Malformed request",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game not found with supplied ID OR this game does not include a mission of this ID",
+//                    content = @Content)
+//    })
+//    @PutMapping({"{game_id}/missions/{mission_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
+//    public ResponseEntity<MissionDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id){
+//
+//        if(isNull(gameService.findById(game_id))){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        if ((!missionPutDTO.isHuman_visible() && !missionPutDTO.isZombie_visible()) || isNull(missionPutDTO.getName())){
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        Mission mission = missionMapper.missionPutDTOToMission(missionPutDTO);
+//        gameService.updateMission(game_id, mission_id, mission);
+//
+//        return ResponseEntity.noContent().build();
+//    }
 
-        if(isNull(gameService.findById(game_id))){
-            return ResponseEntity.notFound().build();
-        }
-
-        if ((!missionPutDTO.isHuman_visible() && !missionPutDTO.isZombie_visible()) || isNull(missionPutDTO.getName())){
-            return ResponseEntity.badRequest().build();
-        }
-
-        Mission mission = missionMapper.missionPutDTOToMission(missionPutDTO); //ask for put dto
-        gameService.updateMission(game_id, mission_id, mission);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Delete a mission of a game by ID")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "204",
-                    description = "Mission successfully deleted",
-                    content = @Content),
-            @ApiResponse(responseCode = "404",
-                    description = "Game not found with supplied ID OR this game does not include a mission of this ID",
-                    content = @Content)
-    })
-    @DeleteMapping({"{game_id}/missions/{mission_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id){
-
-        if(isNull(gameService.findById(game_id)) || !gameService.findById(game_id).getMissions().contains(missionService.findById(mission_id))){
-            return ResponseEntity.notFound().build();
-        }
-
-        gameService.deleteMissionById(mission_id);
-
-        return ResponseEntity.noContent().build();
-    }
+//    @Operation(summary = "Delete a mission of a game by ID")
+//    @ApiResponses( value = {
+//            @ApiResponse(responseCode = "204",
+//                    description = "Mission successfully deleted",
+//                    content = @Content),
+//            @ApiResponse(responseCode = "404",
+//                    description = "Game not found with supplied ID OR this game does not include a mission of this ID",
+//                    content = @Content)
+//    })
+//    @DeleteMapping({"{game_id}/missions/{mission_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
+//    public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id){
+//
+//        if(isNull(gameService.findById(game_id)) || !gameService.findById(game_id).getMissions().contains(missionService.findById(mission_id))){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        gameService.deleteMissionById(mission_id);
+//
+//        return ResponseEntity.noContent().build();
+//    }
 
     @Operation(summary = "Get all kills of a game")
     @ApiResponses(value = {
