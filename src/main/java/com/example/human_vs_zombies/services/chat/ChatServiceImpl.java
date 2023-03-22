@@ -1,6 +1,7 @@
 package com.example.human_vs_zombies.services.chat;
 
 import com.example.human_vs_zombies.entities.Chat;
+import com.example.human_vs_zombies.enums.ChatScope;
 import com.example.human_vs_zombies.exceptions.ChatNotFoundException;
 import com.example.human_vs_zombies.repositories.ChatRepository;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,18 @@ public class ChatServiceImpl implements ChatService{
     @Override
     public Collection<Chat> findAll() {
         return chatRepository.findAll();
+    }
+
+    @Override
+    public Collection<Chat> findAllChatByGameId(int game_id, ChatScope scope) {
+        Collection<Chat> chat = this.findAll();
+        chat.removeIf(ch -> ch.getPlayer().getGame().getGame_id()!=game_id || ch.getChatScope() != scope);
+        return chat;
+    }
+
+    @Override
+    public int countMessagesOfGame(int gameId) {
+        return chatRepository.countMessagesOfGame(gameId, ChatScope.SQUAD);
     }
 
     @Override

@@ -2,11 +2,8 @@ package com.example.human_vs_zombies.dto.game;
 
 import com.example.human_vs_zombies.enums.State;
 import lombok.Data;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 @Data
-@Component
 public class GameDTO {
     private int game_id;
     private String name;

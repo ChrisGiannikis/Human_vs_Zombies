@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class ChatPostDTO {
-
     private String message;
     private int player;
 }

@@ -37,7 +37,12 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public Game findById(Integer id){
+    public long count(){
+        return gameRepository.count();
+    }
+
+    @Override
+    public Game findById(Integer id) {
         return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException(id));
     }
 
@@ -45,23 +50,30 @@ public class GameServiceImpl implements GameService{
     public Collection<Game> findAll() {
         return gameRepository.findAll();
     }
+    @Override
+    public Game add(Game game) {
+        return gameRepository.save(game);
+    }
 
     @Override
-    public Game add(Game entity) {return gameRepository.save(entity);}
+    public Game update(Game game) {
+        return gameRepository.save(game);
+    }
 
     @Override
-    public Game update(Game entity) {
-        return gameRepository.save(entity);
+    public void updateById(Game updatedGame, int game_id) {
+        Game game = this.findById(game_id);
+        updatedGame.setGame_id(game_id);
+        updatedGame.setMissions(game.getMissions());
+        updatedGame.setPlayers(game.getPlayers());
+        updatedGame.setSquads(game.getSquads());
+
+        gameRepository.save(updatedGame);
     }
 
     @Override
     public void deleteById(Integer id) {
-
-        if(gameRepository.existsById(id)) {
-
-            gameRepository.deleteById(id);
-        }
-
+       gameRepository.deleteById(id);
     }
 
     @Override

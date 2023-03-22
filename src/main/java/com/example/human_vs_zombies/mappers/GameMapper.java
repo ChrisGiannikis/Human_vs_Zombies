@@ -15,13 +15,16 @@ public interface GameMapper {
 
     GameDTO gameToGameDto(Game game);
 
+    @Mapping(target = "game_id", ignore = true)
     @Mapping(target = "players", ignore = true)
     @Mapping(target = "missions", ignore = true)
     @Mapping(target = "squads", ignore = true)
-    Game gameDtoToGame(GameDTO gameDTO);
-
     Game gamePostDtoToGame(GamePostDTO gamePostDTO);
 
+    @Mapping(target = "game_id", ignore = true)
+    @Mapping(target = "players", ignore = true)
+    @Mapping(target = "missions", ignore = true)
+    @Mapping(target = "squads", ignore = true)
     Game gamePutDtoToGame(GamePutDTO gamePutDTO);
 
     Collection<GameDTO> gameToGameDto(Collection<Game> games);

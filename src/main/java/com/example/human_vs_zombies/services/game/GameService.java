@@ -10,6 +10,10 @@ import java.util.Collection;
 
 public interface GameService extends CrudService<Game, Integer> {
 
+    long count();
+
+    void updateById(Game updatedGame, int game_id);
+
     Player findPlayerById(int game_id, int player_id);
 
     Mission findMissionById(int game_id, int mission_id);
