@@ -33,7 +33,6 @@ public abstract class PlayerMapper {
 
     @Mapping(target = "user", source = "user.user_id")
     @Mapping(target = "game", source = "game.game_id")
-//    @Mapping(target = "full_name", source = "user.last_name")
     @Mapping(target = "full_name", source = "user.user_id", qualifiedByName = "UserNamesToFullName")
     public abstract PlayerDTO playerToPlayerSimpleDTO(Player player);  //mapper for PlayerSimpleDTO
     public abstract Collection<PlayerDTO> playerToPlayerSimpleDTO(Collection<Player> player);  //mapper for PlayerSimpleDTO to handle a collection of Players
@@ -46,7 +45,6 @@ public abstract class PlayerMapper {
     @Mapping(target = "game", ignore = true)
     @Mapping(target = "biteCode", ignore = true)
     @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
-//    @Mapping(target = "game",source = "game", qualifiedByName = "GameIdToGame")
     public abstract Player playerPostDTOtoPlayer(PlayerPostDTO playerPostDTO); //mapper to convert playerPostDTO to player
 
 //    @Mapping(target = "player_id", source = "player_id", qualifiedByName = "")

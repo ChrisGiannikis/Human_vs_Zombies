@@ -6,11 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SquadPutDTO {
-    private int squad_id;
-
     private String name;
 
-    private boolean is_human;
-
-    private int game;
 }

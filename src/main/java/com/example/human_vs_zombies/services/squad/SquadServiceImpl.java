@@ -27,8 +27,10 @@ public class SquadServiceImpl implements SquadService{
     }
 
     @Override
-    public Squad add(Squad entity) {
-        return squadRepository.save(entity);
+    public Squad add(Squad squad)
+    {
+
+        return squadRepository.save(squad);
     }
 
     @Override
@@ -39,9 +41,9 @@ public class SquadServiceImpl implements SquadService{
     @Override
     public void deleteById(Integer id) {
         if(squadRepository.existsById(id)){
-//            Squad squad = squadRepository.findById(id).orElseThrow(() -> new SquadNotFoundException(id));
-//            squad.getChat().forEach(s -> s.setSquad(null));
-//            squad.getSquadMembers().forEach(s -> s.setSquad(null));
+
+            Squad squad = this.findById(id);
+            squad.getGame().getSquads().remove(squad);
 
             squadRepository.deleteById(id);
         }

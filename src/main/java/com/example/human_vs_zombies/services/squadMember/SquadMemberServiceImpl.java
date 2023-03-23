@@ -1,6 +1,8 @@
 package com.example.human_vs_zombies.services.squadMember;
 
+import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.entities.SquadMember;
+import com.example.human_vs_zombies.enums.Rank;
 import com.example.human_vs_zombies.exceptions.SquadMemberNotFoundException;
 import com.example.human_vs_zombies.repositories.SquadCheckInRepository;
 import com.example.human_vs_zombies.repositories.SquadMemberRepository;
@@ -12,11 +14,9 @@ import java.util.Collection;
 public class SquadMemberServiceImpl implements SquadMemberService{
 
     private final SquadMemberRepository squadMemberRepository;
-//    private final SquadCheckInRepository squadCheckInRepository;
 
     public SquadMemberServiceImpl(SquadMemberRepository squadMemberRepository, SquadCheckInRepository squadCheckInRepository) {
         this.squadMemberRepository = squadMemberRepository;
-//        this.squadCheckInRepository = squadCheckInRepository;
     }
 
     @Override
@@ -30,8 +30,8 @@ public class SquadMemberServiceImpl implements SquadMemberService{
     }
 
     @Override
-    public SquadMember add(SquadMember entity) {
-        return squadMemberRepository.save(entity);
+    public SquadMember add(SquadMember squadMember) {
+        return squadMemberRepository.save(squadMember);
     }
 
     @Override
@@ -49,5 +49,13 @@ public class SquadMemberServiceImpl implements SquadMemberService{
 //            }
             squadMemberRepository.deleteById(id);
         }
+    }
+
+    @Override
+    public SquadMember addSquadLeader(Player player, int squad_id) {
+        SquadMember squadMember = new SquadMember();
+        squadMember.setPlayer(player);
+        squadMember.setRank(Rank.LEADER);
+        return squadMemberRepository.save(squadMember);
     }
 }

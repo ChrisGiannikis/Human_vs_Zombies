@@ -42,10 +42,10 @@ INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible"
 INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 2 description', null, false, true, 'Mission 2 name', null, 2);
 INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 3 description', null, true, true, 'Mission 3 name', null, 1);
 
-INSERT INTO squad("is_human", "name", "game_id") VALUES (true, 'Squad 1 name', 1);
-INSERT INTO squad("is_human", "name", "game_id") VALUES (false, 'Squad 2 name', 1);
-INSERT INTO squad("is_human", "name", "game_id") VALUES (true, 'Squad 3 name', 2);
-INSERT INTO squad("is_human", "name", "game_id") VALUES (false, 'Squad 4 name', 3);
+INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Squad 1 name', 1);
+INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Squad 2 name', 1);
+INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Squad 3 name', 2);
+INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Squad 4 name', 3);
 
 INSERT INTO squad_member("rank", "player_id", "squad_id") VALUES ('LEADER', 1, 1);
 INSERT INTO squad_member("rank", "player_id", "squad_id") VALUES ('HIGH', 2, 1);

@@ -19,12 +19,14 @@ public interface GameMapper {
     @Mapping(target = "players", ignore = true)
     @Mapping(target = "missions", ignore = true)
     @Mapping(target = "squads", ignore = true)
+    @Mapping(target = "state", ignore = true)
     Game gamePostDtoToGame(GamePostDTO gamePostDTO);
 
     @Mapping(target = "game_id", ignore = true)
     @Mapping(target = "players", ignore = true)
     @Mapping(target = "missions", ignore = true)
     @Mapping(target = "squads", ignore = true)
+    @Mapping(target = "state", ignore = true)
     Game gamePutDtoToGame(GamePutDTO gamePutDTO);
 
     Collection<GameDTO> gameToGameDto(Collection<Game> games);

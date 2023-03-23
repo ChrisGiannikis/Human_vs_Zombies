@@ -21,7 +21,7 @@ public class Squad {
     private String name;
 
     @Column(nullable = false)
-    private boolean is_human;
+    private boolean human;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")

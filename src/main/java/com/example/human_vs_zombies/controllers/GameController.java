@@ -79,6 +79,7 @@ public class GameController {
         if (isNull(gamePostDTO.getName()))
             return ResponseEntity.badRequest().build();
         Game game = gameService.add(gameMapper.gamePostDtoToGame(gamePostDTO));
+        game.setState(State.REGISTRATION);
         URI location = URI.create("api/v1/games/" + game.getGame_id());
         return ResponseEntity.created(location).build();
     }
