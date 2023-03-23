@@ -74,15 +74,22 @@ public class SquadController {
 
     })
     @GetMapping("{game_id}/squads/{squad_id}")//GET: localhost:8080/api/v1/games/game_id/squads
-    public ResponseEntity<SquadDTO> getBySquadById(@PathVariable int game_id, @PathVariable int squad_id) {
-        List<SquadDTO> squadDTOS = (List<SquadDTO>)squadMapper.squadToSquadDto(gameService.findById(game_id).getSquads());
+    public ResponseEntity<SquadDTO> getSquadById(@PathVariable int game_id, @PathVariable int squad_id) {
+//        List<SquadDTO> squadDTOS = (List<SquadDTO>)squadMapper.squadToSquadDto(gameService.findById(game_id).getSquads());
+//
+//        if(squadDTOS.isEmpty() || squadDTOS.size()<squad_id){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        squadDTOS.sort(Comparator.comparingInt(SquadDTO::getSquad_id));
+//        SquadDTO squadDTO = squadDTOS.get(squad_id-1);
+        Squad squad = squadService.findById(squad_id);
 
-        if(squadDTOS.isEmpty() || squadDTOS.size()<squad_id){
+        if(isNull(gameService.findById(game_id)) || squad.getGame().getGame_id()!=game_id){
             return ResponseEntity.notFound().build();
         }
 
-        squadDTOS.sort(Comparator.comparingInt(SquadDTO::getSquad_id));
-        SquadDTO squadDTO = squadDTOS.get(squad_id-1);
+        SquadDTO squadDTO = squadMapper.squadToSquadDto(squad);
         return ResponseEntity.ok(squadDTO);
     }
 

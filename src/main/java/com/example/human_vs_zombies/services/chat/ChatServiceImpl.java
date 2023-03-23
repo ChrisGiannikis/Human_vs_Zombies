@@ -28,15 +28,26 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public Collection<Chat> findAllChatByGameId(int game_id, ChatScope scope) {
-        Collection<Chat> chat = this.findAll();
-        chat.removeIf(ch -> ch.getPlayer().getGame().getGame_id()!=game_id || ch.getChatScope() != scope);
-        return chat;
+    public Collection<Chat> findAllNonSquadChatByGameId(int gameId, boolean isHuman) {
+        return chatRepository.findAllNonSquadChatByGameId(gameId, ChatScope.GLOBAL, ChatScope.FACTION, isHuman);
     }
 
     @Override
-    public int countMessagesOfGame(int gameId) {
-        return chatRepository.countMessagesOfGame(gameId, ChatScope.SQUAD);
+    public Collection<Chat> findAllSquadChatByGameId(int gameId, int squadId) {
+        return chatRepository.findAllSquadChatByGameId(gameId, squadId, ChatScope.SQUAD);
+    }
+
+    @Override
+    public void addSquadChat(Chat chat) {
+        Set<Chat> chats = chat.getPlayer().getChat();
+        chats.add(chat);
+        chat.getPlayer().setChat(chats);
+
+        Set<Chat> squadChats = chat.getSquad().getChat();
+        squadChats.add(chat);
+        chat.getSquad().setChat(squadChats);
+
+        chatRepository.save(chat);
     }
 
     @Override
@@ -44,6 +55,7 @@ public class ChatServiceImpl implements ChatService{
         Set<Chat> chats = chat.getPlayer().getChat();
         chats.add(chat);
         chat.getPlayer().setChat(chats);
+
         return chatRepository.save(chat);
     }
 
