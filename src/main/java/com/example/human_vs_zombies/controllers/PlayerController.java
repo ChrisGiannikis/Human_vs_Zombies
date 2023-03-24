@@ -23,10 +23,12 @@ import static java.util.Objects.isNull;
 public class PlayerController {
 
     private final PlayerService playerService;
+    private final InfoController infoController;
     private final PlayerMapper playerMapper;
 
-    public PlayerController(PlayerService playerService, PlayerMapper playerMapper) {
+    public PlayerController(PlayerService playerService, InfoController infoController, PlayerMapper playerMapper) {
         this.playerService = playerService;
+        this.infoController = infoController;
         this.playerMapper = playerMapper;
     }
 
@@ -41,6 +43,7 @@ public class PlayerController {
     })
     @GetMapping//GET: localhost:8080/api/players
     public ResponseEntity findAll(){
+
         /*//if request has been from admin use the playerToPlayerAdminDTO else use the playerToPlayerSimpleDTO
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) ) :
@@ -62,7 +65,7 @@ public class PlayerController {
                             schema = @Schema(implementation = ProblemDetail.class)))
     })
     @GetMapping("{player_id}")//GET: localhost:8080/api/players/id
-    public ResponseEntity findById(@PathVariable int player_id, Boolean is_administrator){
+    public ResponseEntity findById(@PathVariable int player_id){
        /* //if request has been from admin use the playerToPlayerAdminDTO else use the playerToPlayerSimpleDTO
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO( playerService.findById(id)) ) :
@@ -78,6 +81,7 @@ public class PlayerController {
     })
     @PostMapping//POST: localhost:8080/api/players
     public ResponseEntity createPlayer(@RequestBody PlayerPostDTO player) throws URISyntaxException {
+
         playerService.add( playerMapper.playerPostDTOtoPlayer(player) ) ; //adds a new player
         int player_id = playerMapper.playerPostDTOtoPlayer(player).getPlayer_id();
         URI uri = new URI("api/players/" + player_id);  //making a new uri with the new players id
