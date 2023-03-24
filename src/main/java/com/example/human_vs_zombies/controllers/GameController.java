@@ -78,8 +78,9 @@ public class GameController {
     public ResponseEntity<GamePostDTO> addGame(@RequestBody GamePostDTO gamePostDTO){
         if (isNull(gamePostDTO.getName()))
             return ResponseEntity.badRequest().build();
-        Game game = gameService.add(gameMapper.gamePostDtoToGame(gamePostDTO));
+        Game game = gameMapper.gamePostDtoToGame(gamePostDTO);
         game.setState(State.REGISTRATION);
+        gameService.add(game);
         URI location = URI.create("api/v1/games/" + game.getGame_id());
         return ResponseEntity.created(location).build();
     }
@@ -90,7 +91,7 @@ public class GameController {
                     description = "Game successfully updated",
                     content = @Content),
             @ApiResponse(responseCode = "400",
-                    description = "Malformed request",
+                    description = "Game completed, cannot be updated",
                     content = @Content),
             @ApiResponse(responseCode = "404",
                     description = "Game not found with supplied ID",
@@ -99,8 +100,14 @@ public class GameController {
     @PutMapping("{game_id}")//PUT: localhost:8080/api/v1/games/id
     public ResponseEntity<GamePutDTO> updateGame(@RequestBody GamePutDTO gamePutDTO, @PathVariable int game_id, @RequestHeader State state){
 
-        if(isNull(gameService.findById(game_id))){
+        GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(game_id));
+
+        if(isNull(gameDTO)){
             return ResponseEntity.notFound().build();
+        }
+
+        if(state == State.REGISTRATION || gameDTO.getState()==State.COMPLETED){
+            return ResponseEntity.badRequest().build();
         }
 
         Game game = gameMapper.gamePutDtoToGame(gamePutDTO);

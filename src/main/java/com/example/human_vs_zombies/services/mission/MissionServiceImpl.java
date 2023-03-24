@@ -36,11 +36,9 @@ public class MissionServiceImpl implements MissionService {
 
     @Override
     public void deleteById(Integer id) {
-        //1) check if mission exists
+        //1) check if mission exists;
         Mission mission = this.findById(id);
-        Set<Mission> missions = mission.getGame().getMissions();
-        missions.remove(mission);
-        mission.getGame().setMissions(missions);
+        mission.getGame().getMissions().remove(mission);
         //3) delete this mission
         missionRepository.deleteById(id);
     }

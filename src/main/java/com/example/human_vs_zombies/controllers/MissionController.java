@@ -3,22 +3,26 @@ package com.example.human_vs_zombies.controllers;
 import com.example.human_vs_zombies.dto.mission.MissionDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
+import com.example.human_vs_zombies.dto.player.PlayerDTO;
 import com.example.human_vs_zombies.entities.Game;
 import com.example.human_vs_zombies.entities.Mission;
+import com.example.human_vs_zombies.enums.State;
 import com.example.human_vs_zombies.mappers.MissionMapper;
+import com.example.human_vs_zombies.mappers.PlayerMapper;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.mission.MissionService;
+import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 
 import static java.util.Objects.isNull;
 
@@ -28,12 +32,16 @@ public class MissionController {
 
     private final MissionService missionService;
     private final GameService gameService;
+    private final PlayerService playerService;
     private final MissionMapper missionMapper;
+    private final PlayerMapper playerMapper;
 
-    public MissionController(MissionService missionService, GameService gameService, MissionMapper missionMapper) {
+    public MissionController(MissionService missionService, GameService gameService, PlayerService playerService, MissionMapper missionMapper, PlayerMapper playerMapper) {
         this.missionService = missionService;
         this.gameService = gameService;
+        this.playerService = playerService;
         this.missionMapper = missionMapper;
+        this.playerMapper = playerMapper;
     }
 
     @Operation(summary = "Get all missions of a game")
@@ -66,16 +74,28 @@ public class MissionController {
 
     })
     @GetMapping("{game_id}/missions/{mission_id}")//GET: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> getMissionById(@PathVariable int game_id, @PathVariable int mission_id){
+    public ResponseEntity<MissionDTO> getMissionById(@PathVariable int game_id, @PathVariable int mission_id, @RequestHeader int requestedByPlayerWithId){
 
-        List<MissionDTO> missionDTOS = (List<MissionDTO>)missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+        MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 
-        if(missionDTOS.isEmpty() || missionDTOS.size()<mission_id){
+        if(missionDTO.getGame() != game_id){
             return ResponseEntity.notFound().build();
         }
 
-        missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
-        MissionDTO missionDTO = missionDTOS.get(mission_id-1);
+        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+        if((playerDTO.isHuman() != missionDTO.isHuman_visible() && !playerDTO.isHuman() == !missionDTO.isZombie_visible()) || playerDTO.getGame()!=game_id){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+//        List<MissionDTO> missionDTOS = (List<MissionDTO>)missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+//
+//        if(missionDTOS.isEmpty() || missionDTOS.size()<mission_id){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
+//        MissionDTO missionDTO = missionDTOS.get(mission_id-1);
 
         return ResponseEntity.ok(missionDTO);
     }
@@ -95,13 +115,19 @@ public class MissionController {
     @PostMapping("{game_id}/missions")//POST: localhost:8080/api/v1/games/game_id/missions
     public ResponseEntity<MissionDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id){
 
+        //---------------ADMIN ONLY------------------------------------------------------------------------------------------
+
+        if ((!missionPostDTO.isHuman_visible() && !missionPostDTO.isZombie_visible()) || isNull(missionPostDTO.getName())){
+            return ResponseEntity.badRequest().build();
+        }
+
         Game game = gameService.findById(game_id);
 
         if(isNull(game)){
             return ResponseEntity.notFound().build();
         }
 
-        if ((!missionPostDTO.isHuman_visible() && !missionPostDTO.isZombie_visible()) || isNull(missionPostDTO.getName())){
+        if(game.getState() == State.COMPLETED){
             return ResponseEntity.badRequest().build();
         }
 
@@ -127,9 +153,11 @@ public class MissionController {
     @PutMapping({"{game_id}/missions/{mission_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
     public ResponseEntity<MissionDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id){
 
-        Game game = gameService.findById(game_id);
+        //---------------ADMIN ONLY------------------------------------------------------------------------------------------
 
-        if(isNull(game)){
+        MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
+
+        if(missionDTO.getGame() != game_id){
             return ResponseEntity.notFound().build();
         }
 
@@ -137,14 +165,20 @@ public class MissionController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<MissionDTO> missionDTOS = (List<MissionDTO>)missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+        Game game = gameService.findById(game_id);
 
-        if(missionDTOS.isEmpty() || missionDTOS.size()<mission_id){
-            return ResponseEntity.notFound().build();
+        if(game.getState() == State.COMPLETED){
+            return ResponseEntity.badRequest().build();
         }
-
-        missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
-        MissionDTO missionDTO = missionDTOS.get(mission_id-1);
+//
+//        List<MissionDTO> missionDTOS = (List<MissionDTO>)missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+//
+//        if(missionDTOS.isEmpty() || missionDTOS.size()<mission_id){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
+//        MissionDTO missionDTO = missionDTOS.get(mission_id-1);
 
         Mission mission = missionMapper.missionPutDTOToMission(missionPutDTO);
         mission.setMission_id(missionDTO.getMission_id());
@@ -166,18 +200,22 @@ public class MissionController {
     @DeleteMapping({"{game_id}/missions/{mission_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
     public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id){
 
-        if(isNull(gameService.findById(game_id))){
+        //---------------ADMIN ONLY------------------------------------------------------------------------------------------
+
+        MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
+
+        if(missionDTO.getGame() != game_id){
             return ResponseEntity.notFound().build();
         }
-
-        List<MissionDTO> missionDTOS = (List<MissionDTO>)missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
-
-        if(missionDTOS.isEmpty() || missionDTOS.size()<mission_id){
-            return ResponseEntity.notFound().build();
-        }
-
-        missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
-        MissionDTO missionDTO = missionDTOS.get(mission_id-1);
+//
+//        List<MissionDTO> missionDTOS = (List<MissionDTO>)missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+//
+//        if(missionDTOS.isEmpty() || missionDTOS.size()<mission_id){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
+//        MissionDTO missionDTO = missionDTOS.get(mission_id-1);
 
         missionService.deleteById(missionDTO.getMission_id());
 
