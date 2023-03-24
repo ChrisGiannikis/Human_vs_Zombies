@@ -12,7 +12,9 @@ public class MissionServiceImpl implements MissionService {
 
     private final MissionRepository missionRepository;
 
-    public MissionServiceImpl(MissionRepository missionRepository) { this.missionRepository = missionRepository; }
+    public MissionServiceImpl(MissionRepository missionRepository) {
+        this.missionRepository = missionRepository;
+    }
 
     @Override
     public Mission findById(Integer id) { return missionRepository.findById(id).orElseThrow(() -> new MissionNotFoundException(id)); }
@@ -21,15 +23,19 @@ public class MissionServiceImpl implements MissionService {
     public Collection<Mission> findAll() { return missionRepository.findAll(); }
 
     @Override
-    public Mission add(Mission entity) { return missionRepository.save(entity); }
+    public Mission add(Mission mission) {
+        mission.getGame().getMissions().add(mission);
+        return missionRepository.save(mission);
+    }
 
     @Override
-    public Mission update(Mission entity) { return missionRepository.save(entity); }
+    public Mission update(Mission mission) { return missionRepository.save(mission); }
 
     @Override
     public void deleteById(Integer id) {
-        //1) check if mission exists
-        this.findById(id);
+        //1) check if mission exists;
+        Mission mission = this.findById(id);
+        mission.getGame().getMissions().remove(mission);
         //3) delete this mission
         missionRepository.deleteById(id);
     }

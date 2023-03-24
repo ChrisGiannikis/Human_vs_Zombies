@@ -6,12 +6,13 @@ import com.example.human_vs_zombies.repositories.SquadCheckInRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Set;
 
 @Service
-public class SquadCheckInServiceIml implements SquadCheckInService {
+public class SquadCheckInServiceImpl implements SquadCheckInService {
     private final SquadCheckInRepository squadCheckInRepository;
 
-    public SquadCheckInServiceIml(SquadCheckInRepository squadCheckInRepository) {
+    public SquadCheckInServiceImpl(SquadCheckInRepository squadCheckInRepository) {
         this.squadCheckInRepository = squadCheckInRepository;
     }
 
@@ -22,7 +23,13 @@ public class SquadCheckInServiceIml implements SquadCheckInService {
     public Collection<SquadCheckIn> findAll() { return squadCheckInRepository.findAll(); }
 
     @Override
-    public SquadCheckIn add(SquadCheckIn entity) { return squadCheckInRepository.save(entity); }
+    public SquadCheckIn add(SquadCheckIn squadCheckIn) {
+
+        Set<SquadCheckIn> squadCheckIns = squadCheckIn.getSquadMember().getSquadCheckIns();
+        squadCheckIns.add(squadCheckIn);
+        squadCheckIn.getSquadMember().setSquadCheckIns(squadCheckIns);
+        return squadCheckInRepository.save(squadCheckIn);
+    }
 
     @Override
     public SquadCheckIn update(SquadCheckIn entity) { return null; }

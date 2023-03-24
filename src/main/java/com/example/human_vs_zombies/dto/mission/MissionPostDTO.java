@@ -14,6 +14,5 @@ public class MissionPostDTO {
     private String description;
     private ZonedDateTime start_time;
     private ZonedDateTime end_time;
-    private int game;
 
 }

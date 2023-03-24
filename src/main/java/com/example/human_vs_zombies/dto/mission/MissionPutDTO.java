@@ -8,12 +8,10 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 public class MissionPutDTO {
-    private int mission_id;
     private String name;
     private boolean human_visible;
     private boolean zombie_visible;
     private String description;
     private ZonedDateTime start_time;
     private ZonedDateTime end_time;
-    private int game;
 }

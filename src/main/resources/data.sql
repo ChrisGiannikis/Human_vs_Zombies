@@ -14,6 +14,10 @@ INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Ser
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Steven', false, 'Gerrard');
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('David', false, 'Beckham');
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('John', false, 'Terry');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Giannis', false, 'Antetokounmpo');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Damian', false, 'Lillard');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Khris', false, 'Middleton');
+INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Steph', false, 'Curry');
 INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Warren', true, 'West');
 
 INSERT INTO player("bite_code", "human", "patient_zero", "game_id", "user_id") VALUES ('JSDGA436JK', true, false, 1, 1);
@@ -36,12 +40,13 @@ INSERT INTO kill("lat", "lng", "time_of_death", "killer_id", "victim_id") VALUES
 
 INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 1 description', null, true, false, 'Mission 1 name', null, 1);
 INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 2 description', null, false, true, 'Mission 2 name', null, 2);
-INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 3 description', null, true, true, 'Mission 3 name', null, 3);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 3 description', null, true, true, 'Mission 3 name', null, 1);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "start_time", "game_id") VALUES ('Mission 4 description', null, true, false, 'Mission 4 name', null, 3);
 
-INSERT INTO squad("is_human", "name", "game_id") VALUES (true, 'Squad 1 name', 1);
-INSERT INTO squad("is_human", "name", "game_id") VALUES (false, 'Squad 2 name', 1);
-INSERT INTO squad("is_human", "name", "game_id") VALUES (true, 'Squad 3 name', 2);
-INSERT INTO squad("is_human", "name", "game_id") VALUES (false, 'Squad 4 name', 3);
+INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Squad 1 name', 1);
+INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Squad 2 name', 1);
+INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Squad 3 name', 2);
+INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Squad 4 name', 3);
 
 INSERT INTO squad_member("rank", "player_id", "squad_id") VALUES ('LEADER', 1, 1);
 INSERT INTO squad_member("rank", "player_id", "squad_id") VALUES ('HIGH', 2, 1);

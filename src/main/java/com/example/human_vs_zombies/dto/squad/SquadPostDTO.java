@@ -8,7 +8,4 @@ import lombok.Setter;
 public class SquadPostDTO {
     private String name;
 
-    private boolean is_human;
-
-    private int game;
 }

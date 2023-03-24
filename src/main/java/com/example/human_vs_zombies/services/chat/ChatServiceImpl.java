@@ -1,11 +1,13 @@
 package com.example.human_vs_zombies.services.chat;
 
 import com.example.human_vs_zombies.entities.Chat;
+import com.example.human_vs_zombies.enums.ChatScope;
 import com.example.human_vs_zombies.exceptions.ChatNotFoundException;
 import com.example.human_vs_zombies.repositories.ChatRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Set;
 
 @Service
 public class ChatServiceImpl implements ChatService{
@@ -26,8 +28,35 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public Chat add(Chat entity) {
-        return chatRepository.save(entity);
+    public Collection<Chat> findAllNonSquadChatByGameId(int gameId, boolean isHuman) {
+        return chatRepository.findAllNonSquadChatByGameId(gameId, ChatScope.GLOBAL, ChatScope.FACTION, isHuman);
+    }
+
+    @Override
+    public Collection<Chat> findAllSquadChatByGameId(int gameId, int squadId) {
+        return chatRepository.findAllSquadChatByGameId(gameId, squadId, ChatScope.SQUAD);
+    }
+
+    @Override
+    public void addSquadChat(Chat chat) {
+        Set<Chat> chats = chat.getPlayer().getChat();
+        chats.add(chat);
+        chat.getPlayer().setChat(chats);
+
+        Set<Chat> squadChats = chat.getSquad().getChat();
+        squadChats.add(chat);
+        chat.getSquad().setChat(squadChats);
+
+        chatRepository.save(chat);
+    }
+
+    @Override
+    public Chat add(Chat chat) {
+        Set<Chat> chats = chat.getPlayer().getChat();
+        chats.add(chat);
+        chat.getPlayer().setChat(chats);
+
+        return chatRepository.save(chat);
     }
 
     @Override
