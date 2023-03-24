@@ -1,4 +1,4 @@
-package com.example.human_vs_zombies.dto;
+package com.example.human_vs_zombies.dto.chat;
 
 import com.example.human_vs_zombies.enums.ChatScope;
 import lombok.Data;

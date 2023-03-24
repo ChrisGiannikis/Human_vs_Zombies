@@ -2,6 +2,7 @@ package com.example.human_vs_zombies.mappers;
 
 import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.kill.KillPostDTO;
+import com.example.human_vs_zombies.dto.kill.KillPutDTO;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.services.player.PlayerService;
@@ -37,8 +38,13 @@ public abstract class KillMapper {
 //    @Mapping(target = "game", source = "game.game_id")
 //    public abstract KillPostDTO killToKillPostDTO(Kill kill);
 
-//    @Mapping(target = "game", source = "game", qualifiedByName = "gameIdToGame")
-//    public abstract Kill KillPostDTOToKill(KillPostDTO killPostDTO);
+    //@Mapping(target = "kill_id", ignore = true)
+    @Mapping(target = "victim", source = "victim", qualifiedByName = "playerIdToPlayer")
+    @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
+    public abstract Kill killPostDTOToKill(KillPostDTO killPostDTO);
+
+    //@Mapping(target = "kill_id", ignore = true)
+    public abstract Kill killPutDTOToKill(KillPutDTO killPutDTO);
 
     @Named("playerIdToPlayer")
     Player mapIdToPlayer(Integer id) {

@@ -1,8 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
-import com.example.human_vs_zombies.dto.SquadDTO;
-import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
-import com.example.human_vs_zombies.dto.player.PlayerSimpleDTO;
+import com.example.human_vs_zombies.dto.player.PlayerDTO;
 import com.example.human_vs_zombies.dto.user.UserDTO;
 import com.example.human_vs_zombies.dto.user.UserPostDTO;
 import com.example.human_vs_zombies.dto.user.UserPutDTO;
@@ -56,7 +54,7 @@ public class UserController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Success",
                     content = {@Content( mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerSimpleDTO.class))}),
+                            schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse( responseCode = "404",
                     description = "User with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",
@@ -102,7 +100,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse( responseCode =  "200", description = "User deleted",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PlayerSimpleDTO.class))}),
+                            schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse( responseCode = "404", description = "User with supplied id, does not exist! ",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})

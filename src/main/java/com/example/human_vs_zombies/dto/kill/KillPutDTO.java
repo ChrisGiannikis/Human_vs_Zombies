@@ -5,20 +5,12 @@ import lombok.Setter;
 
 import java.time.ZonedDateTime;
 
-
 @Getter
 @Setter
-public class KillPostDTO {
+public class KillPutDTO {
 
+    private int kill_id;
     private double lat;
     private double lng;
-
-    private int victim;
-    private int killer;
-
-//    private String biteCode;
     private ZonedDateTime time_of_death;
-
-//    private Integer game;
-
 }

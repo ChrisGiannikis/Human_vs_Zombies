@@ -19,10 +19,10 @@ public class Mission {
     private String name;
 
     @Column(nullable = false)
-    private boolean is_human_visible;
+    private boolean human_visible;
 
     @Column(nullable = false)
-    private boolean is_zombie_visible;
+    private boolean zombie_visible;
 
     @Column
     private String description;

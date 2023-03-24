@@ -56,12 +56,12 @@ public class KillServiceImpl implements KillService {
     }
 
     @Override
-    public Kill updateKillById(Kill kill,int id) {
-        this.findById(id);
-        Kill killToUpdate = killRepository.findById(id).get();
+    public void updateKillById(Kill kill,int id) {
+        Kill killToUpdate = killRepository.findById(id).orElseThrow(() -> new KillNotFoundException(id));
+        killToUpdate.setTime_of_death(kill.getTime_of_death());
         killToUpdate.setLat(kill.getLat());
         killToUpdate.setLng(kill.getLng());
-        return killRepository.save(killToUpdate);
+        killRepository.save(killToUpdate);
     }
 
     @Override

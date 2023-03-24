@@ -19,10 +19,10 @@ public class Player {
     private String biteCode;
 
     @Column(nullable = false)
-    private boolean is_human;
+    private boolean human;
 
     @Column(nullable = false)
-    private boolean is_patient_zero;
+    private boolean patient_zero;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -32,16 +32,16 @@ public class Player {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "victim")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "victim", fetch = FetchType.LAZY)
     private Kill death;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "killer")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "killer", fetch = FetchType.LAZY)
     private Set<Kill> kills;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "player")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "player", fetch = FetchType.LAZY)
     private SquadMember squadMember;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "player")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "player", fetch = FetchType.LAZY)
     private Set<Chat> chat;
 
 }
