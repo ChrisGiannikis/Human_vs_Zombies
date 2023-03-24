@@ -55,7 +55,14 @@ public class MissionController {
                     content = @Content)
     })
     @GetMapping("{game_id}/missions")//GET: localhost:8080/api/v1/games/game_id/missions
-    public ResponseEntity<Collection<MissionDTO>> getAllMissions(@PathVariable int game_id){
+    public ResponseEntity<Collection<MissionDTO>> getAllMissions(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId){
+
+        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+        if(playerDTO.getGame() != game_id){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
         Collection<MissionDTO> missionDTOS = missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
         if(missionDTOS.isEmpty())
             return ResponseEntity.notFound().build();
@@ -113,7 +120,7 @@ public class MissionController {
                     content = @Content)
     })
     @PostMapping("{game_id}/missions")//POST: localhost:8080/api/v1/games/game_id/missions
-    public ResponseEntity<MissionDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id){
+    public ResponseEntity<MissionPostDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
 
@@ -151,7 +158,7 @@ public class MissionController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/missions/{mission_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id){
+    public ResponseEntity<MissionPutDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
 

@@ -1,11 +1,12 @@
 package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.player.*;
-import com.example.human_vs_zombies.entities.AppUser;
+import com.example.human_vs_zombies.dto.user.UserDTO;
 import com.example.human_vs_zombies.entities.Game;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.enums.State;
 import com.example.human_vs_zombies.mappers.PlayerMapper;
+import com.example.human_vs_zombies.mappers.UserMapper;
 import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import com.example.human_vs_zombies.services.user.UserService;
@@ -15,12 +16,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 
 import static java.util.Objects.isNull;
 
@@ -34,11 +35,14 @@ public class PlayerController {
     private final GameService gameService;
     private final PlayerMapper playerMapper;
 
-    public PlayerController(PlayerService playerService, UserService userService, GameService gameService, PlayerMapper playerMapper) {
+    private final UserMapper userMapper;
+
+    public PlayerController(PlayerService playerService, UserService userService, GameService gameService, PlayerMapper playerMapper, UserMapper userMapper) {
         this.playerService = playerService;
         this.userService = userService;
         this.gameService = gameService;
         this.playerMapper = playerMapper;
+        this.userMapper = userMapper;
     }
 
     @Operation(summary = "Get all players of a game")
@@ -52,7 +56,16 @@ public class PlayerController {
                     content = @Content)
     })
     @GetMapping("{game_id}/players")//GET: localhost:8080/api/v1/games/game_id/players
-    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id){
+    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId){
+
+        //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
+
+        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+        if(playerDTO.getGame() != game_id){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
         Collection<PlayerDTO> playerDTOS = playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
         if(playerDTOS.isEmpty())
             return ResponseEntity.notFound().build();
@@ -71,16 +84,30 @@ public class PlayerController {
 
     })
     @GetMapping("{game_id}/players/{player_id}")//GET: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id){
+    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id, @RequestHeader int requestedByPlayerWithId){
 
-        List<PlayerDTO> playerDTOS = (List<PlayerDTO>)playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+        //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
 
-        if(playerDTOS.isEmpty() || playerDTOS.size()<player_id){
-            return ResponseEntity.notFound().build();
+        PlayerDTO requestedByPlayerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+        if(requestedByPlayerDTO.getGame() != game_id){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        playerDTOS.sort(Comparator.comparingInt(PlayerDTO::getPlayer_id));
-        PlayerDTO playerDTO = playerDTOS.get(player_id-1);
+        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(player_id));
+
+        if(playerDTO.getGame() != game_id){
+            return ResponseEntity.notFound().build();
+        }
+//
+//        List<PlayerDTO> playerDTOS = (List<PlayerDTO>)playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+//
+//        if(playerDTOS.isEmpty() || playerDTOS.size()<player_id){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        playerDTOS.sort(Comparator.comparingInt(PlayerDTO::getPlayer_id));
+//        PlayerDTO playerDTO = playerDTOS.get(player_id-1);
 
         return ResponseEntity.ok(playerDTO);
     }
@@ -100,14 +127,22 @@ public class PlayerController {
     @PostMapping("{game_id}/players")//POST: localhost:8080/api/v1/games/game_id/players
     public ResponseEntity<PlayerDTO> addPlayerToGame(@RequestBody PlayerPostDTO playerPostDTO, @PathVariable int game_id){
 
+        //-------------------ONLY ADMIN CAN CREATE A PLAYER WITH IS_HUMAN AND IS_PATIENT_ZERO ATTRIBUTES------------------
+        //-------------------PLAYERS WHO REGISTER THEMSELVES GET DEFAULT VALUES-------------------------------------------
+
         Game game = gameService.findById(game_id);
-        AppUser user = userService.findById(playerPostDTO.getUser());
 
         if(isNull(game)){
             return ResponseEntity.notFound().build();
         }
 
-        if ((playerPostDTO.isHuman() && playerPostDTO.isPatient_zero()) || !isNull(user.getPlayer())){
+        if(game.getState()!=State.REGISTRATION){
+            return ResponseEntity.badRequest().build();
+        }
+
+        UserDTO userDTO = userMapper.UserToUserDTO(userService.findById(playerPostDTO.getUser()));
+
+        if ((playerPostDTO.isHuman() && playerPostDTO.isPatient_zero()) || userDTO.getPlayer()!=0){
             return ResponseEntity.badRequest().build();
         }
 
@@ -134,6 +169,8 @@ public class PlayerController {
     @PutMapping({"{game_id}/players/{player_id}"})//PUT: localhost:8080/api/v1/games/game_id/players/player_id
     public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable int game_id, @PathVariable int player_id){
 
+        //-----------------------------------------ADMIN ONLY-------------------------------------------------------------------------
+
         Game game = gameService.findById(game_id);
 
         if(isNull(game)){
@@ -144,16 +181,16 @@ public class PlayerController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<PlayerDTO> playerDTOS = (List<PlayerDTO>)playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+//        List<PlayerDTO> playerDTOS = (List<PlayerDTO>)playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+//
+//        if(playerDTOS.isEmpty() || playerDTOS.size()<player_id){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        playerDTOS.sort(Comparator.comparingInt(PlayerDTO::getPlayer_id));
+//        PlayerDTO playerDTO = playerDTOS.get(player_id-1);
 
-        if(playerDTOS.isEmpty() || playerDTOS.size()<player_id){
-            return ResponseEntity.notFound().build();
-        }
-
-        playerDTOS.sort(Comparator.comparingInt(PlayerDTO::getPlayer_id));
-        PlayerDTO playerDTO = playerDTOS.get(player_id-1);
-
-        playerService.changeTeams(playerDTO.getPlayer_id());
+        playerService.changeTeams(player_id);
 
         return ResponseEntity.noContent().build();
     }
@@ -170,20 +207,24 @@ public class PlayerController {
     @DeleteMapping({"{game_id}/players/{player_id}"})//DELETE: localhost:8080/api/v1/games/game_id/players/player_id
     public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable int game_id, @PathVariable int player_id){
 
-        if(isNull(gameService.findById(game_id))){
+        //---------------ADMIN ONLY------------------------------------------------------------------------------------------
+
+        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(player_id));
+
+        if(playerDTO.getGame() != game_id){
             return ResponseEntity.notFound().build();
         }
 
-        List<PlayerDTO> playerDTOS = (List<PlayerDTO>)playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+//        List<PlayerDTO> playerDTOS = (List<PlayerDTO>)playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+//
+//        if(playerDTOS.isEmpty() || playerDTOS.size()<player_id){
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        playerDTOS.sort(Comparator.comparingInt(PlayerDTO::getPlayer_id));
+//        PlayerDTO playerDTO = playerDTOS.get(player_id-1);
 
-        if(playerDTOS.isEmpty() || playerDTOS.size()<player_id){
-            return ResponseEntity.notFound().build();
-        }
-
-        playerDTOS.sort(Comparator.comparingInt(PlayerDTO::getPlayer_id));
-        PlayerDTO playerDTO = playerDTOS.get(player_id-1);
-
-        playerService.deleteById(playerDTO.getPlayer_id());
+        playerService.deleteById(player_id);
 
         return ResponseEntity.noContent().build();
     }

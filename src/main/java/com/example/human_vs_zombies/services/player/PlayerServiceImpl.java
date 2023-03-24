@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -32,9 +31,7 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player add(Player player) {
-        Set<Player> players = player.getGame().getPlayers();
-        players.add(player);
-        player.getGame().setPlayers(players);
+        player.getGame().getPlayers().add(player);
         return playerRepository.save(player);
     }
 
@@ -63,7 +60,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Transactional
     @Override
     public void changeTeams(int playerId) {
-        Player player = playerRepository.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
+        Player player = this.findById(playerId);
         player.setHuman(!player.isHuman());
         player.setPatient_zero(!player.isHuman());
 
@@ -79,11 +76,9 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public void deleteById(Integer id) {
-        Player player = this.findById(id);
-        Set<Player> players = player.getGame().getPlayers();
-        players.remove(player);
-        player.getGame().setPlayers(players);
 
+        Player player = this.findById(id);
+        player.getGame().getPlayers().remove(player);
         player.getUser().setPlayer(null);
 
         playerRepository.deleteById(id);

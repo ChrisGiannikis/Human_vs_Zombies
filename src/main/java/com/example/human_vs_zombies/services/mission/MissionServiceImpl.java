@@ -6,7 +6,6 @@ import com.example.human_vs_zombies.repositories.MissionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Set;
 
 @Service
 public class MissionServiceImpl implements MissionService {
@@ -25,9 +24,7 @@ public class MissionServiceImpl implements MissionService {
 
     @Override
     public Mission add(Mission mission) {
-        Set<Mission> missions = mission.getGame().getMissions();
-        missions.add(mission);
-        mission.getGame().setMissions(missions);
+        mission.getGame().getMissions().add(mission);
         return missionRepository.save(mission);
     }
 
