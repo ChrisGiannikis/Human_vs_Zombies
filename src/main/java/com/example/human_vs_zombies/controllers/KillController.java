@@ -16,8 +16,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -33,8 +37,7 @@ public class KillController {
     private final GameService gameService;
     private final KillMapper killMapper;
     private final PlayerMapper playerMapper;
-
-
+    private String roles ="";
 
 
     public KillController(KillService killService, PlayerService playerService, KillMapper killMapper, PlayerMapper playerMapper, GameService gameService) {
@@ -117,7 +120,7 @@ public class KillController {
                     content = @Content)
     })
     @PostMapping("{game_id}/kills")//POST: localhost:8080/api/v1/games/game_id/kills
-    public ResponseEntity<KillDTO> addKillToGame(@RequestBody KillPostDTO killPostDTO, @PathVariable int game_id, @RequestHeader String biteCode){
+    public ResponseEntity<KillDTO> addKillToGame(@RequestBody KillPostDTO killPostDTO, @PathVariable int game_id, @RequestHeader String biteCode, @AuthenticationPrincipal Jwt jwt){
 
         if(isNull(gameService.findById(game_id))){
             return ResponseEntity.notFound().build();
@@ -164,7 +167,12 @@ public class KillController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/kills/{kill_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id){
+    public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id, @AuthenticationPrincipal Jwt jwt){
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         if(isNull(gameService.findById(game_id))){
             return ResponseEntity.notFound().build();
@@ -196,7 +204,12 @@ public class KillController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}/kills/{kill_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id){
+    public ResponseEntity<MissionDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id, @AuthenticationPrincipal Jwt jwt){
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         if(isNull(gameService.findById(game_id))){
             return ResponseEntity.notFound().build();

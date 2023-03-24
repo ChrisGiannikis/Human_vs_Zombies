@@ -1,5 +1,6 @@
 package com.example.human_vs_zombies.mappers;
 
+import com.example.human_vs_zombies.dto.player.PlayerAdminDTO;
 import com.example.human_vs_zombies.dto.player.PlayerDTO;
 import com.example.human_vs_zombies.dto.player.PlayerPostDTO;
 import com.example.human_vs_zombies.entities.*;
@@ -22,14 +23,16 @@ public abstract class PlayerMapper {
     @Autowired
     protected SquadMemberService squadMemberService;
 
-//    @Mapping(target = "user", source = "user.user_id")
-//    @Mapping(target = "game", source = "game.game_id")
-//    //@Mapping(target = "death", source = "")
-//    //@Mapping(target = "kills", source = "kills", qualifiedByName = "killsToKillsId")
-//    @Mapping(target = "squadMember", source = "squadMember.squad_member_id")
-//    //@Mapping(target = "chat", source = "chat", qualifiedByName = "chatToMessageId")
-//    public abstract PlayerAdminDTO playerToPlayerAdminDTO(Player player);     //mapper for PlayerAdminDTO
-//    public abstract Collection<PlayerAdminDTO> playerToPlayerAdminDTO(Collection<Player> players);  //mapper for PlayerAdminDTO to handle a collection of Players
+    @Mapping(target = "user", source = "user.user_id")
+    @Mapping(target = "game", source = "game.game_id")
+    //@Mapping(target = "death", source = "")
+    //@Mapping(target = "kills", source = "kills", qualifiedByName = "killsToKillsId")
+    @Mapping(target = "squadMember", source = "squadMember.squad_member_id")
+    //@Mapping(target = "chat", source = "chat", qualifiedByName = "chatToMessageId")
+    public abstract PlayerAdminDTO playerToPlayerAdminDTO(Player player);     //mapper for PlayerAdminDTO
+    public abstract Collection<PlayerAdminDTO> playerToPlayerAdminDTO(Collection<Player> players);  //mapper for PlayerAdminDTO to handle a collection of Players
+
+
 
     @Mapping(target = "user", source = "user.user_id")
     @Mapping(target = "game", source = "game.game_id")
@@ -46,6 +49,7 @@ public abstract class PlayerMapper {
     @Mapping(target = "biteCode", ignore = true)
     @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
     public abstract Player playerPostDTOtoPlayer(PlayerPostDTO playerPostDTO); //mapper to convert playerPostDTO to player
+
 
 //    @Mapping(target = "player_id", source = "player_id", qualifiedByName = "")
 //    @Mapping(target = "death", source = "")

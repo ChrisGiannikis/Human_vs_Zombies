@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,6 +37,7 @@ public class MissionController {
     private final PlayerService playerService;
     private final MissionMapper missionMapper;
     private final PlayerMapper playerMapper;
+    private String roles ="";
 
     public MissionController(MissionService missionService, GameService gameService, PlayerService playerService, MissionMapper missionMapper, PlayerMapper playerMapper) {
         this.missionService = missionService;
@@ -120,9 +123,13 @@ public class MissionController {
                     content = @Content)
     })
     @PostMapping("{game_id}/missions")//POST: localhost:8080/api/v1/games/game_id/missions
-    public ResponseEntity<MissionPostDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id){
+    public ResponseEntity<MissionPostDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         if ((!missionPostDTO.isHuman_visible() && !missionPostDTO.isZombie_visible()) || isNull(missionPostDTO.getName())){
             return ResponseEntity.badRequest().build();
@@ -158,9 +165,13 @@ public class MissionController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/missions/{mission_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionPutDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id){
+    public ResponseEntity<MissionPutDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 
@@ -205,9 +216,13 @@ public class MissionController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}/missions/{mission_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id){
+    public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 

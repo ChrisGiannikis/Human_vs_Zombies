@@ -11,5 +11,9 @@ import java.util.Set;
 public class PlayerSimpleDTO {
     private int player_id;
     private String biteCode;
+    private boolean is_human;
+    private int user;
+    private int game;
+    private int squadMember;
 
 }

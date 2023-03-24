@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,8 +36,8 @@ public class PlayerController {
     private final UserService userService;
     private final GameService gameService;
     private final PlayerMapper playerMapper;
-
     private final UserMapper userMapper;
+    private String roles ="";
 
     public PlayerController(PlayerService playerService, UserService userService, GameService gameService, PlayerMapper playerMapper, UserMapper userMapper) {
         this.playerService = playerService;
@@ -56,9 +58,13 @@ public class PlayerController {
                     content = @Content)
     })
     @GetMapping("{game_id}/players")//GET: localhost:8080/api/v1/games/game_id/players
-    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
 
         //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            //------------------------------------------
+        }
 
         PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
@@ -84,9 +90,14 @@ public class PlayerController {
 
     })
     @GetMapping("{game_id}/players/{player_id}")//GET: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
 
         //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            //------------------------------------------
+        }
+
 
         PlayerDTO requestedByPlayerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
@@ -125,7 +136,7 @@ public class PlayerController {
                     content = @Content)
     })
     @PostMapping("{game_id}/players")//POST: localhost:8080/api/v1/games/game_id/players
-    public ResponseEntity<PlayerDTO> addPlayerToGame(@RequestBody PlayerPostDTO playerPostDTO, @PathVariable int game_id){
+    public ResponseEntity<PlayerDTO> addPlayerToGame(@RequestBody PlayerPostDTO playerPostDTO, @PathVariable int game_id, @AuthenticationPrincipal Jwt jwt){
 
         //-------------------ONLY ADMIN CAN CREATE A PLAYER WITH IS_HUMAN AND IS_PATIENT_ZERO ATTRIBUTES------------------
         //-------------------PLAYERS WHO REGISTER THEMSELVES GET DEFAULT VALUES-------------------------------------------
@@ -146,9 +157,13 @@ public class PlayerController {
             return ResponseEntity.badRequest().build();
         }
 
-        Player player = playerMapper.playerPostDTOtoPlayer(playerPostDTO);
+        Player player = new Player();
         player.setGame(game);
         player.setBiteCode(RandomStringUtils.randomAlphanumeric(20).toUpperCase());
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            player = playerMapper.playerPostDTOtoPlayer(playerPostDTO);
+        }
         playerService.add(player);
 
         return ResponseEntity.ok().build();
@@ -167,9 +182,13 @@ public class PlayerController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/players/{player_id}"})//PUT: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable int game_id, @PathVariable int player_id){
+    public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable int game_id, @PathVariable int player_id, @AuthenticationPrincipal Jwt jwt){
 
         //-----------------------------------------ADMIN ONLY-------------------------------------------------------------------------
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         Game game = gameService.findById(game_id);
 
@@ -205,9 +224,13 @@ public class PlayerController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}/players/{player_id}"})//DELETE: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable int game_id, @PathVariable int player_id){
+    public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable int game_id, @PathVariable int player_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(player_id));
 

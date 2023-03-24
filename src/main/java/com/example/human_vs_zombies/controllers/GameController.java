@@ -12,8 +12,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.Collection;
@@ -24,6 +28,7 @@ import static java.util.Objects.isNull;
 public class GameController {
     private final GameService gameService;
     private final GameMapper gameMapper;
+    private String roles ="";
 
     public GameController(GameService gameService, GameMapper gameMapper){
         this.gameService = gameService;
@@ -75,7 +80,13 @@ public class GameController {
                     content = @Content),
     })
     @PostMapping//POST: localhost:8080/api/v1/games
-    public ResponseEntity<GamePostDTO> addGame(@RequestBody GamePostDTO gamePostDTO){
+    public ResponseEntity<GamePostDTO> addGame(@RequestBody GamePostDTO gamePostDTO, @AuthenticationPrincipal Jwt jwt){
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
         if (isNull(gamePostDTO.getName()))
             return ResponseEntity.badRequest().build();
         Game game = gameMapper.gamePostDtoToGame(gamePostDTO);
@@ -98,7 +109,12 @@ public class GameController {
                     content = @Content)
     })
     @PutMapping("{game_id}")//PUT: localhost:8080/api/v1/games/id
-    public ResponseEntity<GamePutDTO> updateGame(@RequestBody GamePutDTO gamePutDTO, @PathVariable int game_id, @RequestHeader State state){
+    public ResponseEntity<GamePutDTO> updateGame(@RequestBody GamePutDTO gamePutDTO, @PathVariable int game_id, @RequestHeader State state, @AuthenticationPrincipal Jwt jwt){
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(game_id));
 
@@ -128,7 +144,13 @@ public class GameController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}"})//DELETE: localhost:8080/api/v1/games/id
-    public ResponseEntity<GameDTO> deleteGame(@PathVariable int game_id){
+    public ResponseEntity<GameDTO> deleteGame(@PathVariable int game_id, @AuthenticationPrincipal Jwt jwt){
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
         if(isNull(gameService.findById(game_id))){
             return ResponseEntity.notFound().build();
         }

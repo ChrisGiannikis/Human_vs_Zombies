@@ -16,8 +16,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 
@@ -31,6 +35,7 @@ public class ChatController {
     private final GameService gameService;
     private final PlayerService playerService;
     private final ChatMapper chatMapper;
+    private String roles ="";
 
     public ChatController(ChatService chatService, GameService gameService, PlayerService playerService, ChatMapper chatMapper){
         this.chatService = chatService;
@@ -153,7 +158,12 @@ public class ChatController {
                     content = @Content)
     })
     @PostMapping("{game_id}/squads/{squad_id}/chat")//POST: localhost:8080/api/v1/games/game_id/squads/squad_id/chat
-    public ResponseEntity<KillDTO> sendMessageToSquad(@RequestBody ChatPostDTO chatPostDTO, @PathVariable int game_id, @PathVariable int squad_id){
+    public ResponseEntity<KillDTO> sendMessageToSquad(@RequestBody ChatPostDTO chatPostDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         Player player = playerService.findById(chatPostDTO.getPlayer()) ;
 

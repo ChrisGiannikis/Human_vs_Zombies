@@ -16,8 +16,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,6 +39,7 @@ public class SquadController {
     private final SquadMemberService squadMemberService;
     private final PlayerService playerService;
     private final SquadMapper squadMapper;
+    private String roles ="";
 
     public SquadController(SquadService squadService, GameService gameService, SquadMemberService squadMemberService, PlayerService playerService, SquadMapper squadMapper) {
         this.squadService = squadService;
@@ -210,7 +215,12 @@ public class SquadController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/squads/{squad_id}"})//PUT: localhost:8080/api/v1/games/game_id/squads/squad_id
-    public ResponseEntity<MissionDTO> updateSquad(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int game_id, @PathVariable int squad_id){
+    public ResponseEntity<MissionDTO> updateSquad(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         Game game = gameService.findById(game_id);
         Squad squad = squadService.findById(squad_id);
@@ -239,7 +249,12 @@ public class SquadController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}/squads/{squad_id}"})//DELETE: localhost:8080/api/v1/games/game_id/squads/squad_id
-    public ResponseEntity<SquadDTO> deleteSquad(@PathVariable int game_id, @PathVariable int squad_id) {
+    public ResponseEntity<SquadDTO> deleteSquad(@PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt) {
+
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         if(isNull(gameService.findById(game_id))){
             return ResponseEntity.notFound().build();
