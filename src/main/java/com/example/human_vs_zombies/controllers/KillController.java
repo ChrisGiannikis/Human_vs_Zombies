@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -82,13 +84,18 @@ public class KillController {
             @ApiResponse( responseCode = "404", description = "Killer or victim does not exist! ", content = { @Content })
     })
     @PostMapping("/kills")
-    public ResponseEntity createKill(@RequestBody KillPostDTO killPostDTO){
-        if (killPostDTO.getLng() == 0 || killPostDTO.getLat() == 0 )
-            return ResponseEntity.badRequest().build();
-        killService.add(killMapper.killPostDTOToKill(killPostDTO));
-        int kill_id = killMapper.killPostDTOToKill(killPostDTO).getKill_id();
-        URI location = URI.create("/" + kill_id);
-        return ResponseEntity.created(location).build();
+    public ResponseEntity createKill(@RequestBody KillPostDTO killPostDTO,@AuthenticationPrincipal Jwt jwt){
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if (killPostDTO.getLng() == 0 || killPostDTO.getLat() == 0)
+                return ResponseEntity.badRequest().build();
+            killService.add(killMapper.killPostDTOToKill(killPostDTO));
+            int kill_id = killMapper.killPostDTOToKill(killPostDTO).getKill_id();
+            URI location = URI.create("/" + kill_id);
+            return ResponseEntity.created(location).build();
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
 
     }
 
@@ -123,10 +130,16 @@ public class KillController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("/kill/{kill_id}")
-    public ResponseEntity<KillDTO> deleteKillById(@PathVariable("kill_id") int id){
-        KillDTO killDTO = killMapper.killToKillDTO(killService.findById(id));
-        killService.deleteById(killDTO.getKill_id());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<KillDTO> deleteKillById(@PathVariable("kill_id") int id,@AuthenticationPrincipal Jwt jwt){
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            KillDTO killDTO = killMapper.killToKillDTO(killService.findById(id));
+            killService.deleteById(killDTO.getKill_id());
+            return ResponseEntity.noContent().build();
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
+
     }
 
 

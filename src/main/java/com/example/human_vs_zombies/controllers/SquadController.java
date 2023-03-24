@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -80,12 +82,15 @@ public class SquadController {
     })
     @PostMapping//POST: localhost:8080/api/v1/squads
     public ResponseEntity<SquadDTO> add(@RequestBody SquadPostDTO squadPostDTO) {
-        if (isNull(squadPostDTO.getName()))
-            return ResponseEntity.badRequest().build();
-        squadService.add(squadMapper.squadPostDTOToSquad(squadPostDTO));
-        int squad_id = squadMapper.squadPostDTOToSquad(squadPostDTO).getSquad_id();
-        URI location = URI.create("squads/" + squad_id);
-        return ResponseEntity.created(location).build();
+
+            if (isNull(squadPostDTO.getName()))
+                return ResponseEntity.badRequest().build();
+            squadService.add(squadMapper.squadPostDTOToSquad(squadPostDTO));
+            int squad_id = squadMapper.squadPostDTOToSquad(squadPostDTO).getSquad_id();
+            URI location = URI.create("squads/" + squad_id);
+            return ResponseEntity.created(location).build();
+
+
     }
 
     @Operation(summary = "Updates a squad")
@@ -102,14 +107,20 @@ public class SquadController {
                     content = @Content)
     })
     @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/squads/id
-    public ResponseEntity<SquadDTO> update(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int id) {
-        if (id != squadPutDTO.getSquad_id()) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<SquadDTO> update(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int id,@AuthenticationPrincipal Jwt jwt) {
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if (id != squadPutDTO.getSquad_id()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            squadService.update(squadMapper.squadPutDTOToSquad(squadPutDTO));
+
+            return ResponseEntity.noContent().build();
         }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
 
-        squadService.update(squadMapper.squadPutDTOToSquad(squadPutDTO));
-
-        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Delete a squad by ID")
@@ -122,9 +133,14 @@ public class SquadController {
                     content = @Content)
     })
     @DeleteMapping({"{id}"})//DELETE: localhost:8080/api/v1/squads/id
-    public ResponseEntity<SquadDTO> delete(@PathVariable int id) {
-        SquadDTO squadDTO = squadMapper.squadToSquadDto(squadService.findById(id));
-        squadService.deleteById(squadDTO.getSquad_id());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<SquadDTO> delete(@PathVariable int id,@AuthenticationPrincipal Jwt jwt) {
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            SquadDTO squadDTO = squadMapper.squadToSquadDto(squadService.findById(id));
+            squadService.deleteById(squadDTO.getSquad_id());
+            return ResponseEntity.noContent().build();
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 }

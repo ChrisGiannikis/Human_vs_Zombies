@@ -1,27 +1,17 @@
 package com.example.human_vs_zombies.services.kill;
 
+
+
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.exceptions.KillNotFoundException;
 import com.example.human_vs_zombies.repositories.KillRepository;
-import com.example.human_vs_zombies.services.game.GameService;
-import com.example.human_vs_zombies.services.player.PlayerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 @Service
 public class KillServiceImpl implements KillService {
 
-    @Autowired
     private final KillRepository killRepository;
-
-    @Autowired
-    private PlayerService playerService;
-
-
-
-
 
     public KillServiceImpl(KillRepository killRepository) {
         this.killRepository = killRepository;
@@ -31,11 +21,6 @@ public class KillServiceImpl implements KillService {
     public Kill findById(Integer id) {
         return killRepository.findById(id).orElseThrow(() -> new KillNotFoundException(id));
     }
-    @Override
-    public Collection<Kill> findKillsByGameId(Integer gameId) {
-       return playerService.findById(gameId).getKills();
-    }
-
 
     @Override
     public Collection<Kill> findAll() {
@@ -72,10 +57,4 @@ public class KillServiceImpl implements KillService {
         }
 
     }
-
-    @Override
-    public Kill findByGameIdAndKillId(int gameId, int killId) {
-        return this.findKillsByGameId(gameId).stream().filter(kill -> kill.getKill_id() == killId).findFirst().orElseThrow(()->new KillNotFoundException(killId));
-    }
-
 }

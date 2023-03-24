@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -48,10 +50,11 @@ public class PlayerController {
         return (ResponseEntity) (is_administrator ?
                 ResponseEntity.ok( playerMapper.playerToPlayerAdminDTO(playerService.findAll()) ) :
                 ResponseEntity.ok( playerMapper.playerToPlayerSimpleDTO(playerService.findAll()) ));*/
-        Collection<PlayerAdminDTO> playerAdminDTOS = playerMapper.playerToPlayerAdminDTO(playerService.findAll());
-        if(playerAdminDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok( playerAdminDTOS);
+             Collection<PlayerAdminDTO> playerAdminDTOS = playerMapper.playerToPlayerAdminDTO(playerService.findAll());
+             if (playerAdminDTOS.isEmpty())
+                 return ResponseEntity.notFound().build();
+             return ResponseEntity.ok(playerAdminDTOS);
+
     }
 
     @Operation(summary = "Finds the player with the given id.")
@@ -95,13 +98,17 @@ public class PlayerController {
             @ApiResponse( responseCode = "404", description = "Player not found", content = { @Content })
     })
     @PutMapping("{player_id}")//PUT: localhost:8080/api/players/id
-    public ResponseEntity updatePlayerById(@RequestBody PlayerPutDTO player, @PathVariable int player_id){
-        if (player_id != player.getPlayer_id())             //checking if the given id is not name as the given player id
-            return  ResponseEntity.badRequest().build();    //if ids are different returns bad request response
-        if ( isNull( playerService.findById(player_id)) )   //checking if the requested mission exists
-            return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
-        playerService.update( playerMapper.playerPutDTOtoPlayer(player) ); //ids are same so call the update
-        return ResponseEntity.noContent().build();
+    public ResponseEntity updatePlayerById(@RequestBody PlayerPutDTO player, @PathVariable int player_id,@AuthenticationPrincipal Jwt jwt){
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if (player_id != player.getPlayer_id())             //checking if the given id is not name as the given player id
+                return ResponseEntity.badRequest().build();    //if ids are different returns bad request response
+            if (isNull(playerService.findById(player_id)))   //checking if the requested mission exists
+                return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
+            playerService.update(playerMapper.playerPutDTOtoPlayer(player)); //ids are same so call the update
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok("Not an admin");
     }
 
     @Operation(summary = "Deletes the player with the given id.")

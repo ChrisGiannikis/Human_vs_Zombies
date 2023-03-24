@@ -24,7 +24,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -99,13 +102,19 @@ public class GameController {
                     content = @Content),
     })
     @PostMapping//POST: localhost:8080/api/v1/games
-    public ResponseEntity<GameDTO> add(@RequestBody GamePostDTO gamePostDTO){
-        if (isNull(gamePostDTO.getName()))
-            return ResponseEntity.badRequest().build();
-        gameService.add(gameMapper.gamePostDtoToGame(gamePostDTO));
-        int game_id = gameMapper.gamePostDtoToGame(gamePostDTO).getGame_id();
-        URI location = URI.create("api/v1/games/" + game_id);
-        return ResponseEntity.created(location).build();
+    public ResponseEntity add(@RequestBody GamePostDTO gamePostDTO,@AuthenticationPrincipal Jwt jwt){
+
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if (isNull(gamePostDTO.getName()))
+                return ResponseEntity.badRequest().build();
+            gameService.add(gameMapper.gamePostDtoToGame(gamePostDTO));
+            int game_id = gameMapper.gamePostDtoToGame(gamePostDTO).getGame_id();
+            URI location = URI.create("api/v1/games/" + game_id);
+            return ResponseEntity.created(location).build();
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 
     @Operation(summary = "Updates a game")
@@ -121,14 +130,19 @@ public class GameController {
                     content = @Content)
     })
     @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/games/id
-    public ResponseEntity<GameDTO> update(@RequestBody GamePutDTO gamePutDTO, @PathVariable int id){
-        if(id != gamePutDTO.getGame_id()){
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<GameDTO> update(@RequestBody GamePutDTO gamePutDTO, @PathVariable int id,@AuthenticationPrincipal Jwt jwt){
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if (id != gamePutDTO.getGame_id()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            gameService.update(gameMapper.gamePutDtoToGame(gamePutDTO));
+
+            return ResponseEntity.noContent().build();
         }
-
-        gameService.update(gameMapper.gamePutDtoToGame(gamePutDTO));
-
-        return ResponseEntity.noContent().build();
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 
     @Operation(summary = "Delete a game by ID")
@@ -141,10 +155,16 @@ public class GameController {
                     content = @Content)
     })
     @DeleteMapping({"{id}"})//DELETE: localhost:8080/api/v1/games/id
-    public ResponseEntity<GameDTO> delete(@PathVariable int id){
-        GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(id));
-        gameService.deleteById(gameDTO.getGame_id());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<GameDTO> delete(@PathVariable int id,@AuthenticationPrincipal Jwt jwt){
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(id));
+            gameService.deleteById(gameDTO.getGame_id());
+            return ResponseEntity.noContent().build();
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
+
     }
 
     @Operation(summary = "Get all missions of a game")
