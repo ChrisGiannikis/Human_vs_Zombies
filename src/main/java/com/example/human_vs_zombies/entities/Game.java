@@ -39,13 +39,13 @@ public class Game {
     @Column
     private double se_lng;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game", fetch = FetchType.LAZY)
     private Set<Player> players;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game", fetch = FetchType.LAZY)
     private Set<Mission> missions;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game", fetch = FetchType.LAZY)
     private Set<Squad> squads;
 
     @Override
