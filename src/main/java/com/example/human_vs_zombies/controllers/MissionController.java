@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -76,14 +78,19 @@ public class MissionController {
             @ApiResponse( responseCode = "404", description = "The given Game does not exists!", content = { @Content })
     })
     @PostMapping
-    public ResponseEntity createMission(@RequestBody MissionPostDTO mission) throws URISyntaxException {
+    public ResponseEntity createMission(@RequestBody MissionPostDTO mission, @AuthenticationPrincipal Jwt jwt) throws URISyntaxException {
         //Admin only
-        if ( isNull(mission.getName())) // if user try to create new mission without name
-            return ResponseEntity.badRequest().build(); //return bad request
-        missionService.add( missionMapper.missionPostDTOToMission(mission) ); //adds the given new mission
-        int mission_id = missionMapper.missionPostDTOToMission(mission).getMission_id();
-        URI uri = new URI("api/missions" + mission_id); //creating a new uri for the new mission
-        return ResponseEntity.created(uri).build();
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if ( isNull(mission.getName())) // if user try to create new mission without name
+                return ResponseEntity.badRequest().build(); //return bad request
+            missionService.add( missionMapper.missionPostDTOToMission(mission) ); //adds the given new mission
+            int mission_id = missionMapper.missionPostDTOToMission(mission).getMission_id();
+            URI uri = new URI("api/missions" + mission_id); //creating a new uri for the new mission
+            return ResponseEntity.created(uri).build();
+    }
+    //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 
     @Operation(summary = "Updates the mission with the given id.")
@@ -93,14 +100,19 @@ public class MissionController {
             @ApiResponse( responseCode = "404", description = "Mission not found", content = { @Content })
     })
     @PutMapping("{mission_id}")
-    public ResponseEntity updateMissionById(@RequestBody MissionPutDTO mission, @PathVariable int mission_id){
+    public ResponseEntity updateMissionById(@RequestBody MissionPutDTO mission, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
         //Admin only
-        if(mission_id != mission.getMission_id()) //if the given id is not same as the given mission id
-            return ResponseEntity.badRequest().build(); // they are different and returns bad request response
-        if ( isNull( missionService.findById(mission_id)) ) //checking if the requested mission exists
-            return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
-        missionService.update( missionMapper.missionPutDTOToMission(mission) ); // ids are same so call the update
-        return ResponseEntity.noContent().build();
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if(mission_id != mission.getMission_id()) //if the given id is not same as the given mission id
+                return ResponseEntity.badRequest().build(); // they are different and returns bad request response
+            if ( isNull( missionService.findById(mission_id)) ) //checking if the requested mission exists
+                return ResponseEntity.notFound().build();       //it is not exists so return notFound exception
+            missionService.update( missionMapper.missionPutDTOToMission(mission) ); // ids are same so call the update
+            return ResponseEntity.noContent().build();
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 
     @Operation(summary = "Deletes the mission with the given id.")
@@ -114,10 +126,14 @@ public class MissionController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class)))})
     @DeleteMapping("{mission_id}")
-    public ResponseEntity deleteMission(@PathVariable int mission_id){
+    public ResponseEntity deleteMission(@PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
         //Admin only
-
-        missionService.deleteById(mission_id);
-        return ResponseEntity.ok("Mission deleted successfully!");
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            missionService.deleteById(mission_id);
+            return ResponseEntity.ok("Mission deleted successfully!");
+        }
+    //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 }

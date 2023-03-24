@@ -44,7 +44,7 @@ public class PlayerController {
                     content = @Content)
     })
     @GetMapping//GET: localhost:8080/api/players
-    public ResponseEntity findAll(){
+    public ResponseEntity findAll(@AuthenticationPrincipal Jwt jwt){
 
         /*//if request has been from admin use the playerToPlayerAdminDTO else use the playerToPlayerSimpleDTO
         return (ResponseEntity) (is_administrator ?

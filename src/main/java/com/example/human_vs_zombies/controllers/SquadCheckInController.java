@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -39,14 +41,19 @@ public class SquadCheckInController {
                     content = @Content)
     })
     @GetMapping//GET: localhost:8080/api/v1/checkIns
-    public ResponseEntity getCheckIns(){
+    public ResponseEntity getCheckIns(@AuthenticationPrincipal Jwt jwt){
         //(Boolean is_administrator, SquadMember member, Player player)
         //Get a list of squad check-in markers.
         //Only administrators and members of a squad who are still in the appropriate faction may see squad check-ins
-        Collection<SquadCheckInDTO> squadCheckInDTOS = squadCheckInMapper.squadCheckInToSquadCheckInDTO( squadCheckInService.findAll());
-        if (squadCheckInDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok( squadCheckInDTOS);
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            Collection<SquadCheckInDTO> squadCheckInDTOS = squadCheckInMapper.squadCheckInToSquadCheckInDTO( squadCheckInService.findAll());
+            if (squadCheckInDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok( squadCheckInDTOS);
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 
     @Operation(summary = "Create check-in")

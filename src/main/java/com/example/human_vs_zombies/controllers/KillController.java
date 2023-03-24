@@ -110,12 +110,18 @@ public class KillController {
             @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
     })
     @PutMapping("/kill/{kill_id}")
-    public ResponseEntity updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable("kill_id") int id){
-        if(killPutDTO.getKill_id() != id)
-            return ResponseEntity.badRequest().build();
-        Kill kill = killMapper.killPutDTOToKill(killPutDTO);
-        killService.updateKillById(kill,id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable("kill_id") int id, @AuthenticationPrincipal Jwt jwt){
+        //killer and admin
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            if(killPutDTO.getKill_id() != id)
+                return ResponseEntity.badRequest().build();
+            Kill kill = killMapper.killPutDTOToKill(killPutDTO);
+            killService.updateKillById(kill,id);
+            return ResponseEntity.noContent().build();
+        }
+        //throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return ResponseEntity.badRequest().build();
     }
 
 
