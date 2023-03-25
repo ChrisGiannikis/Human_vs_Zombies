@@ -14,4 +14,6 @@ public class SquadDTO {
     private int game;
 
     private int active_members;
+
+    private int deceased_members;
 }

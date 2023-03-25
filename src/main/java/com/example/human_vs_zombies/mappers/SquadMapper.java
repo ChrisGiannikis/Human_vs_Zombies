@@ -23,6 +23,7 @@ public abstract class SquadMapper {
 
     @Mapping(target = "game", source = "game.game_id")
     @Mapping(target = "active_members", source = "squad_id", qualifiedByName = "ActiveMembers")
+    @Mapping(target = "deceased_members", source = "squad_id", qualifiedByName = "DeceasedMembers")
     public abstract SquadDTO squadToSquadDto(Squad squad);
 
     @Mapping(target = "squad_id", ignore = true)
@@ -44,5 +45,10 @@ public abstract class SquadMapper {
     @Named("ActiveMembers")
     int countActiveMembers(int id){
         return squadService.findById(id).getSquadMembers().size();
+    }
+
+    @Named("DeceasedMembers")
+    int countDeceasedMembers(int id){
+        return squadService.getDeceasedSquadMembers(id);
     }
 }
