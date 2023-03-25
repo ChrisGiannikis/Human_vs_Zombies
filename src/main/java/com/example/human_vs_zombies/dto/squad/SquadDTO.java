@@ -12,4 +12,6 @@ public class SquadDTO {
     private boolean human;
 
     private int game;
+
+    private int active_members;
 }

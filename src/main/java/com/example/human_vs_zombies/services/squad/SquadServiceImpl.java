@@ -6,11 +6,13 @@ import com.example.human_vs_zombies.repositories.SquadRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 @Service
 public class SquadServiceImpl implements SquadService{
 
     private final SquadRepository squadRepository;
+    private HashMap<Integer, Integer> deceasedMap;
 
     public SquadServiceImpl(SquadRepository squadRepository) {
         this.squadRepository = squadRepository;
@@ -29,7 +31,6 @@ public class SquadServiceImpl implements SquadService{
     @Override
     public Squad add(Squad squad)
     {
-
         return squadRepository.save(squad);
     }
 

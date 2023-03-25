@@ -80,7 +80,7 @@ public class GameController {
             return ResponseEntity.badRequest().build();
         Game game = gameMapper.gamePostDtoToGame(gamePostDTO);
         game.setState(State.REGISTRATION);
-        gameService.add(game);
+        game = gameService.add(game);
         URI location = URI.create("api/v1/games/" + game.getGame_id());
         return ResponseEntity.created(location).build();
     }

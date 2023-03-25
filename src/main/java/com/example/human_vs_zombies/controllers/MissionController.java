@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.util.Collection;
 
 import static java.util.Objects.isNull;
@@ -150,9 +151,11 @@ public class MissionController {
         }
         Mission mission = missionMapper.missionPostDTOToMission(missionPostDTO);
         mission.setGame(game);
-        missionService.add(mission);
+        mission = missionService.add(mission);
 
-        return ResponseEntity.ok().build();
+        URI location = URI.create("api/v1/games/" + game_id + "missions/" + mission.getMission_id());
+        return ResponseEntity.created(location).build();
+//        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Updates a mission")
