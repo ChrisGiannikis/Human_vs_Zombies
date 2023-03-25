@@ -199,6 +199,10 @@ public class KillController {
             return ResponseEntity.notFound().build();
         }
 
+        if(gameService.findById(game_id).getState() != State.IN_PROGRESS){
+            return ResponseEntity.badRequest().build();
+        }
+
 //        List<KillDTO> killDTOS = (List<KillDTO>)killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
 //
 //        if(killDTOS.isEmpty() || killDTOS.size()<kill_id){

@@ -33,6 +33,11 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
+    public Collection<Chat> findAllNonSquadChatByGameIdAdmin(int gameId) {
+        return chatRepository.findAllNonSquadChatByGameIdAdmin(gameId, ChatScope.SQUAD);
+    }
+
+    @Override
     public Collection<Chat> findAllSquadChatByGameId(int gameId, int squadId) {
         return chatRepository.findAllSquadChatByGameId(gameId, squadId, ChatScope.SQUAD);
     }

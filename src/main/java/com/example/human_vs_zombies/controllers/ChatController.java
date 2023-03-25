@@ -9,32 +9,29 @@ import com.example.human_vs_zombies.entities.SquadMember;
 import com.example.human_vs_zombies.enums.ChatScope;
 import com.example.human_vs_zombies.mappers.ChatMapper;
 import com.example.human_vs_zombies.services.chat.ChatService;
-import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
-
-import static java.util.Objects.isNull;
 
 @RestController
 @RequestMapping(path="api/v1/games")
 public class ChatController {
 
     private final ChatService chatService;
-    private final GameService gameService;
     private final PlayerService playerService;
     private final ChatMapper chatMapper;
 
-    public ChatController(ChatService chatService, GameService gameService, PlayerService playerService, ChatMapper chatMapper){
+    public ChatController(ChatService chatService, PlayerService playerService, ChatMapper chatMapper){
         this.chatService = chatService;
-        this.gameService = gameService;
         this.playerService = playerService;
         this.chatMapper = chatMapper;
     }
@@ -55,6 +52,16 @@ public class ChatController {
     @GetMapping("{game_id}/chat")//GET: localhost:8080/api/v1/games/game_id/chat
     public ResponseEntity<Collection<ChatDTO>> getAllChat(@PathVariable int game_id, @RequestHeader int player_id){//@RequestHeader ChatScope scope){
 
+        //------------------------------------ADMIN USES THIS:---------------------------------------------------------
+
+//        Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllNonSquadChatByGameIdAdmin(game_id));
+//
+//        if(chatDTOS.isEmpty())
+//            return ResponseEntity.notFound().build();
+//        return ResponseEntity.ok(chatDTOS);
+
+        //-------------------------------------------------------------------------------------------------------------
+
         Player player = playerService.findById(player_id);
 
         if(player.getGame().getGame_id()!=game_id){
@@ -63,13 +70,6 @@ public class ChatController {
 
         boolean isHuman = player.isHuman();
         Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllNonSquadChatByGameId(game_id, isHuman));
-
-//        if(scope==ChatScope.SQUAD){
-//            return ResponseEntity.badRequest().build();
-//        }
-//
-//        Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllChatByGameId(game_id, scope));
-//        chatDTOS.removeIf(chat -> chat.getChatScope() != scope);
 
         if(chatDTOS.isEmpty())
             return ResponseEntity.notFound().build();
@@ -91,7 +91,7 @@ public class ChatController {
     @PostMapping("{game_id}/chat")//POST: localhost:8080/api/v1/games/game_id/chat
     public ResponseEntity<KillDTO> sendMessage(@RequestBody ChatPostDTO chatPostDTO, @PathVariable int game_id, @RequestHeader ChatScope scope){
 
-        if(isNull(gameService.findById(game_id)) || playerService.findById(chatPostDTO.getPlayer()).getGame().getGame_id()!=game_id){
+        if(playerService.findById(chatPostDTO.getPlayer()).getGame().getGame_id()!=game_id){
             return ResponseEntity.notFound().build();
         }
 
@@ -130,7 +130,21 @@ public class ChatController {
                     content = @Content)
     })
     @GetMapping("{game_id}/squads/{squad_id}/chat")//GET: localhost:8080/api/v1/games/game_id/chat
-    public ResponseEntity<Collection<ChatDTO>> getAllSquadChat(@PathVariable int game_id, @PathVariable int squad_id){
+    public ResponseEntity<Collection<ChatDTO>> getAllSquadChat(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId){
+
+        //------------------------------------ADMIN USES THIS:---------------------------------------------------------
+
+//        Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllSquadChatByGameId(game_id, squad_id));
+//
+//        if(chatDTOS.isEmpty())
+//            return ResponseEntity.notFound().build();
+//        return ResponseEntity.ok(chatDTOS);
+
+        //-------------------------------------------------------------------------------------------------------------
+
+        if(playerService.findById(requestedByPlayerWithId).getSquadMember().getSquad().getSquad_id() != squad_id){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllSquadChatByGameId(game_id, squad_id));
 
@@ -157,18 +171,18 @@ public class ChatController {
 
         Player player = playerService.findById(chatPostDTO.getPlayer()) ;
 
-        if(isNull(gameService.findById(game_id)) || player.getGame().getGame_id()!=game_id){
+        if(player.getGame().getGame_id()!=game_id){
             return ResponseEntity.notFound().build();
         }
 
         SquadMember squadMember = player.getSquadMember();
 
-        if (chatPostDTO.getPlayer()==0 || isNull(squadMember)){
+        if (chatPostDTO.getPlayer()==0){
             return ResponseEntity.badRequest().build();
         }
 
-        if(squadMember.getSquad().getSquad_id()!=squad_id){
-            return ResponseEntity.badRequest().build();
+        if(squadMember.getSquad().getSquad_id() != squad_id){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Chat chat = chatMapper.chatPostDtoToChat(chatPostDTO);
