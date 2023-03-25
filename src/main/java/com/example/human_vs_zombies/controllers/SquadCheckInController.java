@@ -5,7 +5,9 @@ import com.example.human_vs_zombies.dto.squadCheckIn.SquadCheckInPostDTO;
 import com.example.human_vs_zombies.entities.Squad;
 import com.example.human_vs_zombies.entities.SquadCheckIn;
 import com.example.human_vs_zombies.entities.SquadMember;
+import com.example.human_vs_zombies.enums.State;
 import com.example.human_vs_zombies.mappers.SquadCheckInMapper;
+import com.example.human_vs_zombies.services.game.GameService;
 import com.example.human_vs_zombies.services.player.PlayerService;
 import com.example.human_vs_zombies.services.squad.SquadService;
 import com.example.human_vs_zombies.services.squadCheckIn.SquadCheckInService;
@@ -15,8 +17,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,14 +30,15 @@ import java.util.Collections;
 public class SquadCheckInController {
     private final SquadCheckInService squadCheckInService;
     private final SquadService squadService;
-
+    private final GameService gameService;
     private final SquadMemberService squadMemberService;
     private final PlayerService playerService;
     private final SquadCheckInMapper squadCheckInMapper;
 
-    public SquadCheckInController(SquadCheckInService squadCheckInService, SquadService squadService, SquadMemberService squadMemberService, PlayerService playerService, SquadCheckInMapper squadCheckInMapper) {
+    public SquadCheckInController(SquadCheckInService squadCheckInService, SquadService squadService, GameService gameService, SquadMemberService squadMemberService, PlayerService playerService, SquadCheckInMapper squadCheckInMapper) {
         this.squadCheckInService = squadCheckInService;
         this.squadService = squadService;
+        this.gameService = gameService;
         this.squadMemberService = squadMemberService;
         this.playerService = playerService;
         this.squadCheckInMapper = squadCheckInMapper;
@@ -64,7 +69,7 @@ public class SquadCheckInController {
         Collection<SquadMember> squadMembers = squad.getSquadMembers();
 
         if(!squadMembers.contains(playerService.findById(player_id).getSquadMember())){
-            return ResponseEntity.badRequest().build();
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Collection<SquadCheckIn> squadCheckIns = new java.util.ArrayList<>(Collections.emptySet());
@@ -94,8 +99,12 @@ public class SquadCheckInController {
             return ResponseEntity.notFound().build();
         }
 
-        if(squadMember.getSquad().getSquad_id()!=squad_id){
+        if(gameService.findById(game_id).getState()!= State.IN_PROGRESS){
             return ResponseEntity.badRequest().build();
+        }
+
+        if(squadMember.getSquad().getSquad_id()!=squad_id){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         SquadCheckIn squadCheckIn = squadCheckInMapper.squadCheckInPostDTOToSquadCheckIn(squadCheckInPostDTO);
