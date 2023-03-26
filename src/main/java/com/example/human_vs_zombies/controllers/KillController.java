@@ -21,6 +21,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -37,8 +39,8 @@ public class KillController {
     private final GameService gameService;
     private final KillMapper killMapper;
     private final PlayerMapper playerMapper;
-
     private final GameMapper gameMapper;
+    private String roles ="";
 
 
 
@@ -184,9 +186,13 @@ public class KillController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/kills/{kill_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int playerWhoWantsToUpdate){
+    public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int playerWhoWantsToUpdate, @AuthenticationPrincipal Jwt jwt){
 
         //-------------------------------------ONLY ADMIN OR KILLER CAN UPDATE A KILL----------------------------------------------------
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         KillDTO killDTO = killMapper.killToKillDTO(killService.findById(kill_id));
         PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(playerWhoWantsToUpdate));
@@ -230,9 +236,14 @@ public class KillController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}/kills/{kill_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<KillDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id){
+    public ResponseEntity<KillDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id, @AuthenticationPrincipal Jwt jwt){
 
         //-------------------------------------ADMIN ONLY---------------------------------------------------------------------------
+        roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
 
         if(game_id != killService.findById(kill_id).getVictim().getGame().getGame_id()){
             return ResponseEntity.notFound().build();

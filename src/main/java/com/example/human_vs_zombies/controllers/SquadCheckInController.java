@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -58,7 +60,12 @@ public class SquadCheckInController {
                     content = @Content)
     })
     @GetMapping("{game_id}/squads/{squad_id}/check-ins")//GET: localhost:8080/api/v1/games/game_id/squads/squad_id/check-ins
-    public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int player_id, @PathVariable int squad_id){
+    public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int player_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
+
+        String roles = jwt.getClaimAsString("roles");
+        if(!roles.contains("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         Squad squad = squadService.findById(squad_id);
 
