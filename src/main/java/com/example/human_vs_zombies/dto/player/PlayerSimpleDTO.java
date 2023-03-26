@@ -5,7 +5,7 @@ import lombok.Setter;
 
 import java.util.Set;
 
-/* This DTO created only for admins to get players details */
+/* This DTO created only for users to get non-sensitive players details */
 @Getter
 @Setter
 public class PlayerSimpleDTO {

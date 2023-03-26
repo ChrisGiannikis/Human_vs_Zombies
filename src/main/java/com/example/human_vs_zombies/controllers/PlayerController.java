@@ -58,24 +58,32 @@ public class PlayerController {
                     content = @Content)
     })
     @GetMapping("{game_id}/players")//GET: localhost:8080/api/v1/games/game_id/players
-    public ResponseEntity<Collection<PlayerDTO>> getAllPlayers(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
-
+    public ResponseEntity getAllPlayers(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
+            //<Collection<PlayerDTO>>
         //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
         String arrayList = jwt.getClaimAsString("roles");
         if(arrayList.contains("ADMIN")) {
-            //------------------------------------------
+            PlayerNotAdminDTO playerNotAdminDTO = playerMapper.playerToPlayerAdminDTO(playerService.findById(requestedByPlayerWithId));
+            if(playerNotAdminDTO.getGame() != game_id){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Collection<PlayerNotAdminDTO> playerNotAdminDTOS = playerMapper.playerToPlayerAdminDTO(gameService.findById(game_id).getPlayers());
+            if(playerNotAdminDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(playerNotAdminDTOS);
+        }else{
+            PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+            if(playerDTO.getGame() != game_id){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Collection<PlayerDTO> playerDTOS = playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
+            if(playerDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(playerDTOS);
         }
-
-        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
-
-        if(playerDTO.getGame() != game_id){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-
-        Collection<PlayerDTO> playerDTOS = playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
-        if(playerDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(playerDTOS);
     }
 
     @Operation(summary = "Get a player by ID, of a specific game")
@@ -90,26 +98,38 @@ public class PlayerController {
 
     })
     @GetMapping("{game_id}/players/{player_id}")//GET: localhost:8080/api/v1/games/game_id/players/player_id
-    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable int game_id, @PathVariable int player_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
-
+    public ResponseEntity getPlayerById(@PathVariable int game_id, @PathVariable int player_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
+                    //<PlayerDTO>
         //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
         String arrayList = jwt.getClaimAsString("roles");
         if(arrayList.contains("ADMIN")) {
-            //------------------------------------------
+            PlayerNotAdminDTO requestedByPlayerNotAdminDTO = playerMapper.playerToPlayerAdminDTO(playerService.findById(requestedByPlayerWithId));
+
+            if(requestedByPlayerNotAdminDTO.getGame() != game_id){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            PlayerNotAdminDTO playerNotAdminDTO = playerMapper.playerToPlayerAdminDTO(playerService.findById(player_id));
+
+            if(playerNotAdminDTO.getGame() != game_id){
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(playerNotAdminDTO);
+        }else{
+            PlayerDTO requestedByPlayerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+            if(requestedByPlayerDTO.getGame() != game_id){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(player_id));
+
+            if(playerDTO.getGame() != game_id){
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(playerDTO);
         }
 
-
-        PlayerDTO requestedByPlayerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
-
-        if(requestedByPlayerDTO.getGame() != game_id){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-
-        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(player_id));
-
-        if(playerDTO.getGame() != game_id){
-            return ResponseEntity.notFound().build();
-        }
 //
 //        List<PlayerDTO> playerDTOS = (List<PlayerDTO>)playerMapper.playerToPlayerSimpleDTO(gameService.findById(game_id).getPlayers());
 //
@@ -119,8 +139,6 @@ public class PlayerController {
 //
 //        playerDTOS.sort(Comparator.comparingInt(PlayerDTO::getPlayer_id));
 //        PlayerDTO playerDTO = playerDTOS.get(player_id-1);
-
-        return ResponseEntity.ok(playerDTO);
     }
 
     @Operation(summary = "Add a player to a specific game")
