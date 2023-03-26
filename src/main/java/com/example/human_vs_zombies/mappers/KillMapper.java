@@ -19,31 +19,20 @@ public abstract class KillMapper {
     @Autowired
     protected PlayerService playerService;
 
-
-
-
     @Mapping(target = "killer", source = "killer.player_id")
     @Mapping(target = "victim", source = "victim.player_id")
-
     public abstract KillDTO killToKillDTO(Kill kill);
 
     public abstract Collection<KillDTO> killsToKillsDTO(Collection<Kill> kills);
 
-
-    //KillDTO -> Kill
-    @Mapping(target = "victim", source = "victim", qualifiedByName = "playerIdToPlayer")
-    @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
-    public abstract Kill killDTOToKill(KillDTO killDTO);
-
-//    @Mapping(target = "game", source = "game.game_id")
-//    public abstract KillPostDTO killToKillPostDTO(Kill kill);
-
-    //@Mapping(target = "kill_id", ignore = true)
-    @Mapping(target = "victim", source = "victim", qualifiedByName = "playerIdToPlayer")
+    @Mapping(target = "kill_id", ignore = true)
+    @Mapping(target = "victim", ignore = true)
     @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
     public abstract Kill killPostDTOToKill(KillPostDTO killPostDTO);
 
-    //@Mapping(target = "kill_id", ignore = true)
+    @Mapping(target = "kill_id", ignore = true)
+    @Mapping(target = "victim", ignore = true)
+    @Mapping(target = "killer", ignore = true)
     public abstract Kill killPutDTOToKill(KillPutDTO killPutDTO);
 
     @Named("playerIdToPlayer")

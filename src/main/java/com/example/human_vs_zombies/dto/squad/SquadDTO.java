@@ -9,7 +9,11 @@ public class SquadDTO {
 
     private String name;
 
-    private boolean is_human;
+    private boolean human;
 
     private int game;
+
+    private int active_members;
+
+    private int deceased_members;
 }

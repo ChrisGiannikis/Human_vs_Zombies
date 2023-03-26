@@ -12,5 +12,4 @@ public class SquadCheckInPostDTO {
     private ZonedDateTime end_time;
     private double lat;
     private double lng;
-    private Integer squadMember;
 }
