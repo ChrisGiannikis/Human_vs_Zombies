@@ -16,4 +16,7 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
 
     @Query("select c from Chat c join Player p on c.player.player_id = p.player_id join Game g on p.game.game_id = g.game_id where g.game_id = ?1 and c.chatScope like ?2 or (c.chatScope = ?3 and p.human = ?4)")
     Collection<Chat> findAllNonSquadChatByGameId(int gameId, ChatScope global, ChatScope faction, boolean isHuman);
+
+    @Query("select c from Chat c join Player p on c.player.player_id = p.player_id join Game g on p.game.game_id = g.game_id where g.game_id = ?1 and c.chatScope not like ?2")
+    Collection<Chat> findAllNonSquadChatByGameIdAdmin(int gameId, ChatScope squad);
 }

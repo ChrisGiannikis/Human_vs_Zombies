@@ -5,6 +5,7 @@ import com.example.human_vs_zombies.exceptions.PlayerNotFoundException;
 import com.example.human_vs_zombies.repositories.PlayerRepository;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.repositories.SquadMemberRepository;
+import com.example.human_vs_zombies.services.squad.SquadService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,12 @@ public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerRepository playerRepository;
     private final SquadMemberRepository squadMemberRepository;
+    private final SquadService squadService;
 
-    public PlayerServiceImpl(PlayerRepository playerRepository, SquadMemberRepository squadMemberRepository) {
+    public PlayerServiceImpl(PlayerRepository playerRepository, SquadMemberRepository squadMemberRepository, SquadService squadService) {
         this.playerRepository = playerRepository;
         this.squadMemberRepository = squadMemberRepository;
+        this.squadService = squadService;
     }
 
     @Override
@@ -53,6 +56,7 @@ public class PlayerServiceImpl implements PlayerService {
 
         if(!isNull(squadMember)){
             squadMemberRepository.deleteById(squadMember.getSquad_member_id());
+            squadService.increaseDeceasedCount(squadMember);
             player.setSquadMember(null);
         }
     }

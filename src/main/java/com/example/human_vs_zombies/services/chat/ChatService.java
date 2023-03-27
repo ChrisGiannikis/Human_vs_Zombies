@@ -11,4 +11,6 @@ public interface ChatService extends CrudService<Chat, Integer> {
     Collection<Chat> findAllSquadChatByGameId(int gameId, int squadId);
 
     Collection<Chat> findAllNonSquadChatByGameId(int gameId, boolean isHuman);
+
+    Collection<Chat> findAllNonSquadChatByGameIdAdmin(int gameId);
 }

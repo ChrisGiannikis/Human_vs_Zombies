@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
 import java.util.Collection;
 
 import static java.util.Objects.isNull;
@@ -67,6 +68,13 @@ public class MissionController {
         }
 
         Collection<MissionDTO> missionDTOS = missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+
+        if(playerDTO.isHuman()){
+            missionDTOS.removeIf(missionDTO -> !missionDTO.isHuman_visible());
+        }else{
+            missionDTOS.removeIf(missionDTO -> !missionDTO.isZombie_visible());
+        }
+
         if(missionDTOS.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(missionDTOS);
@@ -94,7 +102,11 @@ public class MissionController {
 
         PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
-        if((playerDTO.isHuman() != missionDTO.isHuman_visible() && !playerDTO.isHuman() == !missionDTO.isZombie_visible()) || playerDTO.getGame()!=game_id){
+        if(playerDTO.isHuman() != missionDTO.isHuman_visible() && !playerDTO.isHuman() == !missionDTO.isZombie_visible()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        if(playerDTO.getGame()!=game_id){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
@@ -144,12 +156,13 @@ public class MissionController {
         if(game.getState() == State.COMPLETED){
             return ResponseEntity.badRequest().build();
         }
-
         Mission mission = missionMapper.missionPostDTOToMission(missionPostDTO);
         mission.setGame(game);
-        missionService.add(mission);
+        mission = missionService.add(mission);
 
-        return ResponseEntity.ok().build();
+        URI location = URI.create("api/v1/games/" + game_id + "missions/" + mission.getMission_id());
+        return ResponseEntity.created(location).build();
+//        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Updates a mission")
@@ -172,7 +185,6 @@ public class MissionController {
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-
         MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 
         if(missionDTO.getGame() != game_id){
