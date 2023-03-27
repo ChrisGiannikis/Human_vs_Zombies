@@ -157,7 +157,7 @@ public class KillController {
     @Operation(summary = "Updates a kill")
     @ApiResponses( value = {
             @ApiResponse(responseCode = "204",
-                    description = "Mission successfully updated",
+                    description = "Kill successfully updated",
                     content = @Content),
             @ApiResponse(responseCode = "400",
                     description = "Malformed request",
@@ -166,7 +166,7 @@ public class KillController {
                     description = "Game not found with supplied ID OR this game does not include a kill of this ID",
                     content = @Content)
     })
-    @PutMapping({"{game_id}/kills/{kill_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
+    @PutMapping({"{game_id}/kills/{kill_id}"})//PUT: localhost:8080/api/v1/games/game_id/kills/kill_id
     public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id, @AuthenticationPrincipal Jwt jwt){
 
         roles = jwt.getClaimAsString("roles");
@@ -197,13 +197,13 @@ public class KillController {
     @Operation(summary = "Delete a kill of a game by ID")
     @ApiResponses( value = {
             @ApiResponse(responseCode = "204",
-                    description = "Mission successfully deleted",
+                    description = "Kill successfully deleted",
                     content = @Content),
             @ApiResponse(responseCode = "404",
                     description = "Game not found with supplied ID OR this game does not include a kill of this ID",
                     content = @Content)
     })
-    @DeleteMapping({"{game_id}/kills/{kill_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
+    @DeleteMapping({"{game_id}/kills/{kill_id}"})//DELETE: localhost:8080/api/v1/games/game_id/kills/kill_id
     public ResponseEntity<MissionDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id, @AuthenticationPrincipal Jwt jwt){
 
         roles = jwt.getClaimAsString("roles");
