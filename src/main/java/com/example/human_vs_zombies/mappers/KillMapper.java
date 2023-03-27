@@ -25,11 +25,15 @@ public abstract class KillMapper {
 
     public abstract Collection<KillDTO> killsToKillsDTO(Collection<Kill> kills);
 
+    @Mapping(target = "lat", ignore = true)
+    @Mapping(target = "lng", ignore = true)
     @Mapping(target = "kill_id", ignore = true)
     @Mapping(target = "victim", ignore = true)
     @Mapping(target = "killer", source = "killer", qualifiedByName = "playerIdToPlayer")
     public abstract Kill killPostDTOToKill(KillPostDTO killPostDTO);
 
+    @Mapping(target = "lat", ignore = true)
+    @Mapping(target = "lng", ignore = true)
     @Mapping(target = "kill_id", ignore = true)
     @Mapping(target = "victim", ignore = true)
     @Mapping(target = "killer", ignore = true)

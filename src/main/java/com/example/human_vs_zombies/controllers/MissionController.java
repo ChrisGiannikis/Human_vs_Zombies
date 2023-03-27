@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.Objects.isNull;
 
@@ -151,6 +152,8 @@ public class MissionController {
         }
         Mission mission = missionMapper.missionPostDTOToMission(missionPostDTO);
         mission.setGame(game);
+        mission.setLat(ThreadLocalRandom.current().nextDouble(game.getSe_lat(), game.getNw_lat()));
+        mission.setLng(ThreadLocalRandom.current().nextDouble(game.getNw_lng(), game.getSe_lng()));
         mission = missionService.add(mission);
 
         URI location = URI.create("api/v1/games/" + game_id + "missions/" + mission.getMission_id());

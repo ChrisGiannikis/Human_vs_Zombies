@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 public class KillPutDTO {
-    private double lat;
-    private double lng;
+//    private double lat;
+//    private double lng;
     private ZonedDateTime time_of_death;
 }

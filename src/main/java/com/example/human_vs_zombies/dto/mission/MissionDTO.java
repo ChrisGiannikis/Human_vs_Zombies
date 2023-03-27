@@ -14,6 +14,8 @@ public class MissionDTO {
     private boolean human_visible;
     private boolean zombie_visible;
     private String description;
+    private double lat;
+    private double lng;
     private ZonedDateTime start_time;
     private ZonedDateTime end_time;
     private int game;
