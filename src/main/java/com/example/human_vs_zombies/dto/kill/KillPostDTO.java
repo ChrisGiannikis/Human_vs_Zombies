@@ -9,9 +9,9 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 public class KillPostDTO {
-
-    private double lat;
-    private double lng;
+//
+//    private double lat;
+//    private double lng;
     private int killer;
     private ZonedDateTime time_of_death;
 

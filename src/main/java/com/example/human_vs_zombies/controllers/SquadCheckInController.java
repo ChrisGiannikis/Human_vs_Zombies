@@ -2,6 +2,7 @@ package com.example.human_vs_zombies.controllers;
 
 import com.example.human_vs_zombies.dto.squadCheckIn.SquadCheckInDTO;
 import com.example.human_vs_zombies.dto.squadCheckIn.SquadCheckInPostDTO;
+import com.example.human_vs_zombies.entities.Game;
 import com.example.human_vs_zombies.entities.Squad;
 import com.example.human_vs_zombies.entities.SquadCheckIn;
 import com.example.human_vs_zombies.entities.SquadMember;
@@ -26,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping("api/v1/games")
@@ -101,6 +103,7 @@ public class SquadCheckInController {
     public ResponseEntity<SquadCheckInPostDTO> createCheckIn(@RequestBody SquadCheckInPostDTO squadCheckInPostDTO, @PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int squadMember_id) {
 
         SquadMember squadMember = squadMemberService.findById(squadMember_id);
+        Game game = gameService.findById(game_id);
 
         if(squadMember.getSquad().getGame().getGame_id()!=game_id){
             return ResponseEntity.notFound().build();
@@ -115,6 +118,8 @@ public class SquadCheckInController {
         }
 
         SquadCheckIn squadCheckIn = squadCheckInMapper.squadCheckInPostDTOToSquadCheckIn(squadCheckInPostDTO);
+        squadCheckIn.setLat(ThreadLocalRandom.current().nextDouble(game.getSe_lat(), game.getNw_lat()));
+        squadCheckIn.setLng(ThreadLocalRandom.current().nextDouble(game.getNw_lng(), game.getSe_lng()));
         squadCheckIn.setSquadMember(squadMember);
 
         squadCheckInService.add( squadCheckIn);

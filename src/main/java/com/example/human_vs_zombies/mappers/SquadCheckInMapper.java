@@ -20,6 +20,8 @@ public abstract class SquadCheckInMapper {
     public abstract Collection<SquadCheckInDTO> squadCheckInToSquadCheckInDTO(Collection<SquadCheckIn> squadCheckIn);
 
     @Mapping(target = "squad_checkin_id", ignore = true)
+    @Mapping(target = "lat", ignore = true)
+    @Mapping(target = "lng", ignore = true)
     @Mapping(target = "squadMember", ignore = true)
     public abstract SquadCheckIn squadCheckInPostDTOToSquadCheckIn(SquadCheckInPostDTO squadCheckInPostDTO);
 

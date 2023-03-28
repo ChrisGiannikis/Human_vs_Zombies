@@ -28,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.Objects.isNull;
 
@@ -165,6 +166,8 @@ public class KillController {
 
         Kill kill = killMapper.killPostDTOToKill(killPostDTO);
         kill.setVictim(playerService.findByBiteCode(biteCode));
+        kill.setLat(ThreadLocalRandom.current().nextDouble(gameDTO.getSe_lat(), gameDTO.getNw_lat()));
+        kill.setLng(ThreadLocalRandom.current().nextDouble(gameDTO.getNw_lng(), gameDTO.getSe_lng()));
         kill = killService.add(kill);
 
         URI location = URI.create("api/v1/games/" + game_id + "kills/" + kill.getKill_id());
