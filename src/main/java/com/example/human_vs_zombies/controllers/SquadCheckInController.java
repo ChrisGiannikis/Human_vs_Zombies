@@ -29,6 +29,7 @@ import java.util.Collections;
 
 @RestController
 @RequestMapping("api/v1/games")
+@CrossOrigin
 public class SquadCheckInController {
     private final SquadCheckInService squadCheckInService;
     private final SquadService squadService;

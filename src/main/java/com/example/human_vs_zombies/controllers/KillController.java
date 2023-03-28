@@ -33,6 +33,7 @@ import static java.util.Objects.isNull;
 
 @RestController
 @RequestMapping("api/v1/games")
+@CrossOrigin
 public class KillController {
     private final KillService killService;
     private final PlayerService playerService;

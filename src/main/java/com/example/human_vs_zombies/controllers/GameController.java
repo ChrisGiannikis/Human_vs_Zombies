@@ -25,6 +25,7 @@ import java.util.Collection;
 import static java.util.Objects.isNull;
 @RestController
 @RequestMapping(path = "api/v1/games")
+@CrossOrigin
 public class GameController {
     private final GameService gameService;
     private final GameMapper gameMapper;

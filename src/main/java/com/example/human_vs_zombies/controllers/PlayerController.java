@@ -30,6 +30,7 @@ import static java.util.Objects.isNull;
 
 @RestController
 @RequestMapping("api/v1/games")
+@CrossOrigin
 public class PlayerController {
 
     private final PlayerService playerService;

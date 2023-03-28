@@ -26,6 +26,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping(path="api/v1/games")
+@CrossOrigin
 public class ChatController {
 
     private final ChatService chatService;

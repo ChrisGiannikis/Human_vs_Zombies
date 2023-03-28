@@ -32,6 +32,7 @@ import static java.util.Objects.isNull;
 
 @RestController
 @RequestMapping(path="api/v1/games")
+@CrossOrigin
 public class SquadController {
 
     private final SquadService squadService;
