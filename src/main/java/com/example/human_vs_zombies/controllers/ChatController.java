@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collection;
 
 @RestController
+@CrossOrigin
 @RequestMapping(path="api/v1/games")
 public class ChatController {
 

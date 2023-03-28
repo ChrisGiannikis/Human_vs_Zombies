@@ -31,6 +31,7 @@ import java.util.*;
 import static java.util.Objects.isNull;
 
 @RestController
+@CrossOrigin
 @RequestMapping(path="api/v1/games")
 public class SquadController {
 

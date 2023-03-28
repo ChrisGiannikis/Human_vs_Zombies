@@ -33,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static java.util.Objects.isNull;
 
 @RestController
+@CrossOrigin
 @RequestMapping("api/v1/games")
 public class KillController {
     private final KillService killService;
