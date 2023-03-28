@@ -140,7 +140,7 @@ public class MissionController {
     public ResponseEntity<MissionPostDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -185,7 +185,7 @@ public class MissionController {
     public ResponseEntity<MissionPutDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -235,7 +235,7 @@ public class MissionController {
     public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

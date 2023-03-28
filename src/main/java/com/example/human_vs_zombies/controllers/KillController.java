@@ -193,7 +193,7 @@ public class KillController {
     public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int playerWhoWantsToUpdate, @AuthenticationPrincipal Jwt jwt){
 
         //-------------------------------------ONLY ADMIN OR KILLER CAN UPDATE A KILL----------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -243,7 +243,7 @@ public class KillController {
     public ResponseEntity<KillDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id, @AuthenticationPrincipal Jwt jwt){
 
         //-------------------------------------ADMIN ONLY---------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

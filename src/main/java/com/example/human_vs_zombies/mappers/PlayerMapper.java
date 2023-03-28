@@ -27,10 +27,10 @@ public abstract class PlayerMapper {
     @Mapping(target = "game", source = "game.game_id")
     //@Mapping(target = "death", source = "")
     //@Mapping(target = "kills", source = "kills", qualifiedByName = "killsToKillsId")
-    @Mapping(target = "squadMember", source = "squadMember.squad_member_id")
+    //@Mapping(target = "squadMember", source = "squadMember.squad_member_id")
     //@Mapping(target = "chat", source = "chat", qualifiedByName = "chatToMessageId")
     @Mapping(target = "full_name", source = "user.user_id", qualifiedByName = "UserNamesToFullName")
-    public abstract PlayerNotAdminDTO playerToPlayerAdminDTO(Player player);     //mapper for PlayerAdminDTO
+    public abstract PlayerNotAdminDTO playerToPlayerAdminDTO(Player player);     //mapper for PlayerNotAdminDTO
     public abstract Collection<PlayerNotAdminDTO> playerToPlayerAdminDTO(Collection<Player> players);  //mapper for PlayerAdminDTO to handle a collection of Players
 
     @Mapping(target = "user", source = "user.user_id")

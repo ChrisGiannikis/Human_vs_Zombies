@@ -54,10 +54,10 @@ public class ChatController {
                     content = @Content)
     })
     @GetMapping("{game_id}/chat")//GET: localhost:8080/api/v1/games/game_id/chat
-    public ResponseEntity<Collection<ChatDTO>> getAllChat(@PathVariable int game_id, @RequestHeader int player_id, @AuthenticationPrincipal Jwt jwt){//@RequestHeader ChatScope scope){
+    public ResponseEntity<Collection<ChatDTO>> getAllChat(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){//@RequestHeader ChatScope scope){
 
         //------------------------------------ADMIN USES THIS:---------------------------------------------------------
-        String arrayList = jwt.getClaimAsString("roles");
+        String arrayList = jwt.getClaimAsString("realm_access");
         if(arrayList.contains("ADMIN")) {
             Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllNonSquadChatByGameIdAdmin(game_id));
 
@@ -67,7 +67,7 @@ public class ChatController {
         }
         //-------------------------------------------------------------------------------------------------------------
 
-        Player player = playerService.findById(player_id);
+        Player player = playerService.findById(requestedByPlayerWithId);
 
         if(player.getGame().getGame_id()!=game_id){
             return ResponseEntity.notFound().build();
@@ -134,7 +134,7 @@ public class ChatController {
                     description = "Did not find any messages",
                     content = @Content)
     })
-    @GetMapping("{game_id}/squads/{squad_id}/chat")//GET: localhost:8080/api/v1/games/game_id/chat
+    @GetMapping("{game_id}/squads/{squad_id}/chat")//GET: localhost:8080/api/v1/games/game_id/squads/squad_id/chat
     public ResponseEntity<Collection<ChatDTO>> getAllSquadChat(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId){
 
         //------------------------------------ADMIN USES THIS:---------------------------------------------------------
@@ -174,7 +174,7 @@ public class ChatController {
     @PostMapping("{game_id}/squads/{squad_id}/chat")//POST: localhost:8080/api/v1/games/game_id/squads/squad_id/chat
     public ResponseEntity<KillDTO> sendMessageToSquad(@RequestBody ChatPostDTO chatPostDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
 
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

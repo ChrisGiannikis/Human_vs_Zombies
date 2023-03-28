@@ -83,7 +83,7 @@ public class GameController {
     @PostMapping//POST: localhost:8080/api/v1/games
     public ResponseEntity<GamePostDTO> addGame(@RequestBody GamePostDTO gamePostDTO, @AuthenticationPrincipal Jwt jwt){
 
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -112,7 +112,7 @@ public class GameController {
     @PutMapping("{game_id}")//PUT: localhost:8080/api/v1/games/id
     public ResponseEntity<GamePutDTO> updateGame(@RequestBody GamePutDTO gamePutDTO, @PathVariable int game_id, @RequestHeader State state, @AuthenticationPrincipal Jwt jwt){
 
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -147,7 +147,7 @@ public class GameController {
     @DeleteMapping({"{game_id}"})//DELETE: localhost:8080/api/v1/games/id
     public ResponseEntity<GameDTO> deleteGame(@PathVariable int game_id, @AuthenticationPrincipal Jwt jwt){
 
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

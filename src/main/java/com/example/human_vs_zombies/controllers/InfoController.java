@@ -15,7 +15,7 @@ public class InfoController {
 
     @GetMapping
     public ResponseEntity getAdmin(@AuthenticationPrincipal Jwt jwt){
-        String arrayList = jwt.getClaimAsString("roles");
+        String arrayList = jwt.getClaimAsString("realm_access");
         return ResponseEntity.ok(arrayList.contains("ADMIN"));
     }
 }

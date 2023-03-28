@@ -234,7 +234,7 @@ public class SquadController {
     public ResponseEntity<MissionDTO> updateSquad(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -269,7 +269,7 @@ public class SquadController {
     public ResponseEntity<SquadDTO> deleteSquad(@PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt) {
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

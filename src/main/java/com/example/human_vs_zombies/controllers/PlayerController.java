@@ -63,18 +63,9 @@ public class PlayerController {
     public ResponseEntity getAllPlayers(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
                     //<Collection<PlayerDTO>>
         //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
-        String arrayList = jwt.getClaimAsString("roles");
+        String arrayList = jwt.getClaimAsString("realm_access");
         if(arrayList.contains("ADMIN")) {
-            PlayerNotAdminDTO playerNotAdminDTO = playerMapper.playerToPlayerAdminDTO(playerService.findById(requestedByPlayerWithId));
-            if(playerNotAdminDTO.getGame() != game_id){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-            }
-
-            Collection<PlayerNotAdminDTO> playerNotAdminDTOS = playerMapper.playerToPlayerAdminDTO(gameService.findById(game_id).getPlayers());
-            if(playerNotAdminDTOS.isEmpty())
-                return ResponseEntity.notFound().build();
-            return ResponseEntity.ok(playerNotAdminDTOS);
-        }else{
+            System.out.println("if");
             PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
             if(playerDTO.getGame() != game_id){
@@ -85,6 +76,18 @@ public class PlayerController {
             if(playerDTOS.isEmpty())
                 return ResponseEntity.notFound().build();
             return ResponseEntity.ok(playerDTOS);
+        }else{
+            System.out.println("else");
+            PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+            if(playerDTO.getGame() != game_id){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Collection<PlayerNotAdminDTO> playerNotAdminDTOS = playerMapper.playerToPlayerAdminDTO(gameService.findById(game_id).getPlayers());
+            if(playerNotAdminDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(playerNotAdminDTOS);
         }
     }
 
@@ -103,7 +106,7 @@ public class PlayerController {
     public ResponseEntity getPlayerById(@PathVariable int game_id, @PathVariable int player_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
                      //<PlayerDTO>
         //------------------ONLY ADMINS CAN SEE IF PLAYER IS PATIENT ZERO--------------------------------------------------
-        String arrayList = jwt.getClaimAsString("roles");
+        String arrayList = jwt.getClaimAsString("realm_access");
         if(arrayList.contains("ADMIN")) {
             PlayerNotAdminDTO requestedByPlayerNotAdminDTO = playerMapper.playerToPlayerAdminDTO(playerService.findById(requestedByPlayerWithId));
 
@@ -179,7 +182,7 @@ public class PlayerController {
         Player player = new Player();
         player.setGame(game);
         player.setBiteCode(RandomStringUtils.randomAlphanumeric(20).toUpperCase());
-        String arrayList = jwt.getClaimAsString("roles");
+        String arrayList = jwt.getClaimAsString("realm_access");
         if(arrayList.contains("ADMIN")) {
             player = playerMapper.playerPostDTOtoPlayer(playerPostDTO);
         }
@@ -204,7 +207,7 @@ public class PlayerController {
     public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable int game_id, @PathVariable int player_id, @AuthenticationPrincipal Jwt jwt){
 
         //-----------------------------------------ADMIN ONLY-------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -246,7 +249,7 @@ public class PlayerController {
     public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable int game_id, @PathVariable int player_id, @AuthenticationPrincipal Jwt jwt){
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
-        roles = jwt.getClaimAsString("roles");
+        roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }

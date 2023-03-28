@@ -63,7 +63,7 @@ public class SquadCheckInController {
                     content = @Content)
     })
     @GetMapping("{game_id}/squads/{squad_id}/check-ins")//GET: localhost:8080/api/v1/games/game_id/squads/squad_id/check-ins
-    public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int player_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
 
         String roles = jwt.getClaimAsString("roles");
 
@@ -75,7 +75,7 @@ public class SquadCheckInController {
 
         Collection<SquadMember> squadMembers = squad.getSquadMembers();
 
-        if(!squadMembers.contains(playerService.findById(player_id).getSquadMember()) && !roles.contains("ADMIN")){
+        if(!squadMembers.contains(playerService.findById(requestedByPlayerWithId).getSquadMember()) && !roles.contains("ADMIN")){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
@@ -97,7 +97,7 @@ public class SquadCheckInController {
             @ApiResponse(responseCode = "400", description = "This player cannot create check-in in this squad", content = @Content),
             @ApiResponse( responseCode = "404", description = "The given Squad Member does not exists!", content = { @Content })
     })
-    @PostMapping("{game_id}/squads/{squad_id}/check-ins")//POST: localhost:8080/api//v1/checkIns
+    @PostMapping("{game_id}/squads/{squad_id}/check-ins")//POST: localhost:8080/api/v1/games/
     public ResponseEntity<SquadCheckInPostDTO> createCheckIn(@RequestBody SquadCheckInPostDTO squadCheckInPostDTO, @PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int squadMember_id) {
 
         SquadMember squadMember = squadMemberService.findById(squadMember_id);
