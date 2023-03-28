@@ -64,9 +64,7 @@ public class SquadCheckInController {
     public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int player_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
 
         String roles = jwt.getClaimAsString("roles");
-        if(!roles.contains("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
+
 
         Squad squad = squadService.findById(squad_id);
 
@@ -76,7 +74,7 @@ public class SquadCheckInController {
 
         Collection<SquadMember> squadMembers = squad.getSquadMembers();
 
-        if(!squadMembers.contains(playerService.findById(player_id).getSquadMember())){
+        if(!squadMembers.contains(playerService.findById(player_id).getSquadMember()) && !roles.contains("ADMIN")){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
