@@ -61,18 +61,23 @@ public class SquadController {
                     content = @Content)
     })
     @GetMapping("{game_id}/squads")//GET: localhost:8080/api/v1/games/game_id/squads
-    public ResponseEntity<Collection<SquadDTO>> getAllSquads(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId) {
+    public ResponseEntity<Collection<SquadDTO>> getAllSquads(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt) {
 
-        if(isNull(gameService.findById(game_id))){
-            return ResponseEntity.notFound().build();
+        roles = jwt.getClaimAsString("realm_access");
+        if (roles.contains("ADMIN")) {
+            Collection<SquadDTO> squadDTOS = squadMapper.squadToSquadDto(gameService.findById(game_id).getSquads());
+            if (squadDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(squadDTOS);
         }
 
-        if(playerService.findById(requestedByPlayerWithId).getGame().getGame_id()!=game_id){
+
+        if (playerService.findById(requestedByPlayerWithId).getGame().getGame_id() != game_id) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Collection<SquadDTO> squadDTOS = squadMapper.squadToSquadDto(gameService.findById(game_id).getSquads());
-        if(squadDTOS.isEmpty())
+        if (squadDTOS.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(squadDTOS);
     }
@@ -89,15 +94,27 @@ public class SquadController {
 
     })
     @GetMapping("{game_id}/squads/{squad_id}")//GET: localhost:8080/api/v1/games/game_id/squads
-    public ResponseEntity<SquadDTO> getSquadById(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId) {
+    public ResponseEntity<SquadDTO> getSquadById(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt) {
 
-        if(playerService.findById(requestedByPlayerWithId).getGame().getGame_id()!=game_id){
+        String roles = jwt.getClaimAsString("realm_access");
+        if (roles.contains("ADMIN")) {
+            Squad squad = squadService.findById(squad_id);
+
+            if (squad.getGame().getGame_id() != game_id) {
+                return ResponseEntity.notFound().build();
+            }
+
+            SquadDTO squadDTO = squadMapper.squadToSquadDto(squad);
+            return ResponseEntity.ok(squadDTO);
+        }
+
+        if (playerService.findById(requestedByPlayerWithId).getGame().getGame_id() != game_id) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Squad squad = squadService.findById(squad_id);
 
-        if(squad.getGame().getGame_id()!=game_id){
+        if (squad.getGame().getGame_id() != game_id) {
             return ResponseEntity.notFound().build();
         }
 
@@ -153,13 +170,6 @@ public class SquadController {
         URI uri = new URI("api/v1/games/" + game_id + "squads/" + squad.getSquad_id());
         return ResponseEntity.created(uri).build();
 
-//        squadMember.setSquad(squad);
-//        if (isNull(squadPostDTO.getName()))
-//            return ResponseEntity.badRequest().build();
-//        squadService.add(squadMapper.squadPostDTOToSquad(squadPostDTO));
-//        int squad_id = squadMapper.squadPostDTOToSquad(squadPostDTO).getSquad_id();
-//        URI location = URI.create("squads/" + squad_id);
-//        return ResponseEntity.created(location).build();
     }
 
     @Operation(summary = "Add a squad member to a specific squad")
@@ -200,22 +210,12 @@ public class SquadController {
         squadMember.setRank(Rank.NOOB);
         squadMemberService.add(squadMember);
 
-//        Set<SquadMember> squadMemberSet = squad.getSquadMembers();
-//        squadMemberSet.add(squadMember);
-//        squad.setSquadMembers(squadMemberSet);
         squad.getSquadMembers().add(squadMember);
         squadService.update(squad);
 
         player.setSquadMember(squadMember);
         playerService.update(player);
         return ResponseEntity.ok().build();
-//        squadMember.setSquad(squad);
-//        if (isNull(squadPostDTO.getName()))
-//            return ResponseEntity.badRequest().build();
-//        squadService.add(squadMapper.squadPostDTOToSquad(squadPostDTO));
-//        int squad_id = squadMapper.squadPostDTOToSquad(squadPostDTO).getSquad_id();
-//        URI location = URI.create("squads/" + squad_id);
-//        return ResponseEntity.created(location).build();
     }
 
     @Operation(summary = "Updates a squad")
@@ -233,7 +233,6 @@ public class SquadController {
     @PutMapping({"{game_id}/squads/{squad_id}"})//PUT: localhost:8080/api/v1/games/game_id/squads/squad_id
     public ResponseEntity<MissionDTO> updateSquad(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
 
-        //---------------ADMIN ONLY------------------------------------------------------------------------------------------
         roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -268,7 +267,6 @@ public class SquadController {
     @DeleteMapping({"{game_id}/squads/{squad_id}"})//DELETE: localhost:8080/api/v1/games/game_id/squads/squad_id
     public ResponseEntity<SquadDTO> deleteSquad(@PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt) {
 
-        //---------------ADMIN ONLY------------------------------------------------------------------------------------------
         roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -283,29 +281,4 @@ public class SquadController {
 
     }
 
-//
-//    @Operation(summary = "Updates a squad")
-//    @ApiResponses( value = {
-//            @ApiResponse(responseCode = "204",
-//                    description = "Squad successfully updated",
-//                    content = {@Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = SquadDTO.class))}),
-//            @ApiResponse(responseCode = "400",
-//                    description = "Malformed request",
-//                    content = @Content),
-//            @ApiResponse(responseCode = "404",
-//                    description = "Squad not found with supplied ID",
-//                    content = @Content)
-//    })
-//    @PutMapping({"{id}"})//PUT: localhost:8080/api/v1/squads/id
-//    public ResponseEntity<SquadDTO> update(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int id) {
-//        if (id != squadPutDTO.getSquad_id()) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//
-//        squadService.update(squadMapper.squadPutDTOToSquad(squadPutDTO));
-//
-//        return ResponseEntity.noContent().build();
-//    }
-//
 }

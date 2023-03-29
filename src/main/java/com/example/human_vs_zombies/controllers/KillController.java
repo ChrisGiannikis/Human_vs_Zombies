@@ -67,18 +67,30 @@ public class KillController {
                     content = @Content)
     })
     @GetMapping("{game_id}/kills")//GET: localhost:8080/api/v1/games/game_id/kills
-    public ResponseEntity<Collection<KillDTO>> getAllKills(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<Collection<KillDTO>> getAllKills(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
 
-        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+        String arrayList = jwt.getClaimAsString("realm_access");
+        if(arrayList.contains("ADMIN")) {
+            Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
+            if(killDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(killDTOS);
 
-        if(playerDTO.getGame() != game_id){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
         }
+        else {
+            PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
-        Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
-        if(killDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(killDTOS);
+            if (playerDTO.getGame() != game_id) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
+            if (killDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+
+            return ResponseEntity.ok(killDTOS);
+        }
     }
 
     @Operation(summary = "Get a kill by ID, of a specific game")
@@ -93,25 +105,21 @@ public class KillController {
 
     })
     @GetMapping("{game_id}/kills/{kill_id}")//GET: localhost:8080/api/v1/games/game_id/kills/kill_id
-    public ResponseEntity<KillDTO> getKillById(@PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<KillDTO> getKillById(@PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
 
+        String arrayList = jwt.getClaimAsString("realm_access");
+        if(arrayList.contains("ADMIN")) {
+            KillDTO killDTO = killMapper.killToKillDTO(killService.findKillByKillIdAndGameId(game_id, kill_id));
+            if(isNull(killDTO)){
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(killDTO);
+
+        }
         PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
-
         if(playerDTO.getGame()!=game_id){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-
-//        if(isNull(gameService.findById(game_id))){
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        List<KillDTO> killDTOS = (List<KillDTO>)killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
-//
-//        if(killDTOS.isEmpty() || killDTOS.size()<kill_id){
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        killDTOS.sort(Comparator.comparingInt(KillDTO::getKill_id));
 
         KillDTO killDTO = killMapper.killToKillDTO(killService.findKillByKillIdAndGameId(game_id, kill_id));
         if(isNull(killDTO)){
@@ -173,8 +181,6 @@ public class KillController {
 
         URI location = URI.create("api/v1/games/" + game_id + "kills/" + kill.getKill_id());
         return ResponseEntity.created(location).build();
-
-//        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Updates a kill")
@@ -192,7 +198,6 @@ public class KillController {
     @PutMapping({"{game_id}/kills/{kill_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
     public ResponseEntity<KillDTO> updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int playerWhoWantsToUpdate, @AuthenticationPrincipal Jwt jwt){
 
-        //-------------------------------------ONLY ADMIN OR KILLER CAN UPDATE A KILL----------------------------------------------------
         roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -213,19 +218,9 @@ public class KillController {
             return ResponseEntity.badRequest().build();
         }
 
-//        List<KillDTO> killDTOS = (List<KillDTO>)killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
-//
-//        if(killDTOS.isEmpty() || killDTOS.size()<kill_id){
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        killDTOS.sort(Comparator.comparingInt(KillDTO::getKill_id));
-//        KillDTO killDTO = killMapper.killToKillDTO(killService.findKillByKillIdAndGameId(game_id, killDTOS.get(kill_id-1).getKill_id()));
-
         Kill kill = killMapper.killPutDTOToKill(killPutDTO);
         kill.setKill_id(kill_id);
         killService.update(kill);
-//        killService.updateKillById(kill, killService.findKillByKillIdAndGameId(game_id, killDTO.getKill_id()).getKill_id());
 
         return ResponseEntity.noContent().build();
     }
@@ -242,7 +237,6 @@ public class KillController {
     @DeleteMapping({"{game_id}/kills/{kill_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
     public ResponseEntity<KillDTO> deleteKill(@PathVariable int game_id, @PathVariable int kill_id, @AuthenticationPrincipal Jwt jwt){
 
-        //-------------------------------------ADMIN ONLY---------------------------------------------------------------------------
         roles = jwt.getClaimAsString("realm_access");
         if(!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -257,98 +251,4 @@ public class KillController {
 
         return ResponseEntity.noContent().build();
     }
-
-    //get all kills
-//    @Operation(summary = "Get all the Kills of the game.")
-//    @ApiResponses( value = {
-//            @ApiResponse(responseCode = "200", description = "Success",
-//                    content = {@Content( mediaType = "application/json",
-//                            array = @ArraySchema( schema = @Schema(implementation = KillDTO.class)))}),
-//            @ApiResponse(responseCode = "404",
-//                    description = "Did not find any kills",
-//                    content = @Content)
-//    })
-//    @GetMapping("/kills")
-//    public ResponseEntity<Collection<KillDTO>> findAll(){
-//        Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAll());
-//        if(killDTOS.isEmpty())
-//            return ResponseEntity.notFound().build();
-//        return ResponseEntity.ok(killDTOS);
-//    }
-//
-//
-//
-//    //get kill by id
-//    @Operation(summary = "Get a kill with the given id.")
-//    @ApiResponses( value = {
-//            @ApiResponse(responseCode = "200", description = "Success",
-//                    content = {@Content( mediaType = "application/json",
-//                            schema = @Schema(implementation = KillDTO.class))}),
-//            @ApiResponse( responseCode = "404",
-//                    description = "Kill with supplied id, does not exist! ",
-//                    content = @Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = ProblemDetail.class)))
-//    })
-//    @GetMapping("/kills/{kill_id}")
-//    public ResponseEntity findById(@PathVariable("kill_id") int id){
-//        return ResponseEntity.ok(killMapper.killToKillDTO(killService.findById(id)));
-//    }
-//
-//    // create a kill
-//    @Operation(summary = "Creates a kill object.")
-//    @ApiResponses( value = {
-//            @ApiResponse( responseCode = "201", description = "Kill object created", content = { @Content }),
-//            @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
-//            @ApiResponse( responseCode = "404", description = "Killer or victim does not exist! ", content = { @Content })
-//    })
-//    @PostMapping("/kills")
-//    public ResponseEntity createKill(@RequestBody KillPostDTO killPostDTO){
-//        if (killPostDTO.getLng() == 0 || killPostDTO.getLat() == 0 )
-//            return ResponseEntity.badRequest().build();
-//        killService.add(killMapper.killPostDTOToKill(killPostDTO));
-//        int kill_id = killMapper.killPostDTOToKill(killPostDTO).getKill_id();
-//        URI location = URI.create("/" + kill_id);
-//        return ResponseEntity.created(location).build();
-//
-//    }
-//
-//
-//    //update a kill
-//
-//    @Operation(summary = "Updates the kill object with the given id.")
-//    @ApiResponses( value = {
-//            @ApiResponse( responseCode = "200", description = "Kill updated", content = { @Content }),
-//            @ApiResponse( responseCode = "204", description = "Kill updated", content = { @Content }),
-//            @ApiResponse(responseCode = "400", description = "Bad Request", content = { @Content }),
-//            @ApiResponse( responseCode = "404", description = "Kill not found", content = { @Content })
-//    })
-//    @PutMapping("/kill/{kill_id}")
-//    public ResponseEntity updateKill(@RequestBody KillPutDTO killPutDTO, @PathVariable("kill_id") int id){
-//        if(killPutDTO.getKill_id() != id)
-//            return ResponseEntity.badRequest().build();
-//        Kill kill = killMapper.killPutDTOToKill(killPutDTO);
-//        killService.updateKillById(kill,id);
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//
-//    @Operation(summary = "Deletes the kill object with the given id.")
-//    @ApiResponses(value = {
-//            @ApiResponse( responseCode =  "204",
-//                    description = "Kill deleted",
-//                    content = { @Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = KillDTO.class))}),
-//            @ApiResponse( responseCode = "404",
-//                    description = "Kill with supplied id, does not exist! ",
-//                    content = @Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = ProblemDetail.class)))})
-//    @DeleteMapping("/kill/{kill_id}")
-//    public ResponseEntity<KillDTO> deleteKillById(@PathVariable("kill_id") int id){
-//        KillDTO killDTO = killMapper.killToKillDTO(killService.findById(id));
-//        killService.deleteById(killDTO.getKill_id());
-//        return ResponseEntity.noContent().build();
-//    }
-
-
-
 }

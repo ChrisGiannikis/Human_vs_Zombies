@@ -65,30 +65,33 @@ public class SquadCheckInController {
     @GetMapping("{game_id}/squads/{squad_id}/check-ins")//GET: localhost:8080/api/v1/games/game_id/squads/squad_id/check-ins
     public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
 
-        String roles = jwt.getClaimAsString("roles");
-
+        String roles = jwt.getClaimAsString("realm_access");
         Squad squad = squadService.findById(squad_id);
 
-        if(squad.getGame().getGame_id()!=game_id){
+        if (squad.getGame().getGame_id() != game_id) {
             return ResponseEntity.notFound().build();
         }
 
         Collection<SquadMember> squadMembers = squad.getSquadMembers();
 
-        if(!squadMembers.contains(playerService.findById(requestedByPlayerWithId).getSquadMember()) && !roles.contains("ADMIN")){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if (!roles.contains("ADMIN")) {
+
+            if (!squadMembers.contains(playerService.findById(requestedByPlayerWithId).getSquadMember())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
         }
 
         Collection<SquadCheckIn> squadCheckIns = new java.util.ArrayList<>(Collections.emptySet());
 
-        for(SquadMember s: squadMembers){
+        for (SquadMember s : squadMembers) {
             squadCheckIns.addAll(s.getSquadCheckIns());
         }
 
-        Collection<SquadCheckInDTO> squadCheckInDTOS = squadCheckInMapper.squadCheckInToSquadCheckInDTO( squadCheckIns);
+        Collection<SquadCheckInDTO> squadCheckInDTOS = squadCheckInMapper.squadCheckInToSquadCheckInDTO(squadCheckIns);
         if (squadCheckInDTOS.isEmpty())
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok( squadCheckInDTOS);
+        return ResponseEntity.ok(squadCheckInDTOS);
     }
 
     @Operation(summary = "Create check-in")
@@ -123,14 +126,5 @@ public class SquadCheckInController {
         squadCheckInService.add( squadCheckIn);
 
         return ResponseEntity.ok().build();
-//        int squadCheckIn_id = squadCheckInMapper.squadCheckInPostDTOToSquadCheckIn(squadCheckIn).getSquad_checkin_id();
-//        URI uri = new URI("api/v1/checkIns/" + squadCheckIn_id);  //making a new uri with the new check-in id
-//        return ResponseEntity.created(uri).build();
     }
-//
-//    @DeleteMapping("{checkIn_id}")//DELETE: localhost:8080/api//v1/checkIns/id
-//    public ResponseEntity deleteCheckInById(@PathVariable int checkIn_id){
-//        squadCheckInService.deleteById(checkIn_id);
-//        return ResponseEntity.ok("Check-in deleted successfully!");
-//    }
 }

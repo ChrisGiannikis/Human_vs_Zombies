@@ -21,10 +21,9 @@ public abstract class UserMapper {
     public abstract UserDTO UserToUserDTO(AppUser user);
     public abstract Collection<UserDTO> UserToUserDTO(Collection<AppUser> users);
 
-    @Mapping(target = "player", source = "player", qualifiedByName = "playerIdToPlayer")
-    public abstract AppUser UserDTOToUser(UserDTO userDTO);
+    @Mapping(target = "user_id", ignore = true)
+    @Mapping(target = "player", ignore = true)
     public abstract AppUser UserPostDTOToUser(UserPostDTO userPostDTO);
-    public abstract AppUser UserPutDTOToUser(UserPutDTO userPutDTO);
 
     @Named("playerIdToPlayer")
     Player mapIdToPlayer(int id){
