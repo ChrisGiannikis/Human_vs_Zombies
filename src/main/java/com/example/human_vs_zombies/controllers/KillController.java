@@ -6,6 +6,7 @@ import com.example.human_vs_zombies.dto.kill.KillPostDTO;
 import com.example.human_vs_zombies.dto.kill.KillPutDTO;
 import com.example.human_vs_zombies.dto.mission.MissionDTO;
 import com.example.human_vs_zombies.dto.player.PlayerDTO;
+import com.example.human_vs_zombies.dto.player.PlayerNotAdminDTO;
 import com.example.human_vs_zombies.entities.Kill;
 import com.example.human_vs_zombies.enums.State;
 import com.example.human_vs_zombies.mappers.GameMapper;
@@ -66,19 +67,31 @@ public class KillController {
                     content = @Content)
     })
     @GetMapping("{game_id}/kills")//GET: localhost:8080/api/v1/games/game_id/kills
-    public ResponseEntity<Collection<KillDTO>> getAllKills(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<Collection<KillDTO>> getAllKills(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId,@AuthenticationPrincipal Jwt jwt){
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
+            if(killDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(killDTOS);
 
-        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
-        if(playerDTO.getGame() != game_id){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
+        else {
+            PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
-        Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
-        if(killDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
+            if (playerDTO.getGame() != game_id) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Collection<KillDTO> killDTOS = killMapper.killsToKillsDTO(killService.findAllKillsByGameId(game_id));
+            if (killDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+
         return ResponseEntity.ok(killDTOS);
     }
+    }
+
 
     @Operation(summary = "Get a kill by ID, of a specific game")
     @ApiResponses(value = {
@@ -92,10 +105,19 @@ public class KillController {
 
     })
     @GetMapping("{game_id}/kills/{kill_id}")//GET: localhost:8080/api/v1/games/game_id/kills/kill_id
-    public ResponseEntity<KillDTO> getKillById(@PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<KillDTO> getKillById(@PathVariable int game_id, @PathVariable int kill_id, @RequestHeader int requestedByPlayerWithId,@AuthenticationPrincipal Jwt jwt){
 
+
+        String arrayList = jwt.getClaimAsString("roles");
+        if(arrayList.contains("ADMIN")) {
+            KillDTO killDTO = killMapper.killToKillDTO(killService.findKillByKillIdAndGameId(game_id, kill_id));
+            if(isNull(killDTO)){
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(killDTO);
+
+        }
         PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
-
         if(playerDTO.getGame()!=game_id){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -136,7 +158,6 @@ public class KillController {
     })
     @PostMapping("{game_id}/kills")//POST: localhost:8080/api/v1/games/game_id/kills
     public ResponseEntity<KillDTO> addKillToGame(@RequestBody KillPostDTO killPostDTO, @PathVariable int game_id, @RequestHeader String biteCode){
-
         GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(game_id));
 
         if(isNull(gameDTO)){

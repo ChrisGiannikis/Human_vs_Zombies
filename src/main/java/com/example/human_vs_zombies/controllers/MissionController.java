@@ -1,5 +1,6 @@
 package com.example.human_vs_zombies.controllers;
 
+import com.example.human_vs_zombies.dto.kill.KillDTO;
 import com.example.human_vs_zombies.dto.mission.MissionDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPostDTO;
 import com.example.human_vs_zombies.dto.mission.MissionPutDTO;
@@ -39,7 +40,7 @@ public class MissionController {
     private final PlayerService playerService;
     private final MissionMapper missionMapper;
     private final PlayerMapper playerMapper;
-    private String roles ="";
+    private String roles = "";
 
     public MissionController(MissionService missionService, GameService gameService, PlayerService playerService, MissionMapper missionMapper, PlayerMapper playerMapper) {
         this.missionService = missionService;
@@ -53,32 +54,40 @@ public class MissionController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Success",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = MissionDTO.class)) }),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MissionDTO.class))}),
             @ApiResponse(responseCode = "404",
                     description = "Game does not exist with supplied ID OR did not find any missions in this game",
                     content = @Content)
     })
     @GetMapping("{game_id}/missions")//GET: localhost:8080/api/v1/games/game_id/missions
-    public ResponseEntity<Collection<MissionDTO>> getAllMissions(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<Collection<MissionDTO>> getAllMissions(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt) {
+        String arrayList = jwt.getClaimAsString("roles");
+        if (arrayList.contains("ADMIN")) {
+            Collection<MissionDTO> missionDTOS = missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+            if (missionDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(missionDTOS);
 
-        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+        } else {
+            PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
 
-        if(playerDTO.getGame() != game_id){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            if (playerDTO.getGame() != game_id) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Collection<MissionDTO> missionDTOS = missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
+
+            if (playerDTO.isHuman()) {
+                missionDTOS.removeIf(missionDTO -> !missionDTO.isHuman_visible());
+            } else {
+                missionDTOS.removeIf(missionDTO -> !missionDTO.isZombie_visible());
+            }
+
+            if (missionDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(missionDTOS);
         }
-
-        Collection<MissionDTO> missionDTOS = missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
-
-        if(playerDTO.isHuman()){
-            missionDTOS.removeIf(missionDTO -> !missionDTO.isHuman_visible());
-        }else{
-            missionDTOS.removeIf(missionDTO -> !missionDTO.isZombie_visible());
-        }
-
-        if(missionDTOS.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(missionDTOS);
     }
 
     @Operation(summary = "Get a mission by ID, of a specific game")
@@ -93,23 +102,33 @@ public class MissionController {
 
     })
     @GetMapping("{game_id}/missions/{mission_id}")//GET: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> getMissionById(@PathVariable int game_id, @PathVariable int mission_id, @RequestHeader int requestedByPlayerWithId){
+    public ResponseEntity<MissionDTO> getMissionById(@PathVariable int game_id, @PathVariable int mission_id, @RequestHeader int requestedByPlayerWithId,@AuthenticationPrincipal Jwt jwt) {
+        String arrayList = jwt.getClaimAsString("roles");
+        if (arrayList.contains("ADMIN")) {
+            MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 
-        MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
+            if (missionDTO.getGame() != game_id) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(missionDTO);
 
-        if(missionDTO.getGame() != game_id){
-            return ResponseEntity.notFound().build();
-        }
+        } else {
 
-        PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+            MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 
-        if(playerDTO.isHuman() != missionDTO.isHuman_visible() && !playerDTO.isHuman() == !missionDTO.isZombie_visible()){
-            return ResponseEntity.badRequest().build();
-        }
+            if (missionDTO.getGame() != game_id) {
+                return ResponseEntity.notFound().build();
+            }
 
-        if(playerDTO.getGame()!=game_id){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
+            PlayerDTO playerDTO = playerMapper.playerToPlayerSimpleDTO(playerService.findById(requestedByPlayerWithId));
+
+            if (playerDTO.isHuman() != missionDTO.isHuman_visible() && !playerDTO.isHuman() == !missionDTO.isZombie_visible()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            if (playerDTO.getGame() != game_id) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
 
 //        List<MissionDTO> missionDTOS = (List<MissionDTO>)missionMapper.missionToMissionDTO(gameService.findById(game_id).getMissions());
 //
@@ -120,11 +139,12 @@ public class MissionController {
 //        missionDTOS.sort(Comparator.comparingInt(MissionDTO::getMission_id));
 //        MissionDTO missionDTO = missionDTOS.get(mission_id-1);
 
-        return ResponseEntity.ok(missionDTO);
+            return ResponseEntity.ok(missionDTO);
+        }
     }
 
     @Operation(summary = "Add a mission to a specific game")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
                     description = "Mission successfully added",
                     content = @Content),
@@ -136,25 +156,25 @@ public class MissionController {
                     content = @Content)
     })
     @PostMapping("{game_id}/missions")//POST: localhost:8080/api/v1/games/game_id/missions
-    public ResponseEntity<MissionPostDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<MissionPostDTO> addMissionToGame(@RequestBody MissionPostDTO missionPostDTO, @PathVariable int game_id, @AuthenticationPrincipal Jwt jwt) {
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
         roles = jwt.getClaimAsString("roles");
-        if(!roles.contains("ADMIN")) {
+        if (!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        if ((!missionPostDTO.isHuman_visible() && !missionPostDTO.isZombie_visible()) || isNull(missionPostDTO.getName())){
+        if ((!missionPostDTO.isHuman_visible() && !missionPostDTO.isZombie_visible()) || isNull(missionPostDTO.getName())) {
             return ResponseEntity.badRequest().build();
         }
 
         Game game = gameService.findById(game_id);
 
-        if(isNull(game)){
+        if (isNull(game)) {
             return ResponseEntity.notFound().build();
         }
 
-        if(game.getState() == State.COMPLETED){
+        if (game.getState() == State.COMPLETED) {
             return ResponseEntity.badRequest().build();
         }
         Mission mission = missionMapper.missionPostDTOToMission(missionPostDTO);
@@ -167,7 +187,7 @@ public class MissionController {
     }
 
     @Operation(summary = "Updates a mission")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "204",
                     description = "Mission successfully updated",
                     content = @Content),
@@ -179,26 +199,26 @@ public class MissionController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/missions/{mission_id}"})//PUT: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionPutDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<MissionPutDTO> updateMission(@RequestBody MissionPutDTO missionPutDTO, @PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt) {
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
         roles = jwt.getClaimAsString("roles");
-        if(!roles.contains("ADMIN")) {
+        if (!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 
-        if(missionDTO.getGame() != game_id){
+        if (missionDTO.getGame() != game_id) {
             return ResponseEntity.notFound().build();
         }
 
-        if ((!missionPutDTO.isHuman_visible() && !missionPutDTO.isZombie_visible()) || isNull(missionPutDTO.getName())){
+        if ((!missionPutDTO.isHuman_visible() && !missionPutDTO.isZombie_visible()) || isNull(missionPutDTO.getName())) {
             return ResponseEntity.badRequest().build();
         }
 
         Game game = gameService.findById(game_id);
 
-        if(game.getState() == State.COMPLETED){
+        if (game.getState() == State.COMPLETED) {
             return ResponseEntity.badRequest().build();
         }
 //
@@ -220,7 +240,7 @@ public class MissionController {
     }
 
     @Operation(summary = "Delete a mission of a game by ID")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "204",
                     description = "Mission successfully deleted",
                     content = @Content),
@@ -229,17 +249,17 @@ public class MissionController {
                     content = @Content)
     })
     @DeleteMapping({"{game_id}/missions/{mission_id}"})//DELETE: localhost:8080/api/v1/games/game_id/missions/mission_id
-    public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<MissionDTO> deleteMission(@PathVariable int game_id, @PathVariable int mission_id, @AuthenticationPrincipal Jwt jwt) {
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
         roles = jwt.getClaimAsString("roles");
-        if(!roles.contains("ADMIN")) {
+        if (!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         MissionDTO missionDTO = missionMapper.missionToMissionDTO(missionService.findById(mission_id));
 
-        if(missionDTO.getGame() != game_id){
+        if (missionDTO.getGame() != game_id) {
             return ResponseEntity.notFound().build();
         }
 //

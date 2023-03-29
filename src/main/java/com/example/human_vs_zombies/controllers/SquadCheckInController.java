@@ -51,8 +51,8 @@ public class SquadCheckInController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Success",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = SquadCheckInDTO.class)) }),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SquadCheckInDTO.class))}),
             @ApiResponse(responseCode = "400",
                     description = "This player cannot see this squad's Check-Ins",
                     content = @Content),
@@ -60,63 +60,66 @@ public class SquadCheckInController {
                     description = "Game OR Squad OR SquadCheckIn does not exist with supplied ID",
                     content = @Content)
     })
-    @GetMapping("{game_id}/squads/{squad_id}/check-ins")//GET: localhost:8080/api/v1/games/game_id/squads/squad_id/check-ins
-    public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int player_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
+    @GetMapping("{game_id}/squads/{squad_id}/check-ins")
+//GET: localhost:8080/api/v1/games/game_id/squads/squad_id/check-ins
+    public ResponseEntity<Collection<SquadCheckInDTO>> getCheckIns(@PathVariable int game_id, @RequestHeader int player_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt) {
 
         String roles = jwt.getClaimAsString("roles");
-
-
         Squad squad = squadService.findById(squad_id);
 
-        if(squad.getGame().getGame_id()!=game_id){
+        if (squad.getGame().getGame_id() != game_id) {
             return ResponseEntity.notFound().build();
         }
 
         Collection<SquadMember> squadMembers = squad.getSquadMembers();
 
-        if(!squadMembers.contains(playerService.findById(player_id).getSquadMember()) && !roles.contains("ADMIN")){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if (!roles.contains("ADMIN")) {
+
+            if (!squadMembers.contains(playerService.findById(player_id).getSquadMember())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
         }
 
         Collection<SquadCheckIn> squadCheckIns = new java.util.ArrayList<>(Collections.emptySet());
 
-        for(SquadMember s: squadMembers){
+        for (SquadMember s : squadMembers) {
             squadCheckIns.addAll(s.getSquadCheckIns());
         }
 
-        Collection<SquadCheckInDTO> squadCheckInDTOS = squadCheckInMapper.squadCheckInToSquadCheckInDTO( squadCheckIns);
+        Collection<SquadCheckInDTO> squadCheckInDTOS = squadCheckInMapper.squadCheckInToSquadCheckInDTO(squadCheckIns);
         if (squadCheckInDTOS.isEmpty())
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok( squadCheckInDTOS);
+        return ResponseEntity.ok(squadCheckInDTOS);
     }
 
     @Operation(summary = "Create check-in")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Check-in added successfully! ", content = @Content),
             @ApiResponse(responseCode = "400", description = "This player cannot create check-in in this squad", content = @Content),
-            @ApiResponse( responseCode = "404", description = "The given Squad Member does not exists!", content = { @Content })
+            @ApiResponse(responseCode = "404", description = "The given Squad Member does not exists!", content = {@Content})
     })
     @PostMapping("{game_id}/squads/{squad_id}/check-ins")//POST: localhost:8080/api//v1/checkIns
     public ResponseEntity<SquadCheckInPostDTO> createCheckIn(@RequestBody SquadCheckInPostDTO squadCheckInPostDTO, @PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int squadMember_id) {
 
         SquadMember squadMember = squadMemberService.findById(squadMember_id);
 
-        if(squadMember.getSquad().getGame().getGame_id()!=game_id){
+        if (squadMember.getSquad().getGame().getGame_id() != game_id) {
             return ResponseEntity.notFound().build();
         }
 
-        if(gameService.findById(game_id).getState()!= State.IN_PROGRESS){
+        if (gameService.findById(game_id).getState() != State.IN_PROGRESS) {
             return ResponseEntity.badRequest().build();
         }
 
-        if(squadMember.getSquad().getSquad_id()!=squad_id){
+        if (squadMember.getSquad().getSquad_id() != squad_id) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         SquadCheckIn squadCheckIn = squadCheckInMapper.squadCheckInPostDTOToSquadCheckIn(squadCheckInPostDTO);
         squadCheckIn.setSquadMember(squadMember);
 
-        squadCheckInService.add( squadCheckIn);
+        squadCheckInService.add(squadCheckIn);
 
         return ResponseEntity.ok().build();
 //        int squadCheckIn_id = squadCheckInMapper.squadCheckInPostDTOToSquadCheckIn(squadCheckIn).getSquad_checkin_id();

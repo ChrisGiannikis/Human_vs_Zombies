@@ -3,8 +3,10 @@ package com.example.human_vs_zombies.controllers;
 import com.example.human_vs_zombies.dto.chat.ChatDTO;
 import com.example.human_vs_zombies.dto.chat.ChatPostDTO;
 import com.example.human_vs_zombies.dto.kill.KillDTO;
+import com.example.human_vs_zombies.dto.squad.SquadDTO;
 import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.entities.Player;
+import com.example.human_vs_zombies.entities.Squad;
 import com.example.human_vs_zombies.entities.SquadMember;
 import com.example.human_vs_zombies.enums.ChatScope;
 import com.example.human_vs_zombies.mappers.ChatMapper;
@@ -134,16 +136,19 @@ public class ChatController {
                     description = "Did not find any messages",
                     content = @Content)
     })
-    @GetMapping("{game_id}/squads/{squad_id}/chat")//GET: localhost:8080/api/v1/games/game_id/chat
-    public ResponseEntity<Collection<ChatDTO>> getAllSquadChat(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId){
+    @GetMapping("{game_id}/squads/{squad_id}/chat")//GET: localhost:8080/api/v1/games/game_id/squads/squad_id/chat
+    public ResponseEntity<Collection<ChatDTO>> getAllSquadChat(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId,@AuthenticationPrincipal Jwt jwt){
 
         //------------------------------------ADMIN USES THIS:---------------------------------------------------------
+        String roles = jwt.getClaimAsString("roles");
+        if (roles.contains("ADMIN")) {
+            Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllSquadChatByGameId(game_id, squad_id));
 
-//        Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllSquadChatByGameId(game_id, squad_id));
-//
-//        if(chatDTOS.isEmpty())
-//            return ResponseEntity.notFound().build();
-//        return ResponseEntity.ok(chatDTOS);
+            if(chatDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(chatDTOS);
+        }
+
 
         //-------------------------------------------------------------------------------------------------------------
 
@@ -174,10 +179,6 @@ public class ChatController {
     @PostMapping("{game_id}/squads/{squad_id}/chat")//POST: localhost:8080/api/v1/games/game_id/squads/squad_id/chat
     public ResponseEntity<KillDTO> sendMessageToSquad(@RequestBody ChatPostDTO chatPostDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
 
-        roles = jwt.getClaimAsString("roles");
-        if(!roles.contains("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
 
         Player player = playerService.findById(chatPostDTO.getPlayer()) ;
 

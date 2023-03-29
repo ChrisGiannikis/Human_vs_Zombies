@@ -31,7 +31,7 @@ import java.util.*;
 import static java.util.Objects.isNull;
 
 @RestController
-@RequestMapping(path="api/v1/games")
+@RequestMapping(path = "api/v1/games")
 @CrossOrigin
 public class SquadController {
 
@@ -40,7 +40,7 @@ public class SquadController {
     private final SquadMemberService squadMemberService;
     private final PlayerService playerService;
     private final SquadMapper squadMapper;
-    private String roles ="";
+    private String roles = "";
 
     public SquadController(SquadService squadService, GameService gameService, SquadMemberService squadMemberService, PlayerService playerService, SquadMapper squadMapper) {
         this.squadService = squadService;
@@ -54,28 +54,33 @@ public class SquadController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Success",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = SquadDTO.class)) }),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SquadDTO.class))}),
             @ApiResponse(responseCode = "404",
                     description = "Game does not exist with supplied ID OR did not find any squads in this game",
                     content = @Content)
     })
     @GetMapping("{game_id}/squads")//GET: localhost:8080/api/v1/games/game_id/squads
-    public ResponseEntity<Collection<SquadDTO>> getAllSquads(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId) {
-
-        if(isNull(gameService.findById(game_id))){
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Collection<SquadDTO>> getAllSquads(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt) {
+        roles = jwt.getClaimAsString("roles");
+        if (roles.contains("ADMIN")) {
+            Collection<SquadDTO> squadDTOS = squadMapper.squadToSquadDto(gameService.findById(game_id).getSquads());
+            if (squadDTOS.isEmpty())
+                return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(squadDTOS);
         }
 
-        if(playerService.findById(requestedByPlayerWithId).getGame().getGame_id()!=game_id){
+
+        if (playerService.findById(requestedByPlayerWithId).getGame().getGame_id() != game_id) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Collection<SquadDTO> squadDTOS = squadMapper.squadToSquadDto(gameService.findById(game_id).getSquads());
-        if(squadDTOS.isEmpty())
+        if (squadDTOS.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(squadDTOS);
     }
+
 
     @Operation(summary = "Get a squad by ID, of a specific game")
     @ApiResponses(value = {
@@ -89,15 +94,27 @@ public class SquadController {
 
     })
     @GetMapping("{game_id}/squads/{squad_id}")//GET: localhost:8080/api/v1/games/game_id/squads
-    public ResponseEntity<SquadDTO> getSquadById(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId) {
+    public ResponseEntity<SquadDTO> getSquadById(@PathVariable int game_id, @PathVariable int squad_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt) {
 
-        if(playerService.findById(requestedByPlayerWithId).getGame().getGame_id()!=game_id){
+        String roles = jwt.getClaimAsString("roles");
+        if (roles.contains("ADMIN")) {
+            Squad squad = squadService.findById(squad_id);
+
+            if (squad.getGame().getGame_id() != game_id) {
+                return ResponseEntity.notFound().build();
+            }
+
+            SquadDTO squadDTO = squadMapper.squadToSquadDto(squad);
+            return ResponseEntity.ok(squadDTO);
+        }
+
+        if (playerService.findById(requestedByPlayerWithId).getGame().getGame_id() != game_id) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Squad squad = squadService.findById(squad_id);
 
-        if(squad.getGame().getGame_id()!=game_id){
+        if (squad.getGame().getGame_id() != game_id) {
             return ResponseEntity.notFound().build();
         }
 
@@ -106,7 +123,7 @@ public class SquadController {
     }
 
     @Operation(summary = "Add a squad to a specific game")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
                     description = "Squad successfully added",
                     content = {@Content(mediaType = "application/json",
@@ -124,15 +141,15 @@ public class SquadController {
         Game game = gameService.findById(game_id);
         Player player = playerService.findById(player_id);
 
-        if(isNull(game) || isNull(player)){
+        if (isNull(game) || isNull(player)) {
             return ResponseEntity.notFound().build();
         }
 
-        if(game.getState()== State.COMPLETED){
+        if (game.getState() == State.COMPLETED) {
             return ResponseEntity.badRequest().build();
         }
 
-        if (player.getGame().getGame_id() != game_id || !isNull(player.getSquadMember())){ //cannot be in a squad
+        if (player.getGame().getGame_id() != game_id || !isNull(player.getSquadMember())) { //cannot be in a squad
             return ResponseEntity.badRequest().build();
         }
 
@@ -163,7 +180,7 @@ public class SquadController {
     }
 
     @Operation(summary = "Add a squad member to a specific squad")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
                     description = "Squad successfully added",
                     content = {@Content(mediaType = "application/json",
@@ -182,15 +199,15 @@ public class SquadController {
         Player player = playerService.findById(player_id);
         Squad squad = squadService.findById(squad_id);
 
-        if(isNull(game) || isNull(player) || isNull(squad)){
+        if (isNull(game) || isNull(player) || isNull(squad)) {
             return ResponseEntity.notFound().build();
         }
 
-        if(game.getState()== State.COMPLETED){
+        if (game.getState() == State.COMPLETED) {
             return ResponseEntity.badRequest().build();
         }
 
-        if (player.getGame().getGame_id() != game_id || !isNull(player.getSquadMember()) || squad.getGame().getGame_id() != game_id || squad.isHuman() != player.isHuman()){ //cannot be in a squad
+        if (player.getGame().getGame_id() != game_id || !isNull(player.getSquadMember()) || squad.getGame().getGame_id() != game_id || squad.isHuman() != player.isHuman()) { //cannot be in a squad
             return ResponseEntity.badRequest().build();
         }
 
@@ -219,7 +236,7 @@ public class SquadController {
     }
 
     @Operation(summary = "Updates a squad")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "204",
                     description = "Squad successfully updated",
                     content = @Content),
@@ -231,22 +248,22 @@ public class SquadController {
                     content = @Content)
     })
     @PutMapping({"{game_id}/squads/{squad_id}"})//PUT: localhost:8080/api/v1/games/game_id/squads/squad_id
-    public ResponseEntity<MissionDTO> updateSquad(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<MissionDTO> updateSquad(@RequestBody SquadPutDTO squadPutDTO, @PathVariable int game_id, @PathVariable int squad_id, @AuthenticationPrincipal Jwt jwt) {
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
         roles = jwt.getClaimAsString("roles");
-        if(!roles.contains("ADMIN")) {
+        if (!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
 
         Squad squad = squadService.findById(squad_id);
 
-        if(gameService.findById(game_id).getState()==State.COMPLETED){
+        if (gameService.findById(game_id).getState() == State.COMPLETED) {
             return ResponseEntity.badRequest().build();
         }
 
-        if (game_id != squad.getGame().getGame_id()){
+        if (game_id != squad.getGame().getGame_id()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -257,7 +274,7 @@ public class SquadController {
     }
 
     @Operation(summary = "Delete a squad by ID")
-    @ApiResponses( value = {
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "204",
                     description = "Squad successfully deleted",
                     content = @Content),
@@ -270,11 +287,11 @@ public class SquadController {
 
         //---------------ADMIN ONLY------------------------------------------------------------------------------------------
         roles = jwt.getClaimAsString("roles");
-        if(!roles.contains("ADMIN")) {
+        if (!roles.contains("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        if(game_id != squadService.findById(squad_id).getGame().getGame_id()) {
+        if (game_id != squadService.findById(squad_id).getGame().getGame_id()) {
             return ResponseEntity.notFound().build();
         }
 

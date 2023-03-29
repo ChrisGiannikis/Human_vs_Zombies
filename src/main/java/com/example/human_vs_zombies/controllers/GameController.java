@@ -65,6 +65,7 @@ public class GameController {
                     content = @Content)
 
     })
+    @CrossOrigin
     @GetMapping("{game_id}")//GET: localhost:8080/api/v1/games/id
     public ResponseEntity<GameDTO> getGameById(@PathVariable int game_id){
         GameDTO gameDTO = gameMapper.gameToGameDto(gameService.findById(game_id));

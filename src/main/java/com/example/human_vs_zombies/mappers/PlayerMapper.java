@@ -46,6 +46,8 @@ public abstract class PlayerMapper {
     @Mapping(target = "chat", ignore = true)
     @Mapping(target = "game", ignore = true)
     @Mapping(target = "biteCode", ignore = true)
+    @Mapping(target = "human", ignore = true)
+    @Mapping(target = "patient_zero", ignore = true)
     @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
     public abstract Player playerPostDTOtoPlayer(PlayerPostDTO playerPostDTO); //mapper to convert playerPostDTO to player
 

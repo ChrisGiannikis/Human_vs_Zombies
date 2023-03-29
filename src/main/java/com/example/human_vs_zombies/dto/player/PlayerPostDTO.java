@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PlayerPostDTO {
-    private boolean human;
-    private boolean patient_zero;
+    //private boolean human;
+    //private boolean patient_zero;
     private int user;
 
 }
