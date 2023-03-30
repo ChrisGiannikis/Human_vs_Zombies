@@ -1,24 +1,24 @@
-INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 1', 'Name Game1', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'REGISTRATION');
-INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 2', 'Name Game2', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'IN_PROGRESS');
-INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 3', 'Name Game3', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'COMPLETED');
+INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 1', 'Call of death', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'REGISTRATION');
+INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 2', 'Survival of the Undead', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'IN_PROGRESS');
+INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 3', 'Zombie Hunter', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'COMPLETED');
 
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Aris', false, 'Kardasis');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Chris', false, 'Giannikis');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Tasos', false, 'Kampe');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Christos', false, 'Vlachos');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('George', false, 'Marko');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Cristiano', false, 'Ronaldo');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Lio', false, 'Messi');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Kylian', false, 'Mbappe');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Sergio', false, 'Ramos');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Steven', false, 'Gerrard');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('David', false, 'Beckham');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('John', false, 'Terry');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Giannis', false, 'Antetokounmpo');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Damian', false, 'Lillard');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Khris', false, 'Middleton');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Steph', false, 'Curry');
-INSERT INTO app_user("first_name", "is_administrator", "last_name") VALUES ('Warren', true, 'West');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('dsfhd', 'Aris', 'Kardasis');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('dfsgsdf', 'Chris', 'Giannikis');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('lshvgs', 'Tasos', 'Kampe');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('kusydgf', 'Christos', 'Vlachos');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('kasudyfg', 'George',  'Marko');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('suygfga', 'Cristiano', 'Ronaldo');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('aksdcvb', 'Lio', 'Messi');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('laIHBAHS', 'Kylian', 'Mbappe');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('wyetiauf', 'Sergio',  'Ramos');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('asdygg', 'Steven', 'Gerrard');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('asdftaysg', 'David', 'Beckham');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('asudtgax', 'John', 'Terry');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('asiodygfa', 'Giannis', 'Antetokounmpo');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('uycgaaua', 'Damian', 'Lillard');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('alydtqs', 'Khris', 'Middleton');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('laysgasjkh', 'Steph', 'Curry');
+INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('skdgfakl', 'Warren', 'West');
 
 INSERT INTO player("bite_code", "human", "patient_zero", "game_id", "user_id") VALUES ('JSDGA436JK', true, false, 1, 1);
 INSERT INTO player("bite_code", "human", "patient_zero", "game_id", "user_id") VALUES ('GSDFHSDH087', true, false, 1, 2);
@@ -38,15 +38,15 @@ INSERT INTO kill("lat", "lng", "time_of_death", "killer_id", "victim_id") VALUES
 INSERT INTO kill("lat", "lng", "time_of_death", "killer_id", "victim_id") VALUES (37.986, 23.73, null, 10, 9);
 INSERT INTO kill("lat", "lng", "time_of_death", "killer_id", "victim_id") VALUES (37.986, 23.73, null, 11, 12);
 
-INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('Mission 1 description', null, true, false, 'Mission 1 name', 37.984, 23.75, null, 1);
-INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('Mission 2 description', null, false, true, 'Mission 2 name', 37.986, 23.73, null, 2);
-INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('Mission 3 description', null, true, true, 'Mission 3 name', 37.986, 23.73, null, 1);
-INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('Mission 4 description', null, true, false, 'Mission 4 name', 37.986, 23.73, null, 3);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('The human team has received a distress call from a group of survivors trapped in a zombie-infested area.', null, true, false, 'Rescue Mission', 37.984, 23.75, null, 1);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('The human team is low on resources and must venture into a zombie-infested area to gather supplies. ', null, true, false, 'Supply Run', 37.986, 23.73, null, 2);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('The human team has developed a cure for the zombie virus and needs to deliver it to a research facility to be mass-produced.', null, true, true, 'Cure Delivery', 37.986, 23.73, null, 1);
+INSERT INTO mission("description", "end_time", "human_visible", "zombie_visible", "name", "lat", "lng", "start_time", "game_id") VALUES ('The zombie team has identified a key human target and is moving in to eliminate them.', null, false, true, 'Elimination', 37.986, 23.73, null, 3);
 
-INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Squad 1 name', 1);
-INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Squad 2 name', 1);
-INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Squad 3 name', 2);
-INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Squad 4 name', 3);
+INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Unbeatables', 1);
+INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Suicide Squad', 1);
+INSERT INTO squad("human", "name", "game_id") VALUES (true, 'Peaky Blinders', 2);
+INSERT INTO squad("human", "name", "game_id") VALUES (false, 'Expendables', 3);
 
 INSERT INTO squad_member("rank", "player_id", "squad_id") VALUES ('LEADER', 1, 1);
 INSERT INTO squad_member("rank", "player_id", "squad_id") VALUES ('HIGH', 2, 1);

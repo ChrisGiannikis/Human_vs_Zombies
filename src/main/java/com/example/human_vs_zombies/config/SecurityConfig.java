@@ -22,7 +22,7 @@ public class SecurityConfig {
                         //api/v1/resources/public 200
                         .requestMatchers("/api/v1/games").permitAll()
                         //api/v1/resources/authorized 403
-                        .requestMatchers("/api/v1/games/").permitAll()
+                        .requestMatchers("/api/v1/*").permitAll()
                         //api/v1/resources/authenticated 401
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer()

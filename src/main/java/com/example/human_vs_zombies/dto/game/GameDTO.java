@@ -13,5 +13,6 @@ public class GameDTO {
     private double nw_lng;
     private double se_lat;
     private double se_lng;
+    private int members;
 
 }

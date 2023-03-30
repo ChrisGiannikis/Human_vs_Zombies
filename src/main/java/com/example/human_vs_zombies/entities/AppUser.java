@@ -13,14 +13,14 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int user_id;
 
+    @Column(unique = true)
+    private String keycloak_id;
+
     @Column(length = 40, nullable = false)
     private String first_name;
 
     @Column(length = 40)
     private String last_name;
-
-    @Column
-    private boolean is_administrator;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Player player;

@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PlayerPostDTO {
-    private int user;
+    private String user;
 
 }

@@ -1,7 +1,6 @@
 package com.example.human_vs_zombies.services.user;
 
 import com.example.human_vs_zombies.entities.AppUser;
-import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.exceptions.UserNotFoundException;
 import com.example.human_vs_zombies.repositories.UserRepository;
 import com.example.human_vs_zombies.services.player.PlayerService;
@@ -23,6 +22,10 @@ public class UserServiceImpl implements UserService{
     public AppUser findById(Integer id) { return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)); }
 
     @Override
+    public AppUser findByIdStr(String id) { return userRepository.findByIdStr(id); }
+
+
+    @Override
     public Collection<AppUser> findAll() { return userRepository.findAll(); }
 
     @Override
@@ -33,9 +36,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void deleteById(Integer id) {
-        //check if user exists
-        this.findById(id);
-        //delete the user
-        userRepository.deleteById(id);
+//        //check if user exists
+//        this.findById(id);
+//        //delete the user
+//        userRepository.deleteById(id);
     }
 }
