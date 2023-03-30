@@ -28,6 +28,12 @@ public class Mission {
     private String description;
 
     @Column
+    private double lat;
+
+    @Column
+    private double lng;
+
+    @Column
     private ZonedDateTime start_time;
 
     @Column

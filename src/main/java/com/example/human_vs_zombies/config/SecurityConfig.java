@@ -1,6 +1,5 @@
 package com.example.human_vs_zombies.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,31 +7,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-
-
-    /*@Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("https://noroff-hvz.herokuapp.com/");
-        config.addAllowedOrigin("http://localhost:4200/");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("DELETE");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }*/
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -44,8 +22,7 @@ public class SecurityConfig {
                         //api/v1/resources/public 200
                         .requestMatchers("/api/v1/games").permitAll()
                         //api/v1/resources/authorized 403
-                        .requestMatchers("/api/v1/games/").permitAll()
-
+                        .requestMatchers("/api/v1/*").permitAll()
                         //api/v1/resources/authenticated 401
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer()

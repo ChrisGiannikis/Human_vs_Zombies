@@ -17,6 +17,6 @@ public class AppRunner implements ApplicationRunner {
     @Override
     @Transactional
     public  void run(ApplicationArguments args) throws  Exception{
-        System.out.println(gameService.findAll());
+//        System.out.println(gameService.findAll());
     }
 }

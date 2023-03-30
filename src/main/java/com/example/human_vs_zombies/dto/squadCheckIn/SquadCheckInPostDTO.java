@@ -10,6 +10,6 @@ import java.time.ZonedDateTime;
 public class SquadCheckInPostDTO {
     private ZonedDateTime start_time;
     private ZonedDateTime end_time;
-    private double lat;
-    private double lng;
+//    private double lat;
+//    private double lng;
 }

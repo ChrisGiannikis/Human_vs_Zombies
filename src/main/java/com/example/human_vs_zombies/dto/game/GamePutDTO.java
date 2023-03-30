@@ -8,7 +8,6 @@ import lombok.Setter;
 public class GamePutDTO {
     private String name;
     private String description;
-    private String rules;
     private double nw_lat;
     private double nw_lng;
     private double se_lat;

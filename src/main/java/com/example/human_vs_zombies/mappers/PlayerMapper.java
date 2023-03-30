@@ -25,12 +25,8 @@ public abstract class PlayerMapper {
 
     @Mapping(target = "user", source = "user.user_id")
     @Mapping(target = "game", source = "game.game_id")
-    //@Mapping(target = "death", source = "")
-    //@Mapping(target = "kills", source = "kills", qualifiedByName = "killsToKillsId")
-    @Mapping(target = "squadMember", source = "squadMember.squad_member_id")
-    //@Mapping(target = "chat", source = "chat", qualifiedByName = "chatToMessageId")
     @Mapping(target = "full_name", source = "user.user_id", qualifiedByName = "UserNamesToFullName")
-    public abstract PlayerNotAdminDTO playerToPlayerAdminDTO(Player player);     //mapper for PlayerAdminDTO
+    public abstract PlayerNotAdminDTO playerToPlayerAdminDTO(Player player);     //mapper for PlayerNotAdminDTO
     public abstract Collection<PlayerNotAdminDTO> playerToPlayerAdminDTO(Collection<Player> players);  //mapper for PlayerAdminDTO to handle a collection of Players
 
     @Mapping(target = "user", source = "user.user_id")
@@ -50,18 +46,6 @@ public abstract class PlayerMapper {
     @Mapping(target = "patient_zero", ignore = true)
     @Mapping(target = "user",source = "user", qualifiedByName = "UserIdToUser")
     public abstract Player playerPostDTOtoPlayer(PlayerPostDTO playerPostDTO); //mapper to convert playerPostDTO to player
-
-//    @Mapping(target = "player_id", source = "player_id", qualifiedByName = "")
-//    @Mapping(target = "death", source = "")
-//    @Mapping(target = "player_id", ignore = true)
-//    @Mapping(target = "death", ignore = true)
-//    @Mapping(target = "kills", ignore = true)
-//    @Mapping(target = "squadMember", ignore = true)
-//    @Mapping(target = "chat", ignore = true)
-//    @Mapping(target = "user", ignore = true)
-//    @Mapping(target = "game", ignore = true)
-////    @Mapping(target = "squadMember",source = "squadMember", qualifiedByName = "SquadMemberIdToSquadMember")
-//    public abstract Player playerPutDTOtoPlayer(PlayerPutDTO playerPutDTO); //mapper to convert playerPutDTO to player
 
     @Named("UserIdToUser")
     AppUser mapIdToUser(int id){ return userService.findById(id); }

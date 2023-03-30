@@ -9,11 +9,10 @@ public class GameDTO {
     private String name;
     private String description;
     private State state;
-
-    private String rules;
     private double nw_lat;
     private double nw_lng;
     private double se_lat;
     private double se_lng;
+    private int members;
 
 }

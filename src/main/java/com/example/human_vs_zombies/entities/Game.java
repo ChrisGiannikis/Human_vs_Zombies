@@ -23,9 +23,9 @@ public class Game {
 
     @Enumerated(EnumType.STRING)
     private State state;
-
-    @Column
-    private String rules;
+//
+//    @Column
+//    private String rules;
 
     @Column
     private double nw_lat;
@@ -47,9 +47,4 @@ public class Game {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "game", fetch = FetchType.LAZY)
     private Set<Squad> squads;
-
-    @Override
-    public String toString(){
-        return name + " " + description + " " + rules + " " + nw_lat + " " + nw_lng + " " + se_lat + " " + se_lng;
-    }
 }

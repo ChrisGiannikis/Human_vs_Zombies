@@ -8,12 +8,9 @@ import lombok.Setter;
 @Setter
 public class PlayerNotAdminDTO {
     private int player_id;
+    private String biteCode;
     private boolean human;
     private int user;
     private int game;
     private String full_name;
-    private int squadMember;
-    //    private Set<Chat> chat;
-//    private int death; //0 for no death or the id of the kill
-//    private Set<Integer> kills;
 }

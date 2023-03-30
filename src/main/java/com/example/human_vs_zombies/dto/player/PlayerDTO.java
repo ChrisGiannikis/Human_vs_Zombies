@@ -1,9 +1,12 @@
 package com.example.human_vs_zombies.dto.player;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /* This DTO created to get not sensitive player details */
-@Data
+@Getter
+@Setter
 public class PlayerDTO {
     private int player_id;
     private String biteCode;
