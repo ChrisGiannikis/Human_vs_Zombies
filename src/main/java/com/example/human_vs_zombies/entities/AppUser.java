@@ -11,9 +11,8 @@ import org.hibernate.annotations.GenericGenerator;
 public class AppUser {
 
     @Id
-    @GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    private String user_id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int user_id;
 
     @Column(unique = true)
     private String keycloak_id;

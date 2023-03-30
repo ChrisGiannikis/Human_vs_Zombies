@@ -19,14 +19,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public AppUser findById(Integer id) { return null;  /*userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));*/ }
+    public AppUser findById(Integer id) { return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)); }
 
     @Override
     public AppUser findByIdStr(String id) { return userRepository.findByIdStr(id); }
 
 
-    @Override
-    public AppUser findByIdStr(String id) { return userRepository.findByIdStr(id); }
+
 
 
     @Override

@@ -56,7 +56,7 @@ public class ChatController {
     @GetMapping("{game_id}/chat")//GET: localhost:8080/api/v1/games/game_id/chat
     public ResponseEntity<Collection<ChatDTO>> getAllChat(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){//@RequestHeader ChatScope scope){
 
-        String arrayList = jwt.getClaimAsString("realm_access");
+        String arrayList = jwt.getClaimAsString("roles");
         if(arrayList.contains("ADMIN")) {
             Collection<ChatDTO> chatDTOS = chatMapper.chatToChatDto(chatService.findAllNonSquadChatByGameIdAdmin(game_id));
 

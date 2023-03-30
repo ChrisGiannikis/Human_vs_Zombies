@@ -62,7 +62,7 @@ public class PlayerController {
     })
     @GetMapping("{game_id}/players")//GET: localhost:8080/api/v1/games/game_id/players
     public ResponseEntity getAllPlayers(@PathVariable int game_id, @RequestHeader int requestedByPlayerWithId, @AuthenticationPrincipal Jwt jwt){
-        String arrayList = jwt.getClaimAsString("realm_access");
+        String arrayList = jwt.getClaimAsString("roles");
         if (arrayList.contains("ADMIN")) {
 
             Collection<PlayerNotAdminDTO> playerNotAdminDTOS = playerMapper.playerToPlayerAdminDTO(gameService.findById(game_id).getPlayers());
