@@ -2,6 +2,7 @@ package com.example.human_vs_zombies.mappers;
 
 import com.example.human_vs_zombies.dto.chat.ChatDTO;
 import com.example.human_vs_zombies.dto.chat.ChatPostDTO;
+import com.example.human_vs_zombies.entities.AppUser;
 import com.example.human_vs_zombies.entities.Chat;
 import com.example.human_vs_zombies.entities.Player;
 import com.example.human_vs_zombies.entities.Squad;
@@ -21,7 +22,7 @@ public abstract class ChatMapper {
     @Autowired
     protected SquadService squadService;
 
-    @Mapping(target = "player", source = "player.player_id")
+    @Mapping(target = "player_name", source = "player.player_id", qualifiedByName = "UserNamesToFullName")
     @Mapping(target = "squad", source = "squad.squad_id")
     public abstract ChatDTO chatToChatDto(Chat chat);
 
@@ -36,12 +37,11 @@ public abstract class ChatMapper {
         return playerService.findById(id);
     }
 
-    @Named("squadIdToSquad")
-    Squad mapIdToSquad(Integer id){
-        if (id != null) {
-            return squadService.findById(id);
-        }
-        return null;
+    @Named("UserNamesToFullName")
+    String mapNames(Integer id){
+        Player player = playerService.findById(id);
+        AppUser user = player.getUser();
+        return user.getFirst_name() + " " + user.getLast_name();
     }
 
     public abstract Collection<ChatDTO> chatToChatDto(Collection<Chat> chats);

@@ -9,6 +9,6 @@ public class ChatDTO {
     private int message_id;
     private String message;
     private ChatScope chatScope;
-    private int player;
+    private String player_name;
     private int squad;
 }
