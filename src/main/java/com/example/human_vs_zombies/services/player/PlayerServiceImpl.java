@@ -35,6 +35,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public Player add(Player player) {
         player.getGame().getPlayers().add(player);
+        player.getUser().setPlayer(player);
         return playerRepository.save(player);
     }
 

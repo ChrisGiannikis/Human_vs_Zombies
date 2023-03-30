@@ -89,6 +89,9 @@ public class UserController {
         String username = jwt.getClaimAsString("preferred_username");
         String first_name = jwt.getClaimAsString("given_name");
         String last_name = jwt.getClaimAsString("family_name");
+        if (!isNull(userService.findByIdStr(user_id))){
+            return ResponseEntity.badRequest().build();
+        }
         AppUser appUser = new AppUser();
         appUser.setKeycloak_id(user_id);
         appUser.setFirst_name(first_name); //username
