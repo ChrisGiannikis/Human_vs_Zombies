@@ -134,7 +134,7 @@ public class PlayerController {
                     content = @Content)
     })
     @PostMapping("{game_id}/players")//POST: localhost:8080/api/v1/games/game_id/players
-    public ResponseEntity<PlayerDTO> addPlayerToGame(@RequestBody PlayerPostDTO playerPostDTO, @PathVariable int game_id){
+    public ResponseEntity<PlayerDTO> addPlayerToGame(/*@RequestBody PlayerPostDTO playerPostDTO,*/ @PathVariable int game_id, @AuthenticationPrincipal Jwt jwt){
 
         Game game = gameService.findById(game_id);
 
@@ -146,7 +146,9 @@ public class PlayerController {
             return ResponseEntity.badRequest().build();
         }
 
-        UserDTO userDTO = userMapper.UserToUserDTO(userService.findById(playerPostDTO.getUser()));
+        String user_id = jwt.getClaimAsString("sub");
+
+        UserDTO userDTO = userMapper.UserToUserDTO(userService.findByIdStr(user_id));
 
         if (userDTO.getPlayer() != 0) {
             return ResponseEntity.badRequest().build();
@@ -154,7 +156,8 @@ public class PlayerController {
         Random random = new Random();
         boolean chance90true = random.nextInt(10) < 9;
 
-        Player player = playerMapper.playerPostDTOtoPlayer(playerPostDTO);
+        Player player = new Player();
+        player.setUser(userService.findByIdStr(user_id));
         player.setHuman(chance90true);
         player.setPatient_zero(!chance90true);
         player.setGame(game);
