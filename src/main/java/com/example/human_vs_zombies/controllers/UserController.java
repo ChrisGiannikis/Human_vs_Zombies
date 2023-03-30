@@ -24,6 +24,7 @@ import java.util.Collection;
 import static java.util.Objects.isNull;
 
 @RestController
+@CrossOrigin
 @RequestMapping("api/v1/users")
 public class UserController {
     private final UserService userService;
