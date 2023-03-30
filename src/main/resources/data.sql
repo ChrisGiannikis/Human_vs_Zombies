@@ -1,6 +1,7 @@
 INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 1', 'Call of death', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'REGISTRATION');
 INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 2', 'Survival of the Undead', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'IN_PROGRESS');
-INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 3', 'Zombie Hunter', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'COMPLETED');
+INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 3', 'Zombie Hunter', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'REGISTRATION');
+INSERT INTO game("description", "name", "nw_lat", "nw_lng", "se_lat", "se_lng", "state") VALUES ('Description of game 4', 'Zombies vs Humans', 37.98794095614341, 23.72524260539697, 37.98270577130324, 23.75599586296356, 'COMPLETED');
 
 INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('dsfhd', 'Aris', 'Kardasis');
 INSERT INTO app_user("keycloak_id","first_name", "last_name") VALUES ('dfsgsdf', 'Chris', 'Giannikis');
