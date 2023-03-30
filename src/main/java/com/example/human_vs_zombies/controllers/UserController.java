@@ -89,7 +89,7 @@ public class UserController {
         String first_name = jwt.getClaimAsString("given_name");
         String last_name = jwt.getClaimAsString("family_name");
         AppUser appUser = new AppUser();
-        appUser.setUser_id(user_id);
+        appUser.setKeycloak_id(user_id);
         appUser.setFirst_name(first_name); //username
         appUser.setLast_name(last_name);
         /*----------------------------------------------------------------------------------------*/

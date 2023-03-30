@@ -15,6 +15,9 @@ public class AppUser {
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String user_id;
 
+    @Column(unique = true)
+    private String keycloak_id;
+
     @Column(length = 40, nullable = false)
     private String first_name;
 
