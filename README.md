@@ -161,6 +161,8 @@ DELETE:
 /games/<game_id>/missions/<mission_id>              Deletes a mission. Admin only.
 ```
 
+***FURTHER DOCUMENTATION CAN BE FOUND INSIDE CONTROLLER CLASSES***
+
 ### Tools
 * Java
 * IntelliJ for coding
